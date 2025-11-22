@@ -274,12 +274,12 @@ export default function CategoryBooks({ category }: { category: Category }) {
       {/* Enhanced Header */}
       <div className="flex justify-between items-center mb-8">
         <div className="flex items-center gap-4">
-          <div className="w-1 h-8 bg-gradient-to-b from-[#819A91] to-[#A7C1A8] rounded-full"></div>
+          <div className="w-1 h-8 bg-gradient-to-b from-[#0E4B4B] to-[#5FA3A3] rounded-full"></div>
           <div>
-            <h3 className="text-3xl font-bold text-gray-800">
+            <h3 className="text-3xl font-bold text-[#0D1414]">
               {category.name}
             </h3>
-            <p className="text-gray-600 mt-1">
+            <p className="text-[#5FA3A3] mt-1">
               {categoryBooks.length}টি বই পাওয়া যাচ্ছে
             </p>
           </div>
@@ -288,7 +288,7 @@ export default function CategoryBooks({ category }: { category: Category }) {
           <Link href={`/kitabghor/categories/${category.id}`}>
             <Button
               variant="outline"
-              className="rounded-full border-[#819A91] text-[#819A91] hover:bg-[#819A91] hover:text-white transition-all duration-300 px-6 group"
+              className="rounded-full border-[#5FA3A3] text-[#5FA3A3] hover:bg-[#5FA3A3] hover:text-white transition-all duration-300 px-6 group"
             >
               সব দেখুন
               <Zap className="ml-2 h-4 w-4 group-hover:rotate-12 transition-transform" />
@@ -311,22 +311,22 @@ export default function CategoryBooks({ category }: { category: Category }) {
           return (
             <Card
               key={book.id}
-              className="group overflow-hidden border-0 shadow-sm hover:shadow-2xl transition-all duration-500 bg-gradient-to-br from-white to-[#EEEFE0] rounded-2xl relative"
+              className="group overflow-hidden border-0 shadow-sm hover:shadow-2xl transition-all duration-500 bg-gradient-to-br from-white to-[#F4F8F7] rounded-2xl relative"
             >
               {/* Badges */}
               <div className="absolute top-3 left-3 z-10 flex flex-col gap-2">
                 {book.discount > 0 && (
-                  <div className="bg-gradient-to-r from-[#819A91] to-[#A7C1A8] text-white text-xs font-bold px-3 py-1 rounded-full shadow-lg">
+                  <div className="bg-gradient-to-r from-[#C0704D] to-[#A85D3F] text-white text-xs font-bold px-3 py-1 rounded-full shadow-lg">
                     {book.discount}% ছাড়
                   </div>
                 )}
                 {isBestseller && (
-                  <div className="bg-gradient-to-r from-amber-500 to-orange-500 text-white text-xs font-bold px-3 py-1 rounded-full shadow-lg">
+                  <div className="bg-gradient-to-r from-[#C0704D] to-[#A85D3F] text-white text-xs font-bold px-3 py-1 rounded-full shadow-lg">
                     বেস্টসেলার
                   </div>
                 )}
                 {isNew && (
-                  <div className="bg-gradient-to-r from-emerald-500 to-green-500 text-white text-xs font-bold px-3 py-1 rounded-full shadow-lg">
+                  <div className="bg-gradient-to-r from-[#5FA3A3] to-[#0E4B4B] text-white text-xs font-bold px-3 py-1 rounded-full shadow-lg">
                     নতুন
                   </div>
                 )}
@@ -341,7 +341,7 @@ export default function CategoryBooks({ category }: { category: Category }) {
                 className={`absolute top-3 right-3 z-10 p-2 rounded-full backdrop-blur-sm transition-all duration-300 ${
                   isWishlisted
                     ? "bg-red-500/20 text-red-500"
-                    : "bg-white/80 text-gray-500 hover:bg-red-500/20 hover:text-red-500"
+                    : "bg-white/80 text-[#5FA3A3] hover:bg-red-500/20 hover:text-red-500"
                 }`}
                 aria-label={
                   isWishlisted ? "Remove from wishlist" : "Add to wishlist"
@@ -372,7 +372,7 @@ export default function CategoryBooks({ category }: { category: Category }) {
                   {/* Quick View */}
                   <div className="absolute inset-0 flex items-center justify-center opacity-0 group-hover:opacity-100 transition-all duration-300">
                     <div className="bg-white/90 backdrop-blur-sm rounded-full p-3 transform translate-y-4 group-hover:translate-y-0 transition-transform duration-300">
-                      <BookOpen className="h-6 w-6 text-[#819A91]" />
+                      <BookOpen className="h-6 w-6 text-[#0E4B4B]" />
                     </div>
                   </div>
                 </div>
@@ -389,18 +389,18 @@ export default function CategoryBooks({ category }: { category: Category }) {
                             key={star}
                             className={`h-3 w-3 ${
                               star <= Math.round(avgRating)
-                                ? "fill-amber-400 text-amber-400"
+                                ? "fill-[#C0704D] text-[#C0704D]"
                                 : "text-gray-300"
                             }`}
                           />
                         ))}
                       </div>
-                      <span className="text-xs text-gray-500 ml-1">
+                      <span className="text-xs text-[#5FA3A3] ml-1">
                         ({avgRating.toFixed(1)} · {reviewCount} রিভিউ)
                       </span>
                     </>
                   ) : (
-                    <span className="text-xs text-gray-400">
+                    <span className="text-xs text-[#5FA3A3]">
                       এখনও কোন রিভিউ নেই
                     </span>
                   )}
@@ -408,25 +408,25 @@ export default function CategoryBooks({ category }: { category: Category }) {
 
                 {/* Book Title */}
                 <Link href={`/kitabghor/books/${book.id}`}>
-                  <h4 className="font-bold text-lg mb-2 text-gray-800 hover:text-[#819A91] duration-300 line-clamp-2 leading-tight group-hover:translate-x-1 transition-transform">
+                  <h4 className="font-bold text-lg mb-2 text-[#0D1414] hover:text-[#0E4B4B] duration-300 line-clamp-2 leading-tight group-hover:translate-x-1 transition-transform">
                     {book.name}
                   </h4>
                 </Link>
 
                 {/* Author */}
-                <p className="text-sm text-gray-600 mb-3 flex items-center">
-                  <span className="w-1 h-1 bg-[#819A91] rounded-full mr-2"></span>
+                <p className="text-sm text-[#5FA3A3] mb-3 flex items-center">
+                  <span className="w-1 h-1 bg-[#0E4B4B] rounded-full mr-2"></span>
                   {book.writer.name}
                 </p>
 
                 {/* Price */}
                 <div className="flex items-center justify-between mb-3">
                   <div className="flex items-baseline gap-2">
-                    <span className="font-bold text-xl text-[#819A91]">
+                    <span className="font-bold text-xl text-[#0E4B4B]">
                       ৳{book.price}
                     </span>
                     {book.discount > 0 && (
-                      <span className="text-sm text-gray-500 line-through">
+                      <span className="text-sm text-[#5FA3A3] line-through">
                         ৳{book.original_price}
                       </span>
                     )}
@@ -437,7 +437,7 @@ export default function CategoryBooks({ category }: { category: Category }) {
                     </div>
                   ) : (
                     book.discount > 0 && (
-                      <div className="text-xs font-semibold bg-[#D1D8BE] text-gray-700 px-2 py-1 rounded-full">
+                      <div className="text-xs font-semibold bg-[#C0704D] text-white px-2 py-1 rounded-full">
                         সাশ্রয় করুন
                       </div>
                     )
@@ -449,10 +449,10 @@ export default function CategoryBooks({ category }: { category: Category }) {
                 <Button
                   disabled={book.stock === 0}
                   className={`w-full rounded-xl py-6 text-white font-semibold border-0 shadow-md transition-all duration-300
-    ${
+    =${
       book.stock === 0
         ? "bg-gray-400 cursor-not-allowed opacity-60"
-        : "bg-gradient-to-r from-[#2C4A3B] to-[#2C4A3B] hover:from-[#819A91] hover:to-[#819A91] hover:shadow-lg hover:scale-105 group/btn"
+        : "bg-gradient-to-r from-[#C0704D] to-[#A85D3F] hover:from-[#0E4B4B] hover:to-[#5FA3A3] hover:shadow-lg hover:scale-105 group/btn"
     }
   `}
                   onClick={(e) => {
@@ -468,7 +468,7 @@ export default function CategoryBooks({ category }: { category: Category }) {
               </CardFooter>
 
               {/* Hover Effect Border */}
-              <div className="absolute inset-0 rounded-2xl border-2 border-transparent group-hover:border-[#819A91]/20 transition-all duration-500 pointer-events-none"></div>
+              <div className="absolute inset-0 rounded-2xl border-2 border-transparent group-hover:border-[#0E4B4B]/20 transition-all duration-500 pointer-events-none"></div>
             </Card>
           );
         })}
@@ -480,7 +480,7 @@ export default function CategoryBooks({ category }: { category: Category }) {
           <Link href={`/kitabghor/categories/${category.id}`}>
             <Button
               variant="ghost"
-              className="rounded-full bg-[#D1D8BE] hover:bg-[#819A91] text-gray-700 hover:text-white transition-all duration-300 px-8 py-6 group"
+              className="rounded-full bg-[#F4F8F7] hover:bg-[#C0704D] text-[#0D1414] hover:text-white transition-all duration-300 px-8 py-6 group"
             >
               <span className="mr-2">
                 {categoryBooks.length - 8}+ আরও বই দেখুন

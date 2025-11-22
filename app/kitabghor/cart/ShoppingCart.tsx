@@ -303,22 +303,22 @@ export default function CartPage() {
   const isCartEmpty = itemsToRender.length === 0;
 
   return (
-    <div className="min-h-screen bg-gradient-to-b from-[#EEEFE0]/30 to-white py-8 md:py-12 lg:py-16">
+    <div className="min-h-screen bg-gradient-to-b from-[#F4F8F7]/30 to-white py-8 md:py-12 lg:py-16">
       <div className="container mx-auto px-4 sm:px-6 lg:px-8">
         {/* Enhanced Header */}
         <div className="mb-8 md:mb-12">
           <div className="flex items-center gap-4 mb-6">
             <Link
               href="/"
-              className="flex items-center gap-2 text-[#819A91] hover:text-[#A7C1A8] transition-colors duration-300 group"
+              className="flex items-center gap-2 text-[#0E4B4B] hover:text-[#5FA3A3] transition-colors duration-300 group"
             >
               <ArrowLeft className="h-5 w-5 group-hover:-translate-x-1 transition-transform" />
               <span>শপিং চালিয়ে যান</span>
             </Link>
-            <div className="w-1 h-8 bg-gradient-to-b from-[#819A91] to-[#A7C1A8] rounded-full"></div>
+            <div className="w-1 h-8 bg-gradient-to-b from-[#0E4B4B] to-[#5FA3A3] rounded-full"></div>
           </div>
 
-          <div className="bg-gradient-to-r from-[#819A91] to-[#A7C1A8] rounded-2xl p-6 md:p-8 text-white">
+          <div className="bg-gradient-to-r from-[#0E4B4B] to-[#5FA3A3] rounded-2xl p-6 md:p-8 text-white">
             <div className="flex items-center gap-4">
               <div className="bg-white/20 p-3 rounded-2xl backdrop-blur-sm">
                 <ShoppingCart className="h-8 w-8" />
@@ -352,7 +352,7 @@ export default function CartPage() {
               আপনার কার্টে কোন পণ্য নেই। কিছু পণ্য যোগ করতে শপিং চালিয়ে যান।
             </p>
             <Link href="/">
-              <Button className="rounded-full bg-gradient-to-r from-[#819A91] to-[#A7C1A8] text-white px-8 py-6 text-lg font-semibold hover:shadow-lg transition-all duration-300 hover:scale-105">
+              <Button className="rounded-full bg-gradient-to-r from-[#C0704D] to-[#A85D3F] text-white px-8 py-6 text-lg font-semibold hover:shadow-lg transition-all duration-300 hover:scale-105">
                 শপিং চালিয়ে যান
                 <ArrowRight className="ml-2 h-5 w-5" />
               </Button>
@@ -363,9 +363,9 @@ export default function CartPage() {
             {/* Cart Items */}
             <div className="lg:col-span-2">
               <div className="bg-white rounded-2xl shadow-lg border-0 p-6">
-                <div className="flex justify-between items-center mb-6 pb-4 border-b border-[#D1D8BE]">
-                  <h2 className="text-xl font-bold text-gray-800 flex items-center gap-2">
-                    <ShoppingCart className="h-5 w-5 text-[#819A91]" />
+                <div className="flex justify-between items-center mb-6 pb-4 border-b border-[#5FA3A3]/30">
+                  <h2 className="text-xl font-bold text-[#0D1414] flex items-center gap-2">
+                    <ShoppingCart className="h-5 w-5 text-[#0E4B4B]" />
                     কার্ট আইটেম ({itemsToRender.length})
                   </h2>
                   <Button
@@ -381,7 +381,7 @@ export default function CartPage() {
                   {itemsToRender.map((item) => (
                     <div
                       key={item.id}
-                      className="group bg-gradient-to-br from-white to-[#EEEFE0] rounded-2xl p-4 border border-[#D1D8BE] hover:border-[#819A91]/30 transition-all duration-300"
+                      className="group bg-gradient-to-br from-white to-[#F4F8F7] rounded-2xl p-4 border border-[#5FA3A3]/30 hover:border-[#0E4B4B]/30 transition-all duration-300"
                     >
                       <div className="flex flex-col sm:flex-row gap-4">
                         {/* Book Image */}
@@ -403,19 +403,19 @@ export default function CartPage() {
                               <Link
                                 href={`/kitabghor/books/${item.productId}`}
                               >
-                                <h3 className="font-bold text-lg text-gray-800 hover:text-[#819A91] transition-colors duration-300 line-clamp-2">
+                                <h3 className="font-bold text-lg text-[#0D1414] hover:text-[#0E4B4B] transition-colors duration-300 line-clamp-2">
                                   {item.name}
                                 </h3>
                               </Link>
-                              <p className="text-[#819A91] font-semibold text-lg mt-1">
+                              <p className="text-[#0E4B4B] font-semibold text-lg mt-1">
                                 ৳{item.price.toFixed(2)}
                               </p>
                             </div>
                             <div className="text-right">
-                              <p className="font-bold text-xl text-[#819A91]">
+                              <p className="font-bold text-xl text-[#0E4B4B]">
                                 ৳{(item.price * item.quantity).toFixed(2)}
                               </p>
-                              <p className="text-sm text-gray-500 mt-1">
+                              <p className="text-sm text-[#5FA3A3] mt-1">
                                 {item.quantity} × ৳{item.price}
                               </p>
                             </div>
@@ -423,9 +423,9 @@ export default function CartPage() {
 
                           {/* Quantity Controls */}
                           <div className="flex justify-between items-center mt-4">
-                            <div className="flex items-center border border-[#D1D8BE] rounded-xl overflow-hidden">
+                            <div className="flex items-center border border-[#5FA3A3]/30 rounded-xl overflow-hidden">
                               <button
-                                className="p-2 hover:bg-[#819A91] hover:text-white transition-all duration-300 disabled:opacity-30 disabled:cursor-not-allowed"
+                                className="p-2 hover:bg-[#0E4B4B] hover:text-white transition-all duration-300 disabled:opacity-30 disabled:cursor-not-allowed"
                                 onClick={() =>
                                   handleUpdateQuantity(
                                     item.id,
@@ -440,7 +440,7 @@ export default function CartPage() {
                                 {item.quantity}
                               </span>
                               <button
-                                className="p-2 hover:bg-[#819A91] hover:text-white transition-all duration-300"
+                                className="p-2 hover:bg-[#0E4B4B] hover:text-white transition-all duration-300"
                                 onClick={() =>
                                   handleUpdateQuantity(
                                     item.id,
@@ -452,7 +452,7 @@ export default function CartPage() {
                               </button>
                             </div>
                             <button
-                              className="p-2 text-gray-400 hover:text-red-500 hover:bg-red-50 rounded-xl transition-all duration-300 group/delete"
+                              className="p-2 text-[#5FA3A3] hover:text-red-500 hover:bg-red-50 rounded-xl transition-all duration-300 group/delete"
                               onClick={() => handleRemoveItem(item.id)}
                             >
                               <Trash2 className="h-5 w-5 group-hover/delete:scale-110 transition-transform" />
@@ -469,15 +469,15 @@ export default function CartPage() {
             {/* Order Summary */}
             <div className="lg:col-span-1">
               <div className="bg-white rounded-2xl shadow-lg border-0 p-6 sticky top-8">
-                <h2 className="text-xl font-bold text-gray-800 mb-6 flex items-center gap-2">
-                  <Tag className="h-5 w-5 text-[#819A91]" />
+                <h2 className="text-xl font-bold text-[#0D1414] mb-6 flex items-center gap-2">
+                  <Tag className="h-5 w-5 text-[#0E4B4B]" />
                   অর্ডার সারাংশ
                 </h2>
 
                 {/* Price Breakdown */}
                 <div className="space-y-3 mb-6">
                   <div className="flex justify-between items-center py-2">
-                    <span className="text-gray-600">সাবটোটাল</span>
+                    <span className="text-[#5FA3A3]">সাবটোটাল</span>
                     <span className="font-semibold">
                       ৳{subtotal.toFixed(2)}
                     </span>
@@ -486,7 +486,7 @@ export default function CartPage() {
                   {discount > 0 && (
                     <div className="flex justify-between items-center py-2 text-green-600 bg-green-50 rounded-xl px-3">
                       <span className="flex items-center gap-2">
-                        <Tag className="h-4 w-4" />
+                        <Tag className="h-4 w-4 text-[#C0704D]" />
                         ডিসকাউন্ট ({discount}%)
                       </span>
                       <span className="font-semibold">
@@ -496,8 +496,8 @@ export default function CartPage() {
                   )}
 
                   <div className="flex justify-between items-center py-2">
-                    <span className="text-gray-600 flex items-center gap-2">
-                      <Truck className="h-4 w-4 text-[#819A91]" />
+                    <span className="text-[#5FA3A3] flex items-center gap-2">
+                      <Truck className="h-4 w-4 text-[#0E4B4B]" />
                       শিপিং
                     </span>
                     <span
@@ -517,10 +517,10 @@ export default function CartPage() {
                     </div>
                   )}
 
-                  <div className="border-t border-[#D1D8BE] pt-3 mt-2">
+                  <div className="border-t border-[#5FA3A3]/30 pt-3 mt-2">
                     <div className="flex justify-between items-center font-bold text-lg">
-                      <span>মোট</span>
-                      <span className="text-[#819A91]">
+                      <span className="text-[#0D1414]">মোট</span>
+                      <span className="text-[#0E4B4B]">
                         ৳{total.toFixed(2)}
                       </span>
                     </div>
@@ -534,16 +534,16 @@ export default function CartPage() {
                       placeholder="কুপন কোড"
                       value={couponCode}
                       onChange={(e) => setCouponCode(e.target.value)}
-                      className="rounded-xl border-[#D1D8BE] focus:border-[#819A91]"
+                      className="rounded-xl border-[#5FA3A3]/30 focus:border-[#0E4B4B]"
                     />
                     <Button
                       onClick={applyCoupon}
-                      className="rounded-xl bg-[#D1D8BE] text-gray-700 hover:bg-[#819A91] hover:text-white transition-all duration-300 whitespace-nowrap"
+                      className="rounded-xl bg-[#F4F8F7] text-[#0D1414] hover:bg-[#C0704D] hover:text-white transition-all duration-300 whitespace-nowrap"
                     >
                       প্রয়োগ করুন
                     </Button>
                   </div>
-                  <div className="text-xs text-gray-500 text-center">
+                  <div className="text-xs text-[#5FA3A3] text-center">
                     ট্রাই করুন: <strong>DISCOUNT20</strong> বা{" "}
                     <strong>WELCOME10</strong>
                   </div>
@@ -551,7 +551,7 @@ export default function CartPage() {
 
                 {/* Checkout Button */}
                 <Button
-                  className="w-full rounded-xl py-6 bg-gradient-to-r from-[#819A91] to-[#A7C1A8] hover:from-[#A7C1A8] hover:to-[#819A91] text-white font-bold text-lg border-0 shadow-lg hover:shadow-xl transition-all duration-300 hover:scale-105 group/checkout"
+                  className="w-full rounded-xl py-6 bg-gradient-to-r from-[#C0704D] to-[#A85D3F] hover:from-[#0E4B4B] hover:to-[#5FA3A3] text-white font-bold text-lg border-0 shadow-lg hover:shadow-xl transition-all duration-300 hover:scale-105 group/checkout"
                   onClick={handleCheckout}
                   disabled={isCartEmpty}
                 >
@@ -561,8 +561,8 @@ export default function CartPage() {
                 </Button>
 
                 {/* Trust Badges */}
-                <div className="mt-6 pt-4 border-t border-[#D1D8BE]">
-                  <div className="flex justify-center gap-4 text-xs text-gray-500">
+                <div className="mt-6 pt-4 border-t border-[#5FA3A3]/30">
+                  <div className="flex justify-center gap-4 text-xs text-[#5FA3A3]">
                     <div className="text-center">
                       <div className="w-6 h-6 bg-green-100 rounded-full flex items-center justify-center mx-auto mb-1">
                         <Shield className="h-3 w-3 text-green-600" />

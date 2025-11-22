@@ -184,37 +184,61 @@ export default function OrdersPage() {
   const orderedList = useMemo(() => orders, [orders]);
 
   return (
-    <>
-      {/* Top bar */}
-      <Card className="px-4 md:px-6 py-4 shadow-sm border border-gray-200">
-        <div className="flex flex-col md:flex-row md:items-center md:justify-between gap-3">
-          <div>
-            <h1 className="text-lg md:text-xl font-semibold text-gray-800">
-              My Orders{" "}
-              <span className="text-xs md:text-sm font-normal text-gray-500">
-                (Your Total Order: {totalOrders})
-              </span>
-            </h1>
-            <p className="text-xs md:text-sm text-gray-500 mt-1">
-              নিচে আপনার সকল অর্ডারের বিস্তারিত দেখানো হয়েছে।
-            </p>
+    <div className="min-h-screen bg-gradient-to-b from-[#F4F8F7]/30 to-white py-8">
+      <div className="container mx-auto px-4">
+        {/* Enhanced Header */}
+        <div className="mb-8">
+          <div className="flex items-center gap-4 mb-6">
+            <Link
+              href="/kitabghor/user"
+              className="flex items-center gap-2 text-[#0E4B4B] hover:text-[#5FA3A3] transition-colors duration-300 group"
+            >
+              <svg className="h-5 w-5 group-hover:-translate-x-1 transition-transform" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M15 19l-7-7 7-7" />
+              </svg>
+              <span>ড্যাশবোর্ড</span>
+            </Link>
+            <div className="w-1 h-8 bg-gradient-to-b from-[#0E4B4B] to-[#5FA3A3] rounded-full"></div>
+          </div>
+
+          <div className="bg-gradient-to-r from-[#0E4B4B] to-[#5FA3A3] rounded-2xl p-6 md:p-8 text-white">
+            <div className="flex items-center gap-4">
+              <div className="bg-white/20 p-3 rounded-2xl backdrop-blur-sm">
+                <svg className="h-8 w-8" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                  <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M9 5H7a2 2 0 00-2 2v12a2 2 0 002 2h10a2 2 0 002-2V7a2 2 0 00-2-2h-2M9 5a2 2 0 002 2h2a2 2 0 002-2M9 5a2 2 0 012-2h2a2 2 0 012 2" />
+                </svg>
+              </div>
+              <div>
+                <h1 className="text-2xl md:text-3xl lg:text-4xl font-bold mb-2">
+                  আমার অর্ডারসমূহ
+                </h1>
+                <p className="text-white/90 opacity-90">
+                  আপনার সকল অর্ডারের বিস্তারিত তথ্য
+                </p>
+              </div>
+            </div>
           </div>
         </div>
-      </Card>
 
-      {/* Loading / Error / Empty / List */}
-      {loading ? (
-        <Card className="mt-4 p-6 text-center text-sm text-gray-600">
-          অর্ডার লোড হচ্ছে...
-        </Card>
-      ) : error ? (
-        <Card className="mt-4 p-6 text-center text-sm text-red-600">
-          {error}
-        </Card>
-      ) : orderedList.length === 0 ? (
-        <Card className="mt-4 p-6 text-center text-sm text-gray-600">
-          You don&apos;t have any orders yet.
-        </Card>
+        {/* Loading / Error / Empty / List */}
+        {loading ? (
+          <Card className="mt-4 p-6 text-center text-sm text-[#5FA3A3] bg-white rounded-2xl shadow-sm border border-[#5FA3A3]/20">
+            অর্ডার লোড হচ্ছে...
+          </Card>
+        ) : error ? (
+          <Card className="mt-4 p-6 text-center text-sm text-red-600 bg-white rounded-2xl shadow-sm border border-red-200">
+            {error}
+          </Card>
+        ) : orderedList.length === 0 ? (
+          <Card className="mt-4 p-6 text-center text-sm text-[#5FA3A3] bg-white rounded-2xl shadow-sm border border-[#5FA3A3]/20">
+            <div className="mb-4">
+              <svg className="h-16 w-16 mx-auto opacity-50 text-[#5FA3A3]" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M9 5H7a2 2 0 00-2 2v12a2 2 0 002 2h10a2 2 0 002-2V7a2 2 0 00-2-2h-2M9 5a2 2 0 002 2h2a2 2 0 002-2M9 5a2 2 0 012-2h2a2 2 0 012 2" />
+              </svg>
+            </div>
+            <p className="text-lg font-semibold text-[#0D1414] mb-2">কোন অর্ডার নেই</p>
+            <p className="text-sm text-[#5FA3A3]">আপনি এখনও কোন অর্ডার করেননি।</p>
+          </Card>
       ) : (
         <div className="mt-4 space-y-4">
           {orderedList.map((order) => {
@@ -228,26 +252,26 @@ export default function OrdersPage() {
             return (
               <Card
                 key={order.invoiceId}
-                className="p-4 md:p-6 shadow-sm border border-gray-200"
+                className="p-4 md:p-6 shadow-sm hover:shadow-lg transition-all duration-300 bg-white rounded-2xl border border-[#5FA3A3]/20"
               >
                 {/* Order header */}
                 <div className="flex flex-col md:flex-row md:items-center md:justify-between gap-3 mb-4">
-                  <div className="text-sm text-gray-700">
+                  <div className="text-sm text-[#0D1414]">
                     <p>
-                      <span className="font-medium">Your Order ID: </span>
+                      <span className="font-medium text-[#0E4B4B]">Your Order ID: </span>
                       <Link
                         href={`/kitabghor/user/orders/${order.invoiceId}`}
-                        className="text-[#0C7CD5] hover:underline break-all"
+                        className="text-[#0E4B4B] hover:text-[#5FA3A3] hover:underline break-all transition-colors duration-300"
                       >
                         {order.invoiceId}
                       </Link>
                     </p>
-                    <p className="text-[12px] text-gray-500 mt-0.5">
+                    <p className="text-[12px] text-[#5FA3A3] mt-0.5">
                       Placed on: {formatDateTime(order.createdAt)}
                     </p>
-                    <p className="text-[12px] text-gray-500 mt-0.5">
+                    <p className="text-[12px] text-[#5FA3A3] mt-0.5">
                       Customer:{" "}
-                      <span className="font-medium text-gray-700">
+                      <span className="font-medium text-[#0D1414]">
                         {order.customer.name}
                       </span>{" "}
                       | Mobile: {order.customer.mobile}
@@ -271,7 +295,7 @@ export default function OrdersPage() {
 
                     <Link
                       href={`/kitabghor/user/orders/${order.invoiceId}`}
-                      className="mt-1 bg-[#0C7CD5] hover:bg-[#0662AA] text-white text-xs font-semibold rounded-sm px-3 py-1 transition-colors inline-flex items-center"
+                      className="mt-1 bg-gradient-to-r from-[#C0704D] to-[#A85D3F] hover:from-[#0E4B4B] hover:to-[#5FA3A3] text-white text-xs font-semibold rounded-full px-4 py-2 transition-all duration-300 hover:scale-105 inline-flex items-center"
                     >
                       Track My Order →
                     </Link>
@@ -279,13 +303,13 @@ export default function OrdersPage() {
                 </div>
 
                 {/* Items ( ছোট summary ) */}
-                <div className="border-t border-gray-200 pt-4">
+                <div className="border-t border-[#5FA3A3]/20 pt-4">
                   {items.map((item) => (
                     <div
                       key={item.id}
-                      className="flex gap-4 mb-4 last:mb-0 pb-4 last:pb-0 border-b last:border-b-0 border-dashed border-gray-200"
+                      className="flex gap-4 mb-4 last:mb-0 pb-4 last:pb-0 border-b last:border-b-0 border-dashed border-[#5FA3A3]/20"
                     >
-                      <div className="w-16 h-20 flex-shrink-0 bg-gray-100 border border-gray-200 rounded-sm overflow-hidden flex items-center justify-center">
+                      <div className="w-16 h-20 flex-shrink-0 bg-[#F4F8F7] border border-[#5FA3A3]/30 rounded-xl overflow-hidden flex items-center justify-center">
                         {item.image ? (
                           // eslint-disable-next-line @next/next/no-img-element
                           <img
@@ -294,16 +318,16 @@ export default function OrdersPage() {
                             className="w-full h-full object-cover"
                           />
                         ) : (
-                          <span className="text-[10px] text-gray-400 px-2 text-center">
+                          <span className="text-[10px] text-[#5FA3A3] px-2 text-center">
                             No Image
                           </span>
                         )}
                       </div>
                       <div className="flex-1 text-sm">
-                        <p className="font-medium text-gray-800 line-clamp-1">
+                        <p className="font-medium text-[#0D1414] line-clamp-1 hover:text-[#0E4B4B] transition-colors duration-300">
                           {item.name}
                         </p>
-                        <p className="text-[12px] text-gray-600 mt-1">
+                        <p className="text-[12px] text-[#5FA3A3] mt-1">
                           TK. {item.price.toFixed(2)} × {item.quantity}
                         </p>
                       </div>
@@ -312,10 +336,10 @@ export default function OrdersPage() {
                 </div>
 
                 {/* Order total */}
-                <div className="pt-3 border-t border-gray-100 mt-2 flex justify-end">
+                <div className="pt-3 border-t border-[#5FA3A3]/20 mt-2 flex justify-end">
                   <div className="text-right text-sm">
-                    <p className="text-gray-500 text-xs">Order Total</p>
-                    <p className="text-base font-semibold text-gray-900">
+                    <p className="text-[#5FA3A3] text-xs">Order Total</p>
+                    <p className="text-base font-semibold text-[#0E4B4B]">
                       TK. {order.total.toFixed(2)}
                     </p>
                   </div>
@@ -324,7 +348,8 @@ export default function OrdersPage() {
             );
           })}
         </div>
-      )}
-    </>
+        )}
+      </div>
+    </div>
   );
 }

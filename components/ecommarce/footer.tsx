@@ -23,13 +23,13 @@ export default function Footer() {
   const currentYear = new Date().getFullYear();
 
   return (
-    <footer className="bg-gradient-to-b from-[#819A91] to-[#2C4A3B] text-[#EEEFE0] relative overflow-hidden">
+    <footer className="bg-gradient-to-b from-[#0E4B4B] to-[#086666] text-[#F4F8F7] relative overflow-hidden">
       {/* Background Pattern */}
       <div className="absolute inset-0 opacity-5">
-        <div className="absolute top-10 left-10 w-20 h-20 border-2 border-[#A7C1A8] rounded-full"></div>
-        <div className="absolute top-1/3 right-20 w-16 h-16 border border-[#D1D8BE] rotate-45"></div>
-        <div className="absolute bottom-20 left-1/4 w-24 h-24 border-2 border-[#A7C1A8] rounded-full"></div>
-        <div className="absolute bottom-10 right-10 w-12 h-12 bg-[#D1D8BE] rotate-12"></div>
+        <div className="absolute top-10 left-10 w-20 h-20 border-2 border-[#5FA3A3] rounded-full"></div>
+        <div className="absolute top-1/3 right-20 w-16 h-16 border border-[#C0704D] rotate-45"></div>
+        <div className="absolute bottom-20 left-1/4 w-24 h-24 border-2 border-[#5FA3A3] rounded-full"></div>
+        <div className="absolute bottom-10 right-10 w-12 h-12 bg-[#C0704D] rotate-12"></div>
       </div>
 
       <div className="container mx-auto px-4 relative z-10">
@@ -41,18 +41,18 @@ export default function Footer() {
             <div className="space-y-4">
               <Link href="/" className="inline-block group">
                 <div className="flex items-center gap-3">
-                  <div className="bg-[#EEEFE0] p-2 rounded-xl shadow-lg group-hover:shadow-xl transition-shadow">
-                    <div className="w-10 h-10 bg-gradient-to-br from-[#819A91] to-[#A7C1A8] rounded-lg flex items-center justify-center">
-                      <BookOpen className="h-6 w-6 text-[#EEEFE0]" />
+                  <div className="bg-[#F4F8F7] p-2 rounded-xl shadow-lg group-hover:shadow-xl transition-shadow">
+                    <div className="w-10 h-10 bg-gradient-to-br from-[#0E4B4B] to-[#5FA3A3] rounded-lg flex items-center justify-center">
+                      <BookOpen className="h-6 w-6 text-[#F4F8F7]" />
                     </div>
                   </div>
                   <div>
-                    <h3 className="text-2xl font-bold text-[#EEEFE0]">কিতাবঘর</h3>
-                    <p className="text-[#D1D8BE] text-sm">জ্ঞানের আলো ছড়িয়ে দেয়া</p>
+                    <h3 className="text-2xl font-bold text-[#F4F8F7]">কিতাবঘর</h3>
+                    <p className="text-white text-sm">জ্ঞানের আলো ছড়িয়ে দেয়া</p>
                   </div>
                 </div>
               </Link>
-              <p className="text-[#D1D8BE] leading-relaxed max-w-md">
+              <p className="text-[#ffffff] leading-relaxed max-w-md">
                 কিতাবঘর হলো একটি পূর্ণাঙ্গ অনলাইন বুকস্টোর যেখানে আপনি ইসলামিক বই
                 কিনতে পারবেন কিংবা PDF পড়তে পারবেন। জ্ঞানের আলো ছড়িয়ে দেয়ার লক্ষ্যে আমরা নিরলসভাবে কাজ করে যাচ্ছি।
               </p>
@@ -61,32 +61,32 @@ export default function Footer() {
             {/* Contact Info */}
             <div className="space-y-4">
               <div className="flex items-center gap-3 group cursor-pointer">
-                <div className="bg-[#819A91] p-2 rounded-lg group-hover:bg-[#A7C1A8] transition-colors">
-                  <Phone className="h-4 w-4 text-[#EEEFE0]" />
+                <div className="bg-[#5FA3A3] p-2 rounded-lg group-hover:bg-[#0E4B4B] transition-colors">
+                  <Phone className="h-4 w-4 text-[#F4F8F7]" />
                 </div>
                 <div>
-                  <p className="text-sm text-[#D1D8BE]">কল করুন</p>
-                  <p className="font-semibold text-[#EEEFE0]">+88-01842781978</p>
+                  <p className="text-sm text-white">কল করুন</p>
+                  <p className="font-semibold text-[#F4F8F7]">+88-01842781978</p>
                 </div>
               </div>
 
               <div className="flex items-center gap-3 group cursor-pointer">
-                <div className="bg-[#819A91] p-2 rounded-lg group-hover:bg-[#A7C1A8] transition-colors">
-                  <Mail className="h-4 w-4 text-[#EEEFE0]" />
+                <div className="bg-[#5FA3A3] p-2 rounded-lg group-hover:bg-[#0E4B4B] transition-colors">
+                  <Mail className="h-4 w-4 text-[#F4F8F7]" />
                 </div>
                 <div>
-                  <p className="text-sm text-[#D1D8BE]">ইমেইল করুন</p>
-                  <p className="font-semibold text-[#EEEFE0]">atservice@birdsofeden.me</p>
+                  <p className="text-sm text-white">ইমেইল করুন</p>
+                  <p className="font-semibold text-[#F4F8F7]">atservice@birdsofeden.me</p>
                 </div>
               </div>
 
               <div className="flex items-start gap-3 group cursor-pointer">
-                <div className="bg-[#819A91] p-2 rounded-lg group-hover:bg-[#A7C1A8] transition-colors mt-1">
-                  <MapPin className="h-4 w-4 text-[#EEEFE0]" />
+                <div className="bg-[#5FA3A3] p-2 rounded-lg group-hover:bg-[#0E4B4B] transition-colors mt-1">
+                  <MapPin className="h-4 w-4 text-[#F4F8F7]" />
                 </div>
                 <div>
-                  <p className="text-sm text-[#D1D8BE]">ঠিকানা</p>
-                  <p className="font-semibold text-[#EEEFE0] leading-relaxed">
+                  <p className="text-sm text-white">ঠিকানা</p>
+                  <p className="font-semibold text-[#F4F8F7] leading-relaxed">
                     গ্রীন রোড, ঢাকা-১২১৫<br />
                     বাংলাদেশ
                   </p>
@@ -102,10 +102,10 @@ export default function Footer() {
                 rel="noopener noreferrer"
                 aria-label="Facebook"
               >
-                <Button 
-                  variant="ghost" 
+                <Button
+                  variant="ghost"
                   size="icon"
-                  className="rounded-xl bg-[#819A91] hover:bg-[#A7C1A8] text-[#EEEFE0] hover:scale-110 transition-all duration-300 border-0"
+                  className="rounded-xl bg-[#5FA3A3] hover:bg-[#0E4B4B] text-[#F4F8F7] hover:scale-110 transition-all duration-300 border-0"
                 >
                   <Facebook className="h-5 w-5" />
                 </Button>
@@ -116,10 +116,10 @@ export default function Footer() {
                 rel="noopener noreferrer"
                 aria-label="Instagram"
               >
-                <Button 
-                  variant="ghost" 
+                <Button
+                  variant="ghost"
                   size="icon"
-                  className="rounded-xl bg-[#819A91] hover:bg-[#A7C1A8] text-[#EEEFE0] hover:scale-110 transition-all duration-300 border-0"
+                  className="rounded-xl bg-[#5FA3A3] hover:bg-[#0E4B4B] text-[#F4F8F7] hover:scale-110 transition-all duration-300 border-0"
                 >
                   <Instagram className="h-5 w-5" />
                 </Button>
@@ -130,10 +130,10 @@ export default function Footer() {
                 rel="noopener noreferrer"
                 aria-label="Twitter"
               >
-                <Button 
-                  variant="ghost" 
+                <Button
+                  variant="ghost"
                   size="icon"
-                  className="rounded-xl bg-[#819A91] hover:bg-[#A7C1A8] text-[#EEEFE0] hover:scale-110 transition-all duration-300 border-0"
+                  className="rounded-xl bg-[#5FA3A3] hover:bg-[#0E4B4B] text-[#F4F8F7] hover:scale-110 transition-all duration-300 border-0"
                 >
                   <Twitter className="h-5 w-5" />
                 </Button>
@@ -145,8 +145,8 @@ export default function Footer() {
           <div className="grid grid-cols-1 md:grid-cols-3 gap-8">
             {/* Quick Links */}
             <div>
-              <h3 className="text-lg font-bold mb-6 text-[#EEEFE0] flex items-center gap-2">
-                <div className="w-1 h-6 bg-gradient-to-b from-[#A7C1A8] to-[#D1D8BE] rounded-full"></div>
+              <h3 className="text-lg font-bold mb-6 text-[#F4F8F7] flex items-center gap-2">
+                <div className="w-1 h-6 bg-gradient-to-b from-[#5FA3A3] to-[#C0704D] rounded-full"></div>
                 দ্রুত লিংক
               </h3>
               <ul className="space-y-3">
@@ -160,7 +160,7 @@ export default function Footer() {
                   <li key={link.href}>
                     <Link
                       href={link.href}
-                      className="text-[#D1D8BE] hover:text-[#EEEFE0] flex items-center gap-2 group transition-all duration-300 hover:translate-x-1"
+                      className="text-white hover:text-[#F4F8F7] flex items-center gap-2 group transition-all duration-300 hover:translate-x-1"
                     >
                       <ArrowRight className="h-3 w-3 opacity-0 group-hover:opacity-100 transition-opacity" />
                       {link.label}
@@ -172,8 +172,8 @@ export default function Footer() {
 
             {/* Customer Service */}
             <div>
-              <h3 className="text-lg font-bold mb-6 text-[#EEEFE0] flex items-center gap-2">
-                <div className="w-1 h-6 bg-gradient-to-b from-[#A7C1A8] to-[#D1D8BE] rounded-full"></div>
+              <h3 className="text-lg font-bold mb-6 text-[#F4F8F7] flex items-center gap-2">
+                <div className="w-1 h-6 bg-gradient-to-b from-[#5FA3A3] to-[#C0704D] rounded-full"></div>
                 গ্রাহক সেবা
               </h3>
               <ul className="space-y-3">
@@ -186,7 +186,7 @@ export default function Footer() {
                   <li key={link.href}>
                     <Link
                       href={link.href}
-                      className="text-[#D1D8BE] hover:text-[#EEEFE0] flex items-center gap-2 group transition-all duration-300"
+                      className="text-white hover:text-[#F4F8F7] flex items-center gap-2 group transition-all duration-300"
                     >
                       <link.icon className="h-3 w-3" />
                       {link.label}
@@ -198,12 +198,12 @@ export default function Footer() {
 
             {/* Newsletter */}
             <div>
-              <h3 className="text-lg font-bold mb-6 text-[#EEEFE0] flex items-center gap-2">
-                <div className="w-1 h-6 bg-gradient-to-b from-[#A7C1A8] to-[#D1D8BE] rounded-full"></div>
+              <h3 className="text-lg font-bold mb-6 text-[#F4F8F7] flex items-center gap-2">
+                <div className="w-1 h-6 bg-gradient-to-b from-[#5FA3A3] to-[#C0704D] rounded-full"></div>
                 নিউজলেটার
               </h3>
               <div className="space-y-4">
-                <p className="text-[#D1D8BE] text-sm leading-relaxed">
+                <p className="text-white text-sm leading-relaxed">
                   নতুন বই ও অফার সম্পর্কে জানতে আমাদের নিউজলেটার সাবস্ক্রাইব করুন।
                 </p>
                 <div className="space-y-3">
@@ -211,12 +211,12 @@ export default function Footer() {
                     <Input
                       type="email"
                       placeholder="আপনার ইমেইল দিন"
-                      className="rounded-xl bg-white/10 border-2 border-[#A7C1A8]/30 focus:border-[#A7C1A8] text-[#EEEFE0] placeholder-[#D1D8BE] pl-4 pr-12 py-6 backdrop-blur-sm"
+                      className="rounded-xl bg-white/10 border-2 border-[#5FA3A3]/30 focus:border-[#C0704D] text-[#e4fdf7] placeholder-[#5FA3A3] pl-4 pr-12 py-6 backdrop-blur-sm"
                     />
-                    <Send className="absolute right-3 top-1/2 transform -translate-y-1/2 h-4 w-4 text-[#D1D8BE]" />
+                    <Send className="absolute right-3 top-1/2 transform -translate-y-1/2 h-4 w-4 text-white" />
                   </div>
-                  <Button 
-                    className="w-full rounded-xl bg-gradient-to-r from-[#819A91] to-[#A7C1A8] hover:from-[#A7C1A8] hover:to-[#819A91] text-[#EEEFE0] font-semibold py-6 border-0 shadow-lg hover:shadow-xl transition-all duration-300 hover:scale-105"
+                  <Button
+                    className="w-full rounded-xl bg-gradient-to-r from-[#C0704D] to-[#A85D3F] hover:from-[#A85D3F] hover:to-[#C0704D] text-[#F4F8F7] font-semibold py-6 border-0 shadow-lg hover:shadow-xl transition-all duration-300 hover:scale-105"
                   >
                     সাবস্ক্রাইব করুন
                   </Button>
@@ -227,24 +227,24 @@ export default function Footer() {
         </div>
 
         {/* Divider */}
-        <div className="border-t border-[#A7C1A8]/30"></div>
+        <div className="border-t border-[#5FA3A3]/30"></div>
 
         {/* Bottom Bar */}
         <div className="py-8">
           <div className="flex flex-col md:flex-row justify-between items-center gap-4">
-            <div className="flex items-center gap-2 text-[#D1D8BE]">
+            <div className="flex items-center gap-2 text-white">
               <Copyright className="h-4 w-4" />
               <span>{currentYear} কিতাবঘর। সর্বস্বত্ব সংরক্ষিত।</span>
             </div>
-            
-            <div className="flex items-center gap-6 text-sm text-[#D1D8BE]">
-              <Link href="/privacy" className="hover:text-[#EEEFE0] transition-colors">
+
+            <div className="flex items-center gap-6 text-sm text-white">
+              <Link href="/privacy" className="hover:text-[#F4F8F7] transition-colors">
                 গোপনীয়তা নীতি
               </Link>
-              <Link href="/terms" className="hover:text-[#EEEFE0] transition-colors">
+              <Link href="/terms" className="hover:text-[#F4F8F7] transition-colors">
                 ব্যবহারের শর্তাবলী
               </Link>
-              <Link href="/sitemap" className="hover:text-[#EEEFE0] transition-colors">
+              <Link href="/sitemap" className="hover:text-[#F4F8F7] transition-colors">
                 সাইটম্যাপ
               </Link>
             </div>

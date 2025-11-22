@@ -41,8 +41,8 @@ export default function UserLayout({ children }: { children: React.ReactNode }) 
 
   if (status === "loading") {
     return (
-      <div className="min-h-[calc(100vh-80px)] flex items-center justify-center bg-[#F4F6FB]">
-        <p className="text-sm text-gray-600">Loading...</p>
+      <div className="min-h-[calc(100vh-80px)] flex items-center justify-center bg-gradient-to-b from-[#F4F8F7]/30 to-white">
+        <p className="text-sm text-[#5FA3A3]">Loading...</p>
       </div>
     );
   }
@@ -64,38 +64,38 @@ export default function UserLayout({ children }: { children: React.ReactNode }) 
   ];
 
   return (
-    <div className="min-h-[calc(100vh-80px)] bg-[#F4F6FB] py-6">
+    <div className="min-h-[calc(100vh-80px)] bg-gradient-to-b from-[#F4F8F7]/30 to-white py-6">
       <div className="px-2 sm:px-4">
         <div className="flex flex-col md:flex-row gap-4 md:gap-6">
           {/* SIDEBAR */}
           <aside className="w-full md:w-64 flex-shrink-0 space-y-4">
             {/* Hello card */}
-            <Card className="p-4 flex items-center gap-3 shadow-sm border border-gray-100">
+            <Card className="p-4 flex items-center gap-3 shadow-sm border border-[#5FA3A3]/20 bg-white rounded-2xl">
               {userImage ? (
                 <img
                   src={userImage}
                   alt={userName}
-                  className="h-12 w-12 rounded-full object-cover border border-white shadow-sm"
+                  className="h-12 w-12 rounded-full object-cover border-2 border-[#5FA3A3]/30 shadow-sm"
                 />
               ) : (
-                <div className="h-12 w-12 rounded-full bg-gradient-to-br from-[#2C4A3B] to-[#819A91] flex items-center justify-center text-white font-semibold text-lg uppercase">
+                <div className="h-12 w-12 rounded-full bg-gradient-to-br from-[#0E4B4B] to-[#5FA3A3] flex items-center justify-center text-white font-semibold text-lg uppercase shadow-sm">
                   {userName.charAt(0)}
                 </div>
               )}
               <div className="leading-tight">
-                <p className="text-xs text-gray-500">Hello,</p>
-                <p className="text-sm font-semibold text-gray-800 truncate">
+                <p className="text-xs text-[#5FA3A3]">Hello,</p>
+                <p className="text-sm font-semibold text-[#0D1414] truncate">
                   {userName}
                 </p>
-                <p className="text-[11px] text-gray-500 truncate">
+                <p className="text-[11px] text-[#5FA3A3] truncate">
                   {userEmail}
                 </p>
-                <p className="text-[11px] text-gray-500">Role: {userRole}</p>
+                <p className="text-[11px] text-[#5FA3A3]">Role: {userRole}</p>
               </div>
             </Card>
 
             {/* Menu */}
-            <Card className="p-3 shadow-sm border border-gray-100">
+            <Card className="p-3 shadow-sm border border-[#5FA3A3]/20 bg-white rounded-2xl">
               <nav className="space-y-1">
                 {menuItems.map((item) => {
                   const isActive = pathname === item.href;
@@ -103,10 +103,10 @@ export default function UserLayout({ children }: { children: React.ReactNode }) 
                     <Link
                       key={item.href}
                       href={item.href}
-                      className={`flex items-center justify-between rounded-md px-3 py-2 text-sm font-medium transition-all border-l-4 ${
+                      className={`flex items-center justify-between rounded-xl px-3 py-2 text-sm font-medium transition-all border-l-4 ${
                         isActive
-                          ? "bg-[#E8F5E9] text-[#1B5E20] border-[#1B5E20]"
-                          : "bg-white text-gray-700 border-transparent hover:bg-gray-100 hover:text-[#1B5E20]"
+                          ? "bg-[#0E4B4B]/10 text-[#0E4B4B] border-[#0E4B4B] shadow-sm"
+                          : "bg-white text-[#5FA3A3] border-transparent hover:bg-[#F4F8F7] hover:text-[#0E4B4B] hover:border-[#5FA3A3]/30"
                       }`}
                     >
                       {item.label}

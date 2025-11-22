@@ -445,8 +445,8 @@ export default function OrderDetailsPage() {
   // Loading / error / not found UI
   if (loading) {
     return (
-      <div className="min-h-screen bg-gradient-to-br from-gray-50 to-blue-50/30 flex items-center justify-center">
-        <Card className="px-6 py-4 text-sm text-gray-600">
+      <div className="min-h-screen bg-gradient-to-b from-[#F4F8F7]/30 to-white flex items-center justify-center">
+        <Card className="px-6 py-4 text-sm text-[#5FA3A3] bg-white rounded-2xl shadow-sm border border-[#5FA3A3]/20">
           অর্ডার লোড হচ্ছে...
         </Card>
       </div>
@@ -455,12 +455,12 @@ export default function OrderDetailsPage() {
 
   if (error || !order) {
     return (
-      <div className="min-h-screen bg-gradient-to-br from-gray-50 to-blue-50/30 flex items-center justify-center">
-        <Card className="px-6 py-4 text-sm text-gray-600 text-center space-y-3">
+      <div className="min-h-screen bg-gradient-to-b from-[#F4F8F7]/30 to-white flex items-center justify-center">
+        <Card className="px-6 py-4 text-sm text-[#5FA3A3] bg-white rounded-2xl shadow-sm border border-[#5FA3A3]/20 text-center space-y-3">
           <p>{error || "অর্ডার পাওয়া যায়নি।"}</p>
           <Link
             href="/kitabghor/user/orders"
-            className="text-sm text-blue-600 hover:underline"
+            className="text-sm text-[#0E4B4B] hover:text-[#5FA3A3] hover:underline transition-colors duration-300"
           >
             ফিরে যান My Orders পেইজে
           </Link>
@@ -483,16 +483,16 @@ export default function OrderDetailsPage() {
   const activeStageIndex = getActiveStageIndex(stages, order, shipment);
 
   return (
-    <div className="min-h-screen bg-gradient-to-br from-gray-50 to-blue-50/30 py-8">
+    <div className="min-h-screen bg-gradient-to-b from-[#F4F8F7]/30 to-white py-8">
       <div className="max-w-6xl mx-auto px-4 sm:px-6 lg:px-8">
-        {/* Header */}
+        {/* Enhanced Header */}
         <div className="mb-8">
           <Link
             href="/kitabghor/user/orders"
-            className="inline-flex items-center text-sm font-medium text-gray-600 hover:text-gray-900 transition-colors duration-200 mb-4"
+            className="inline-flex items-center text-sm font-medium text-[#0E4B4B] hover:text-[#5FA3A3] transition-colors duration-300 mb-4 group"
           >
             <svg
-              className="w-4 h-4 mr-2"
+              className="w-4 h-4 mr-2 group-hover:-translate-x-1 transition-transform"
               fill="none"
               stroke="currentColor"
               viewBox="0 0 24 24"
@@ -509,16 +509,16 @@ export default function OrderDetailsPage() {
 
           <div className="flex flex-col sm:flex-row sm:items-center sm:justify-between gap-4">
             <div>
-              <h1 className="text-3xl font-bold text-gray-900">
+              <h1 className="text-3xl font-bold text-[#0D1414]">
                 Order Details
               </h1>
-              <p className="text-gray-600 mt-2">
+              <p className="text-[#5FA3A3] mt-2">
                 Track your order progress and details
               </p>
             </div>
-            <div className="bg-white px-4 py-3 rounded-lg border border-gray-200 shadow-sm text-sm">
-              <p className="text-gray-600">Order Date</p>
-              <p className="font-semibold text-gray-900">
+            <div className="bg-white px-4 py-3 rounded-2xl border border-[#5FA3A3]/20 shadow-sm text-sm">
+              <p className="text-[#5FA3A3]">Order Date</p>
+              <p className="font-semibold text-[#0E4B4B]">
                 {formatDate(order.createdAt)}
               </p>
               <div className="mt-2 flex flex-wrap gap-2">
@@ -541,7 +541,7 @@ export default function OrderDetailsPage() {
           {/* Main Content - 2/3 width */}
           <div className="lg:col-span-2 space-y-8">
             {/* Order Status Header */}
-            <Card className="bg-gradient-to-r from-emerald-500 to-green-600 text-white overflow-hidden">
+            <Card className="bg-gradient-to-r from-[#0E4B4B] to-[#5FA3A3] text-white overflow-hidden rounded-2xl shadow-lg">
               <div className="p-8">
                 <div className="flex items-center gap-4 mb-4">
                   <div className="bg-white/20 p-3 rounded-2xl backdrop-blur-sm">
@@ -553,8 +553,8 @@ export default function OrderDetailsPage() {
                         ? "This order has been delivered"
                         : `Order status: ${statusCfg.label}`}
                     </h2>
-                    <p className="text-emerald-100 opacity-90">
-                      Payment: {paymentCfg.label} • Method:{" "}
+                    <p className="text-white/90 opacity-90">
+                      Payment: {paymentCfg.label} • Method: {" "}
                       {order.paymentMethod}
                       {order.transactionId
                         ? ` • TxID: ${order.transactionId}`
@@ -563,17 +563,17 @@ export default function OrderDetailsPage() {
                   </div>
                 </div>
 
-                <div className="bg-white/10 rounded-xl p-4 backdrop-blur-sm">
+                <div className="bg-white/10 rounded-2xl p-4 backdrop-blur-sm">
                   <div className="flex flex-col sm:flex-row sm:items-center sm:justify-between gap-4">
                     <div>
-                      <p className="text-emerald-100 text-sm font-medium">
+                      <p className="text-white/90 text-sm font-medium">
                         Order Number
                       </p>
                       <p className="font-mono text-lg font-bold tracking-wide">
                         {order.invoiceId}
                       </p>
                     </div>
-                    <div className="bg-white text-emerald-600 px-4 py-2 rounded-lg font-semibold">
+                    <div className="bg-white text-[#0E4B4B] px-4 py-2 rounded-2xl font-semibold">
                       {statusCfg.label}
                     </div>
                   </div>
@@ -582,10 +582,10 @@ export default function OrderDetailsPage() {
             </Card>
 
             {/* 🔹 Dynamic Order Journey (shipment based) */}
-            <Card className="p-8">
+            <Card className="p-8 bg-white rounded-2xl shadow-sm border border-[#5FA3A3]/20">
               <div className="flex items-center gap-3 mb-8">
-                <Receipt className="w-6 h-6 text-gray-700" />
-                <h3 className="text-xl font-bold text-gray-900">
+                <Receipt className="w-6 h-6 text-[#0E4B4B]" />
+                <h3 className="text-xl font-bold text-[#0D1414]">
                   Order Journey
                 </h3>
               </div>
@@ -649,13 +649,13 @@ export default function OrderDetailsPage() {
                       <div className="flex-1 pb-6">
                         <div className="flex flex-col lg:flex-row lg:items-start lg:justify-between gap-4 mb-3">
                           <div className="flex-1">
-                            <p className="font-semibold text-gray-900 mb-1">
+                            <p className="font-semibold text-[#0D1414] mb-1">
                               {stage.label}
                             </p>
-                            <p className="text-gray-600 mb-2">
+                            <p className="text-[#5FA3A3] mb-2">
                               {stage.description}
                             </p>
-                            <div className="flex items-center gap-2 text-sm text-gray-500">
+                            <div className="flex items-center gap-2 text-sm text-[#5FA3A3]">
                               <Calendar className="w-4 h-4" />
                               <span>{stage.dateLabel}</span>
                             </div>
@@ -675,9 +675,9 @@ export default function OrderDetailsPage() {
             </Card>
 
             {/* Order Summary (items + totals) */}
-            <Card className="p-0 shadow-sm border border-gray-200">
-              <div className="px-6 py-3 border-b border-gray-200">
-                <h2 className="text-sm md:text-base font-semibold text-gray-800">
+            <Card className="p-0 shadow-sm border border-[#5FA3A3]/20 bg-white rounded-2xl">
+              <div className="px-6 py-3 border-b border-[#5FA3A3]/20">
+                <h2 className="text-sm md:text-base font-semibold text-[#0D1414]">
                   Order Summary
                 </h2>
               </div>
@@ -688,7 +688,7 @@ export default function OrderDetailsPage() {
                     key={item.id}
                     className="flex gap-4 pb-4 border-b last:border-b-0 border-dashed border-gray-200"
                   >
-                    <div className="w-20 h-28 flex-shrink-0 bg-gray-100 border border-gray-200 rounded-sm overflow-hidden flex items-center justify-center">
+                    <div className="w-20 h-28 flex-shrink-0 bg-[#F4F8F7] border border-[#5FA3A3]/30 rounded-2xl overflow-hidden flex items-center justify-center">
                       {item.image ? (
                         // eslint-disable-next-line @next/next/no-img-element
                         <img
@@ -697,7 +697,7 @@ export default function OrderDetailsPage() {
                           className="w-full h-full object-cover"
                         />
                       ) : (
-                        <span className="text-[10px] text-gray-400 px-2 text-center">
+                        <span className="text-[10px] text-[#5FA3A3] px-2 text-center">
                           No Image
                         </span>
                       )}
@@ -705,27 +705,27 @@ export default function OrderDetailsPage() {
 
                     <div className="flex-1 flex flex-col justify-between text-sm">
                       <div>
-                        <p className="font-medium text-gray-800 mb-1 line-clamp-2">
+                        <p className="font-medium text-[#0D1414] mb-1 line-clamp-2 hover:text-[#0E4B4B] transition-colors duration-300">
                           {item.name}
                         </p>
-                        <div className="flex flex-wrap gap-3 text-[13px] text-gray-700">
+                        <div className="flex flex-wrap gap-3 text-[13px] text-[#5FA3A3]">
                           <span>
                             Price:{" "}
-                            <span className="font-semibold">
+                            <span className="font-semibold text-[#0E4B4B]">
                               TK. {item.price.toFixed(2)}
                             </span>
                           </span>
                           <span>
                             Qty:{" "}
-                            <span className="font-semibold">
+                            <span className="font-semibold text-[#0E4B4B]">
                               {item.quantity}
                             </span>
                           </span>
                         </div>
                       </div>
-                      <p className="text-[12px] text-gray-600 mt-2">
+                      <p className="text-[12px] text-[#5FA3A3] mt-2">
                         Line Total:{" "}
-                        <span className="font-semibold text-gray-900">
+                        <span className="font-semibold text-[#0E4B4B]">
                           TK. {(item.price * item.quantity).toFixed(2)}
                         </span>
                       </p>
@@ -734,19 +734,19 @@ export default function OrderDetailsPage() {
                 ))}
               </div>
 
-              <div className="px-6 py-4 border-t border-gray-100 flex justify-end">
+              <div className="px-6 py-4 border-t border-[#5FA3A3]/20 flex justify-end">
                 <div className="text-sm space-y-1 text-right">
-                  <div className="flex justify-between gap-8 text-[13px] text-gray-700">
+                  <div className="flex justify-between gap-8 text-[13px] text-[#5FA3A3]">
                     <span>Subtotal</span>
                     <span>TK. {subTotal.toFixed(2)}</span>
                   </div>
-                  <div className="flex justify-between gap-8 text-[13px] text-gray-700">
+                  <div className="flex justify-between gap-8 text-[13px] text-[#5FA3A3]">
                     <span>Delivery Charge</span>
                     <span>TK. {deliveryCharge.toFixed(2)}</span>
                   </div>
-                  <div className="flex justify-between gap-8 text-[13px] text-gray-700">
+                  <div className="flex justify-between gap-8 text-[13px] text-[#5FA3A3]">
                     <span>Payable Amount</span>
-                    <span className="font-semibold text-gray-900">
+                    <span className="font-semibold text-[#0E4B4B]">
                       TK. {order.total.toFixed(2)}
                     </span>
                   </div>
@@ -758,38 +758,38 @@ export default function OrderDetailsPage() {
           {/* Sidebar - 1/3 width */}
           <div className="space-y-8">
             {/* Customer Information */}
-            <Card className="p-6 bg-white/80 backdrop-blur-sm">
+            <Card className="p-6 bg-white/80 backdrop-blur-sm rounded-2xl shadow-sm border border-[#5FA3A3]/20">
               <div className="flex items-center gap-3 mb-6">
-                <MapPin className="w-5 h-5 text-blue-600" />
-                <h3 className="font-semibold text-gray-900">
+                <MapPin className="w-5 h-5 text-[#0E4B4B]" />
+                <h3 className="font-semibold text-[#0D1414]">
                   Delivery Information
                 </h3>
               </div>
 
               <div className="space-y-4">
                 <div>
-                  <p className="text-sm text-gray-600 mb-1">Customer Name</p>
-                  <p className="font-semibold text-gray-900">
+                  <p className="text-sm text-[#5FA3A3] mb-1">Customer Name</p>
+                  <p className="font-semibold text-[#0D1414]">
                     {order.customer.name}
                   </p>
                 </div>
                 <div>
-                  <p className="text-sm text-gray-600 mb-1">Contact Number</p>
-                  <p className="font-semibold text-gray-900">
+                  <p className="text-sm text-[#5FA3A3] mb-1">Contact Number</p>
+                  <p className="font-semibold text-[#0D1414]">
                     {order.customer.mobile}
                   </p>
                 </div>
                 <div>
-                  <p className="text-sm text-gray-600 mb-1">Email Address</p>
-                  <p className="font-semibold text-gray-900 break-all">
+                  <p className="text-sm text-[#5FA3A3] mb-1">Email Address</p>
+                  <p className="font-semibold text-[#0D1414] break-all">
                     {order.customer.email || "N/A"}
                   </p>
                 </div>
                 <div>
-                  <p className="text-sm text-gray-600 mb-1">
+                  <p className="text-sm text-[#5FA3A3] mb-1">
                     Delivery Address
                   </p>
-                  <p className="font-semibold text-gray-900 leading-relaxed">
+                  <p className="font-semibold text-[#0D1414] leading-relaxed">
                     {order.customer.deliveryAddress ||
                       order.customer.address ||
                       "N/A"}
@@ -799,22 +799,22 @@ export default function OrderDetailsPage() {
             </Card>
 
             {/* Order Verification Stamp */}
-            <Card className="p-6 bg-gradient-to-br from-blue-50 to-indigo-100 border border-blue-200">
+            <Card className="p-6 bg-gradient-to-br from-[#F4F8F7] to-[#5FA3A3]/20 border border-[#5FA3A3]/30 rounded-2xl">
               <div className="text-center">
-                <div className="w-16 h-16 bg-blue-100 rounded-2xl flex items-center justify-center mx-auto mb-4">
-                  <ShieldCheck className="w-8 h-8 text-blue-600" />
+                <div className="w-16 h-16 bg-[#0E4B4B]/10 rounded-2xl flex items-center justify-center mx-auto mb-4">
+                  <ShieldCheck className="w-8 h-8 text-[#0E4B4B]" />
                 </div>
-                <h4 className="font-bold text-gray-900 mb-2">
+                <h4 className="font-bold text-[#0D1414] mb-2">
                   Order Status & Payment
                 </h4>
-                <p className="text-sm text-gray-600 mb-4">
-                  Current Status: <strong>{statusCfg.label}</strong>
+                <p className="text-sm text-[#5FA3A3] mb-4">
+                  Current Status: <strong className="text-[#0E4B4B]">{statusCfg.label}</strong>
                   <br />
-                  Payment: <strong>{paymentCfg.label}</strong> (
+                  Payment: <strong className="text-[#0E4B4B]">{paymentCfg.label}</strong> (
                   {order.paymentMethod})
                 </p>
-                <div className="bg-white rounded-lg p-3 border border-blue-200">
-                  <p className="text-xs text-gray-500 font-mono">
+                <div className="bg-white rounded-2xl p-3 border border-[#5FA3A3]/30">
+                  <p className="text-xs text-[#5FA3A3] font-mono">
                     TRACKING ID: {order.invoiceId}
                   </p>
                 </div>

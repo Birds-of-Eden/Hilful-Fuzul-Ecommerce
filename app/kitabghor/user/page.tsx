@@ -222,66 +222,79 @@ export default function UserProfilePage() {
 
 
   return (
-    <>
-      <Card className="px-6 py-4 shadow-sm border border-gray-100 mb-4">
-        <h1 className="text-xl md:text-2xl font-semibold text-gray-800">
-          আমার প্রোফাইল
-        </h1>
-        <p className="text-xs md:text-sm text-gray-500 mt-1">
-          আপনার একাউন্ট তথ্য দেখুন এবং আপডেট করুন।
-        </p>
-      </Card>
+    <div className="min-h-screen bg-gradient-to-b from-[#F4F8F7]/30 to-white py-8">
+      <div className="container mx-auto px-4">
+        {/* Enhanced Header */}
+        <div className="mb-8">
+          <div className="bg-gradient-to-r from-[#0E4B4B] to-[#5FA3A3] rounded-2xl p-6 md:p-8 text-white">
+            <div className="flex items-center gap-4">
+              <div className="bg-white/20 p-3 rounded-2xl backdrop-blur-sm">
+                <svg className="h-8 w-8" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                  <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M16 7a4 4 0 11-8 0 4 4 0 018 0zM12 14a7 7 0 00-7 7h14a7 7 0 00-7-7z" />
+                </svg>
+              </div>
+              <div>
+                <h1 className="text-2xl md:text-3xl lg:text-4xl font-bold mb-2">
+                  আমার প্রোফাইল
+                </h1>
+                <p className="text-white/90 opacity-90">
+                  আপনার একাউন্ট তথ্য দেখুন এবং আপডেট করুন
+                </p>
+              </div>
+            </div>
+          </div>
+        </div>
 
-      <Card className="p-6 shadow-sm border border-gray-100">
-        {loading ? (
-          <p className="text-sm text-gray-600">প্রোফাইল লোড হচ্ছে...</p>
-        ) : error ? (
-          <p className="text-sm text-red-600">{error}</p>
-        ) : (
+        <Card className="p-6 shadow-sm border border-[#5FA3A3]/20 bg-white rounded-2xl">
+          {loading ? (
+            <p className="text-sm text-[#5FA3A3]">প্রোফাইল লোড হচ্ছে...</p>
+          ) : error ? (
+            <p className="text-sm text-red-600">{error}</p>
+          ) : (
           <form onSubmit={handleSubmit} className="space-y-6">
             <div className="grid gap-4 md:grid-cols-2">
               <div className="space-y-1">
-                <p className="text-xs font-medium text-gray-500 uppercase tracking-wide">
+                <p className="text-xs font-medium text-[#5FA3A3] uppercase tracking-wide">
                   Name
                 </p>
                 <input
                   type="text"
                   value={name}
                   onChange={(e) => setName(e.target.value)}
-                  className="w-full rounded-md border border-gray-200 px-3 py-2 text-sm focus:outline-none focus:ring-2 focus:ring-emerald-500 focus:border-emerald-500"
+                  className="w-full rounded-xl border border-[#5FA3A3]/30 px-3 py-2 text-sm focus:outline-none focus:ring-2 focus:ring-[#0E4B4B] focus:border-[#0E4B4B] bg-[#F4F8F7]/50 focus:bg-white transition-all duration-300"
                 />
               </div>
 
               <div className="space-y-1">
-                <p className="text-xs font-medium text-gray-500 uppercase tracking-wide">
+                <p className="text-xs font-medium text-[#5FA3A3] uppercase tracking-wide">
                   Email
                 </p>
-                <p className="text-sm text-gray-800">{userEmail}</p>
+                <p className="text-sm text-[#0D1414] font-medium">{userEmail}</p>
               </div>
 
               <div className="space-y-1">
-                <p className="text-xs font-medium text-gray-500 uppercase tracking-wide">
+                <p className="text-xs font-medium text-[#5FA3A3] uppercase tracking-wide">
                   Phone
                 </p>
                 <input
                   type="text"
                   value={phone}
                   onChange={(e) => setPhone(e.target.value)}
-                  className="w-full rounded-md border border-gray-200 px-3 py-2 text-sm focus:outline-none focus:ring-2 focus:ring-emerald-500 focus:border-emerald-500"
+                  className="w-full rounded-xl border border-[#5FA3A3]/30 px-3 py-2 text-sm focus:outline-none focus:ring-2 focus:ring-[#0E4B4B] focus:border-[#0E4B4B] bg-[#F4F8F7]/50 focus:bg-white transition-all duration-300"
                 />
               </div>
 
               <div className="space-y-1">
-                <p className="text-xs font-medium text-gray-500 uppercase tracking-wide">
+                <p className="text-xs font-medium text-[#5FA3A3] uppercase tracking-wide">
                   Role
                 </p>
-                <p className="inline-flex items-center px-2 py-1 text-[11px] rounded-full bg-[#E8F5E9] text-[#1B5E20] font-semibold">
+                <p className="inline-flex items-center px-2 py-1 text-[11px] rounded-full bg-[#C0704D]/10 text-[#C0704D] font-semibold border border-[#C0704D]/20">
                   {userRole}
                 </p>
               </div>
 
               <div className="space-y-1">
-                <p className="text-xs font-medium text-gray-500 uppercase tracking-wide">
+                <p className="text-xs font-medium text-[#5FA3A3] uppercase tracking-wide">
                   Image URL
                 </p>
                 <div className="space-y-2">
@@ -289,7 +302,7 @@ export default function UserProfilePage() {
                     type="text"
                     value={image}
                     onChange={(e) => setImage(e.target.value)}
-                    className="w-full rounded-md border border-gray-200 px-3 py-2 text-sm focus:outline-none focus:ring-2 focus:ring-emerald-500 focus:border-emerald-500"
+                    className="w-full rounded-xl border border-[#5FA3A3]/30 px-3 py-2 text-sm focus:outline-none focus:ring-2 focus:ring-[#0E4B4B] focus:border-[#0E4B4B] bg-[#F4F8F7]/50 focus:bg-white transition-all duration-300"
                     placeholder="/api/upload/userProfilePic/... বা যে কোন ইমেজ URL"
                   />
                   <div className="flex items-center gap-3">
@@ -300,18 +313,18 @@ export default function UserProfilePage() {
                       className="text-xs"
                     />
                     {uploadingImage && (
-                      <span className="text-xs text-gray-500">
+                      <span className="text-xs text-[#5FA3A3]">
                         ইমেজ আপলোড হচ্ছে...
                       </span>
                     )}
                   </div>
                   {image && (
                     <div className="mt-2">
-                      <p className="text-xs text-gray-500 mb-1">প্রিভিউ:</p>
+                      <p className="text-xs text-[#5FA3A3] mb-1">প্রিভিউ:</p>
                       <img
                         src={image}
                         alt="Profile preview"
-                        className="h-20 w-20 rounded-full object-cover border border-gray-200"
+                        className="h-20 w-20 rounded-full object-cover border-2 border-[#5FA3A3]/30 shadow-sm"
                       />
                     </div>
                   )}
@@ -319,25 +332,25 @@ export default function UserProfilePage() {
               </div>
 
               <div className="space-y-1">
-                <p className="text-xs font-medium text-gray-500 uppercase tracking-wide">
+                <p className="text-xs font-medium text-[#5FA3A3] uppercase tracking-wide">
                   Note
                 </p>
                 <textarea
                   value={note}
                   onChange={(e) => setNote(e.target.value)}
                   rows={3}
-                  className="w-full rounded-md border border-gray-200 px-3 py-2 text-sm focus:outline-none focus:ring-2 focus:ring-emerald-500 focus:border-emerald-500"
+                  className="w-full rounded-xl border border-[#5FA3A3]/30 px-3 py-2 text-sm focus:outline-none focus:ring-2 focus:ring-[#0E4B4B] focus:border-[#0E4B4B] bg-[#F4F8F7]/50 focus:bg-white transition-all duration-300"
                 />
               </div>
             </div>
 
             <div className="space-y-2">
-              <p className="text-xs font-medium text-gray-500 uppercase tracking-wide">
+              <p className="text-xs font-medium text-[#5FA3A3] uppercase tracking-wide">
                 Addresses
               </p>
 
               {addresses.length === 0 && (
-                <p className="text-xs text-gray-500">
+                <p className="text-xs text-[#5FA3A3]">
                   এখনো কোন ঠিকানা যোগ করা হয়নি। নিচের বাটনে ক্লিক করে একটি
                   ঠিকানা যোগ করুন।
                 </p>
@@ -352,14 +365,14 @@ export default function UserProfilePage() {
                       onChange={(e) =>
                         handleAddressChange(index, e.target.value)
                       }
-                      className="flex-1 rounded-md border border-gray-200 px-3 py-2 text-sm focus:outline-none focus:ring-2 focus:ring-emerald-500 focus:border-emerald-500"
+                      className="flex-1 rounded-xl border border-[#5FA3A3]/30 px-3 py-2 text-sm focus:outline-none focus:ring-2 focus:ring-[#0E4B4B] focus:border-[#0E4B4B] bg-[#F4F8F7]/50 focus:bg-white transition-all duration-300"
                       placeholder="Enter full address"
                     />
                     {addresses.length > 1 && (
                       <button
                         type="button"
                         onClick={() => handleRemoveAddress(index)}
-                        className="px-2 py-1.5 text-red-500 hover:text-red-700"
+                        className="px-2 py-1.5 text-red-500 hover:text-red-700 hover:bg-red-50 rounded-lg transition-all duration-300"
                         aria-label="Remove address"
                       >
                         ×
@@ -372,27 +385,28 @@ export default function UserProfilePage() {
               <button
                 type="button"
                 onClick={handleAddAddress}
-                className="mt-1 inline-flex items-center px-3 py-2 rounded-md border border-dashed border-emerald-400 text-sm font-medium text-emerald-700 hover:bg-emerald-50"
+                className="mt-1 inline-flex items-center px-3 py-2 rounded-xl border border-dashed border-[#0E4B4B] text-sm font-medium text-[#0E4B4B] hover:bg-[#F4F8F7] transition-all duration-300"
               >
                 + নতুন ঠিকানা যোগ করুন
               </button>
             </div>
 
-            {success && <p className="text-sm text-emerald-600">{success}</p>}
-            {error && <p className="text-sm text-red-600">{error}</p>}
+            {success && <p className="text-sm text-[#0E4B4B] bg-[#F4F8F7] px-3 py-2 rounded-lg border border-[#5FA3A3]/30">{success}</p>}
+            {error && <p className="text-sm text-red-600 bg-red-50 px-3 py-2 rounded-lg border border-red-200">{error}</p>}
 
             <div className="flex justify-end">
               <button
                 type="submit"
                 disabled={saving}
-                className="px-4 py-2 rounded-md bg-emerald-600 text-white text-sm font-semibold hover:bg-emerald-700 disabled:opacity-60 disabled:cursor-not-allowed transition-colors"
+                className="px-6 py-3 rounded-xl bg-gradient-to-r from-[#C0704D] to-[#A85D3F] hover:from-[#0E4B4B] hover:to-[#5FA3A3] text-white text-sm font-semibold disabled:opacity-60 disabled:cursor-not-allowed transition-all duration-300 hover:scale-105 shadow-md hover:shadow-lg"
               >
                 {saving ? "সেভ হচ্ছে..." : "প্রোফাইল আপডেট করুন"}
               </button>
             </div>
           </form>
-        )}
-      </Card>
-    </>
+          )}
+        </Card>
+      </div>
+    </div>
   );
 }

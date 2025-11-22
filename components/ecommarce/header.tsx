@@ -246,12 +246,12 @@ export default function Header() {
     <header
       className={`sticky top-0 z-50 transition-all duration-300 ${
         isScrolled
-          ? "bg-[#819A91] shadow-lg backdrop-blur-sm bg-opacity-35"
-          : "bg-gradient-to-r from-[#819A91] to-[#A7C1A8]"
+          ? "bg-[#0E4B4B] shadow-lg backdrop-blur-sm bg-opacity-95"
+          : "bg-gradient-to-r from-[#0E4B4B] to-[#0E4B4B]"
       }`}
     >
       {/* Top Bar */}
-      <div className="bg-[#819A91] text-[#EEEFE0] py-1 px-4 text-sm">
+      <div className="bg-[#086666] text-[#F4F8F7] py-1 px-4 text-sm">
         <div className="container mx-auto text-center">
           বিনামূল্যে ডেলিভারি - ৫০০৳
         </div>
@@ -265,20 +265,20 @@ export default function Header() {
         <div className="flex items-center justify-between">
           {/* Logo */}
           <Link href="/" className="flex items-center space-x-3 group">
-            <div className="w-8 h-8 bg-gradient-to-br from-[#2C4A3B] to-[#819A91] rounded-md flex items-center justify-center">
-              <Book className="h-5 w-5 text-[#EEEFE0]" />
+            <div className="w-8 h-8 bg-gradient-to-br from-[#0E4B4B] to-[#5FA3A3] rounded-md flex items-center justify-center">
+              <Book className="h-5 w-5 text-[#F4F8F7]" />
             </div>
             <div className="flex flex-col">
               <span
                 className={`font-bold transition-all duration-300 ${
                   isScrolled
-                    ? "text-md text-[#EEEFE0]"
-                    : "text-lg text-[#EEEFE0]"
+                    ? "text-md text-[#F4F8F7]"
+                    : "text-lg text-[#F4F8F7]"
                 }`}
               >
                 হিলফুল-ফুযুল প্রকাশনী
               </span>
-              <span className="text-xs text-[#D1D8BE]">
+              <span className="text-xs text-[#5FA3A3]">
                 বইয়ের জন্য বিশ্বস্ত সঙ্গী
               </span>
             </div>
@@ -290,7 +290,7 @@ export default function Header() {
               <Button
                 variant="ghost"
                 size="icon"
-                className="rounded-full bg-[#EEEFE0] bg-opacity-80 hover:bg-[#2C4A3B] hover:text-[#EEEFE0] text-[#819A91] transition-all duration-300 hover:scale-105"
+                className="rounded-full bg-[#F4F8F7] bg-opacity-90 hover:bg-[#0E4B4B] hover:text-[#F4F8F7] text-[#0E4B4B] transition-all duration-300 hover:scale-105"
               >
                 <Heart className="h-5 w-5" />
                 {hasMounted && wishlistCount > 0 && (
@@ -305,7 +305,7 @@ export default function Header() {
               <Button
                 variant="ghost"
                 size="icon"
-                className="rounded-full bg-[#EEEFE0] bg-opacity-80 hover:bg-[#2C4A3B] hover:text-[#EEEFE0] text-[#819A91] transition-all duration-300 hover:scale-105"
+                className="rounded-full bg-[#F4F8F7] bg-opacity-90 hover:bg-[#0E4B4B] hover:text-[#F4F8F7] text-[#0E4B4B] transition-all duration-300 hover:scale-105"
               >
                 <ShoppingCart className="h-5 w-5" />
                 {hasMounted && cartCount > 0 && (
@@ -329,19 +329,19 @@ export default function Header() {
                   searchResults.length > 0 && setShowSearchDropdown(true)
                 }
                 placeholder="বই, লেখক বা বিষয় অনুসন্ধান করুন..."
-                className="w-full px-4 py-2 pl-10 rounded-full border border-[#D1D8BE] focus:outline-none focus:ring-2 focus:ring-[#2C4A3B] focus:border-transparent bg-[#EEEFE0] text-gray-800 placeholder-gray-500"
+                className="w-full px-4 py-2 pl-10 rounded-full border border-[#5FA3A3] focus:outline-none focus:ring-2 focus:ring-[#C0704D] focus:border-transparent bg-[#F4F8F7] text-[#0D1414] placeholder-[#5FA3A3]"
               />
-              <Search className="absolute left-3 top-2.5 h-4 w-4 text-gray-500" />
+              <Search className="absolute left-3 top-2.5 h-4 w-4 text-[#5FA3A3]" />
 
               {/* 🔽 সার্চ ড্রপডাউন */}
               {showSearchDropdown && (
-                <div className="absolute mt-2 w-full bg-white rounded-xl shadow-lg border border-[#D1D8BE] max-h-80 overflow-auto z-50">
+                <div className="absolute mt-2 w-full bg-[#F4F8F7] rounded-xl shadow-lg border border-[#5FA3A3] max-h-80 overflow-auto z-50">
                   {searchLoading && !hasLoadedProducts ? (
-                    <div className="px-4 py-3 text-sm text-gray-500">
+                    <div className="px-4 py-3 text-sm text-[#5FA3A3]">
                       লোড হচ্ছে...
                     </div>
                   ) : searchResults.length === 0 ? (
-                    <div className="px-4 py-3 text-sm text-gray-500">
+                    <div className="px-4 py-3 text-sm text-[#5FA3A3]">
                       কোন বই পাওয়া যায়নি
                     </div>
                   ) : (
@@ -350,14 +350,14 @@ export default function Header() {
                         key={book.id}
                         type="button"
                         onClick={() => handleSelectProduct(book)}
-                        className="w-full flex items-center px-4 py-2 text-left hover:bg-[#EEEFE0] transition-colors text-sm"
+                        className="w-full flex items-center px-4 py-2 text-left hover:bg-[#5FA3A3] hover:bg-opacity-20 transition-colors text-sm"
                       >
                         <div className="flex flex-col">
-                          <span className="font-medium text-gray-800">
+                          <span className="font-medium text-[#0D1414]">
                             {book.name}
                           </span>
                           {book.writer?.name && (
-                            <span className="text-xs text-gray-500">
+                            <span className="text-xs text-[#5FA3A3]">
                               লেখক: {book.writer.name}
                             </span>
                           )}
@@ -376,7 +376,7 @@ export default function Header() {
               <Button
                 variant="ghost"
                 size="icon"
-                className="rounded-full bg-[#EEEFE0] bg-opacity-80 hover:bg-[#2C4A3B] hover:text-[#EEEFE0] text-[#819A91] transition-all duration-300 hover:scale-105"
+                className="rounded-full bg-[#F4F8F7] bg-opacity-90 hover:bg-[#0E4B4B] hover:text-[#F4F8F7] text-[#0E4B4B] transition-all duration-300 hover:scale-105"
               >
                 <Heart className="h-5 w-5" />
                 {hasMounted && wishlistCount > 0 && (
@@ -391,7 +391,7 @@ export default function Header() {
               <Button
                 variant="ghost"
                 size="icon"
-                className="rounded-full bg-[#EEEFE0] bg-opacity-80 hover:bg-[#2C4A3B] hover:text-[#EEEFE0] text-[#819A91] transition-all duration-300 hover:scale-105"
+                className="rounded-full bg-[#F4F8F7] bg-opacity-90 hover:bg-[#0E4B4B] hover:text-[#F4F8F7] text-[#0E4B4B] transition-all duration-300 hover:scale-105"
               >
                 <ShoppingCart className="h-5 w-5" />
                 {hasMounted && cartCount > 0 && (
@@ -405,10 +405,10 @@ export default function Header() {
             {/* User name & role (desktop) */}
             {hasMounted && session && (
               <div className="flex flex-col items-end mr-1 leading-tight">
-                <span className="text-sm font-semibold text-[#EEEFE0]">
+                <span className="text-sm font-semibold text-[#F4F8F7]">
                   {userName}
                 </span>
-                <span className="text-[11px] text-[#D1D8BE]">{userRole}</span>
+                <span className="text-[11px] text-[#F4F8F7] opacity-80">{userRole}</span>
               </div>
             )}
 
@@ -416,7 +416,7 @@ export default function Header() {
               <Link href={userRole === "admin" ? "/admin" : "/kitabghor/user/"}>
                 <Button
                   variant="ghost"
-                  className="rounded-full bg-[#EEEFE0] bg-opacity-80 hover:bg-[#2C4A3B] hover:text-[#EEEFE0] text-[#819A91] transition-all duration-300 hover:scale-105 px-4"
+                  className="rounded-full bg-[#F4F8F7] bg-opacity-90 hover:bg-[#0E4B4B] hover:text-[#F4F8F7] text-[#0E4B4B] transition-all duration-300 hover:scale-105 px-4"
                 >
                   <LayoutDashboard className="h-4 w-4 mr-2" />
                   ড্যাশবোর্ড
@@ -427,7 +427,7 @@ export default function Header() {
             <Button
               onClick={handleAuthClick}
               disabled={isPending}
-              className="rounded-full bg-[#2C4A3B] hover:bg-[#1A3325] text-[#EEEFE0] font-semibold px-6 transition-all duration-300 border border-[#2C4A3B] hover:border-[#1A3325] hover:shadow-lg flex items-center space-x-2 hover:scale-105"
+              className="rounded-full bg-[#C0704D] hover:bg-[#A85D3F] text-[#F4F8F7] font-semibold px-6 transition-all duration-300 border border-[#C0704D] hover:border-[#A85D3F] hover:shadow-lg flex items-center space-x-2 hover:scale-105"
             >
               {isPending ? (
                 <div className="animate-spin rounded-full h-4 w-4 border-b-2 border-white"></div>
@@ -449,7 +449,7 @@ export default function Header() {
           <Button
             variant="ghost"
             size="icon"
-            className="md:hidden rounded-full bg-[#EEEFE0] bg-opacity-80 hover:bg-[#2C4A3B] hover:text-[#EEEFE0] text-[#819A91] transition-all"
+            className="md:hidden rounded-full bg-[#F4F8F7] bg-opacity-90 hover:bg-[#0E4B4B] hover:text-[#F4F8F7] text-[#0E4B4B] transition-all"
             onClick={toggleMenu}
           >
             {isMenuOpen ? (
@@ -468,26 +468,26 @@ export default function Header() {
                 <button
                   className={`flex items-center px-4 py-2 rounded-full transition-all duration-300 ${
                     item.children.some((child) => child.href === pathname)
-                      ? "bg-[#EEEFE0] text-[#2C4A3B] font-semibold shadow-sm"
-                      : "text-[#EEEFE0] hover:bg-[#2C4A3B] hover:text-[#EEEFE0] hover:font-semibold"
+                      ? "bg-[#C0704D] text-[#F4F8F7] font-semibold shadow-sm"
+                      : "text-[#F4F8F7] hover:bg-[#F4F8F7] hover:bg-opacity-20 hover:text-[#F4F8F7] hover:font-semibold"
                   }`}
                 >
                   <item.icon className="h-4 w-4 mr-2" />
                   {item.name}
                   <ChevronDown className="h-3 w-3 ml-1" />
                 </button>
-                <div className="absolute top-full left-0 mt-2 bg-[#EEEFE0] shadow-xl border border-[#D1D8BE] rounded-lg w-64 hidden group-hover:block z-50 overflow-hidden">
+                <div className="absolute top-full left-0 mt-2 bg-[#F4F8F7] shadow-xl border border-[#5FA3A3] rounded-lg w-64 hidden group-hover:block z-50 overflow-hidden">
                   {item.children.map((child) => (
                     <Link
                       key={child.name}
                       href={child.href}
-                      className={`flex items-center px-4 py-3 hover:bg-[#2C4A3B] hover:text-[#EEEFE0] transition-all duration-300 border-b border-[#D1D8BE] last:border-b-0 group/item ${
+                      className={`flex items-center px-4 py-3 hover:bg-[#0E4B4B] hover:text-[#F4F8F7] transition-all duration-300 border-b border-[#5FA3A3] last:border-b-0 group/item ${
                         pathname === child.href
-                          ? "bg-[#2C4A3B] text-[#EEEFE0] font-semibold"
-                          : "text-gray-700"
+                          ? "bg-[#0E4B4B] text-[#F4F8F7] font-semibold"
+                          : "text-[#0D1414]"
                       }`}
                     >
-                      <child.icon className="h-4 w-4 mr-3 text-[#819A91] group-hover/item:text-[#EEEFE0] transition-colors" />
+                      <child.icon className="h-4 w-4 mr-3 text-[#0E4B4B] group-hover/item:text-[#F4F8F7] transition-colors" />
                       {child.name}
                     </Link>
                   ))}
@@ -499,8 +499,8 @@ export default function Header() {
                 href={item.href}
                 className={`flex items-center px-4 py-2 rounded-full transition-all duration-300 ${
                   pathname === item.href
-                    ? "bg-[#EEEFE0] text-[#2C4A3B] font-semibold shadow-sm"
-                    : "text-[#EEEFE0] hover:bg-[#2C4A3B] hover:text-[#EEEFE0] hover:font-semibold"
+                    ? "bg-[#C0704D] text-[#F4F8F7] font-semibold shadow-sm"
+                    : "text-[#F4F8F7] hover:bg-[#F4F8F7] hover:bg-opacity-20 hover:text-[#F4F8F7] hover:font-semibold"
                 }`}
               >
                 <item.icon className="h-4 w-4 mr-2" />
@@ -513,9 +513,9 @@ export default function Header() {
 
       {/* Mobile Navigation */}
       {isMenuOpen && (
-        <div className="md:hidden bg-[#EEEFE0] shadow-inner">
+        <div className="md:hidden bg-[#F4F8F7] shadow-inner">
           {/* Mobile Search */}
-          <div className="p-4 border-b border-[#D1D8BE] header-search-wrapper relative">
+          <div className="p-4 border-b border-[#5FA3A3] header-search-wrapper relative">
             <div className="relative">
               <input
                 type="text"
@@ -526,19 +526,19 @@ export default function Header() {
                   searchResults.length > 0 && setShowSearchDropdown(true)
                 }
                 placeholder="বই, লেখক বা বিষয় অনুসন্ধান করুন..."
-                className="w-full px-4 py-2 pl-10 rounded-full border border-[#D1D8BE] focus:outline-none focus:ring-2 focus:ring-[#2C4A3B] bg-white text-gray-800"
+                className="w-full px-4 py-2 pl-10 rounded-full border border-[#6E8677] focus:outline-none focus:ring-2 focus:ring-[#C9A24E] bg-[#F7F6F2] text-[#111514]"
               />
-              <Search className="absolute left-3 top-2.5 h-4 w-4 text-gray-500" />
+              <Search className="absolute left-3 top-2.5 h-4 w-4 text-[#5FA3A3]" />
 
               {/* 🔽 মোবাইল সার্চ ড্রপডাউন */}
               {showSearchDropdown && (
-                <div className="absolute mt-2 w-full bg-white rounded-xl shadow-lg border border-[#D1D8BE] max-h-80 overflow-auto z-50">
+                <div className="absolute mt-2 w-full bg-[#F4F8F7] rounded-xl shadow-lg border border-[#5FA3A3] max-h-80 overflow-auto z-50">
                   {searchLoading && !hasLoadedProducts ? (
-                    <div className="px-4 py-3 text-sm text-gray-500">
+                    <div className="px-4 py-3 text-sm text-[#5FA3A3]">
                       লোড হচ্ছে...
                     </div>
                   ) : searchResults.length === 0 ? (
-                    <div className="px-4 py-3 text-sm text-gray-500">
+                    <div className="px-4 py-3 text-sm text-[#5FA3A3]">
                       কোন বই পাওয়া যায়নি
                     </div>
                   ) : (
@@ -547,14 +547,14 @@ export default function Header() {
                         key={book.id}
                         type="button"
                         onClick={() => handleSelectProduct(book)}
-                        className="w-full flex items-center px-4 py-2 text-left hover:bg-[#EEEFE0] transition-colors text-sm"
+                        className="w-full flex items-center px-4 py-2 text-left hover:bg-[#5FA3A3] hover:bg-opacity-20 transition-colors text-sm"
                       >
                         <div className="flex flex-col">
-                          <span className="font-medium text-gray-800">
+                          <span className="font-medium text-[#0D1414]">
                             {book.name}
                           </span>
                           {book.writer?.name && (
-                            <span className="text-xs text-gray-500">
+                            <span className="text-xs text-[#5FA3A3]">
                               লেখক: {book.writer.name}
                             </span>
                           )}
@@ -570,39 +570,39 @@ export default function Header() {
           <nav className="flex flex-col py-2">
             {navItems.map((item) =>
               item.children ? (
-                <div key={item.name} className="border-b border-[#D1D8BE]">
+                <div key={item.name} className="border-b border-[#5FA3A3]">
                   <button
                     onClick={toggleDropdown}
                     className={`flex items-center justify-between w-full px-6 py-4 text-left font-semibold transition-all duration-300 ${
                       item.children.some((c) => c.href === pathname)
-                        ? "text-[#2C4A3B] bg-[#D1D8BE] bg-opacity-50"
-                        : "text-gray-700 hover:text-[#2C4A3B] hover:bg-[#D1D8BE] hover:bg-opacity-30"
+                        ? "text-[#0D1414] bg-[#5FA3A3] bg-opacity-30"
+                        : "text-[#0D1414] hover:text-[#0D1414] hover:bg-[#5FA3A3] hover:bg-opacity-20"
                     }`}
                   >
                     <div className="flex items-center">
-                      <item.icon className="h-4 w-4 mr-3 text-[#2C4A3B]" />
+                      <item.icon className="h-4 w-4 mr-3 text-[#0E4B4B]" />
                       {item.name}
                     </div>
                     {isDropdownOpen ? (
-                      <ChevronDown className="h-4 w-4 text-[#2C4A3B]" />
+                      <ChevronDown className="h-4 w-4 text-[#0E4B4B]" />
                     ) : (
-                      <ChevronRight className="h-4 w-4 text-[#2C4A3B]" />
+                      <ChevronRight className="h-4 w-4 text-[#0E4B4B]" />
                     )}
                   </button>
                   {isDropdownOpen && (
-                    <div className="bg-[#D1D8BE] bg-opacity-30">
+                    <div className="bg-[#5FA3A3] bg-opacity-20">
                       {item.children.map((child) => (
                         <Link
                           key={child.name}
                           href={child.href}
-                          className={`flex items-center px-10 py-3 border-t border-[#D1D8BE] border-opacity-50 transition-all duration-300 ${
+                          className={`flex items-center px-10 py-3 border-t border-[#5FA3A3] border-opacity-50 transition-all duration-300 ${
                             pathname === child.href
-                              ? "text-[#2C4A3B] font-semibold bg-white"
-                              : "text-gray-700 hover:text-[#2C4A3B] hover:bg:white hover:font-semibold"
+                              ? "text-[#0D1414] font-semibold bg-[#C0704D] bg-opacity-30"
+                              : "text-[#0D1414] hover:text-[#0D1414] hover:bg-[#5FA3A3] hover:bg-opacity-20 hover:font-semibold"
                           }`}
                           onClick={() => setIsMenuOpen(false)}
                         >
-                          <child.icon className="h-4 w-4 mr-3 text-[#2C4A3B]" />
+                          <child.icon className="h-4 w-4 mr-3 text-[#0E4B4B]" />
                           {child.name}
                         </Link>
                       ))}
@@ -613,14 +613,14 @@ export default function Header() {
                 <Link
                   key={item.name}
                   href={item.href}
-                  className={`flex items-center px-6 py-4 border-b border-[#D1D8BE] transition-all duration-300 ${
+                  className={`flex items-center px-6 py-4 border-b border-[#5FA3A3] transition-all duration-300 ${
                     pathname === item.href
-                      ? "text-[#2C4A3B] font-semibold bg-[#D1D8BE] bg-opacity-50"
-                      : "text-gray-700 hover:text-[#2C4A3B] hover:bg-[#D1D8BE] hover:bg-opacity-30 hover:font-semibold"
+                      ? "text-[#0D1414] font-semibold bg-[#5FA3A3] bg-opacity-30"
+                      : "text-[#0D1414] hover:text-[#0D1414] hover:bg-[#5FA3A3] hover:bg-opacity-20 hover:font-semibold"
                   }`}
                   onClick={() => setIsMenuOpen(false)}
                 >
-                  <item.icon className="h-4 w-4 mr-3 text-[#2C4A3B]" />
+                  <item.icon className="h-4 w-4 mr-3 text-[#0E4B4B]" />
                   {item.name}
                 </Link>
               )
@@ -628,23 +628,23 @@ export default function Header() {
 
             {/* User info (mobile) */}
             {hasMounted && session && (
-              <div className="px-6 py-3 border-t border-[#D1D8BE] bg-[#EEEFE0] flex items-center justify-between">
+              <div className="px-6 py-3 border-t border-[#5FA3A3] bg-[#F4F8F7] flex items-center justify-between">
                 <div>
-                  <p className="text-sm font-semibold text-[#2C4A3B]">
+                  <p className="text-sm font-semibold text-[#0D1414]">
                     {userName}
                   </p>
-                  <p className="text-xs text-gray-600">{userRole}</p>
+                  <p className="text-xs text-[#5FA3A3]">{userRole}</p>
                 </div>
               </div>
             )}
 
             {hasMounted && session && (
-              <div className="p-4 border-t border-[#D1D8BE]">
+              <div className="p-4 border-t border-[#5FA3A3]">
                 <Link
                   href={userRole === "admin" ? "/admin" : "/kitabghor/user/"}
                   className="block w-full"
                 >
-                  <Button className="w-full rounded-full bg-[#2C4A3B] hover:bg-[#1A3325] text-[#EEEFE0] font-semibold py-3 transition-all duration-300 hover:shadow-lg flex items-center justify-center space-x-2">
+                  <Button className="w-full rounded-full bg-[#C0704D] hover:bg-[#A85D3F] text-[#F4F8F7] font-semibold py-3 transition-all duration-300 hover:shadow-lg flex items-center justify-center space-x-2">
                     <LayoutDashboard className="h-4 w-4" />
                     <span>ড্যাশবোর্ড</span>
                   </Button>
@@ -652,11 +652,11 @@ export default function Header() {
               </div>
             )}
 
-            <div className="p-4 border-t border-[#D1D8BE]">
+            <div className="p-4 border-t border-[#5FA3A3]">
               <Button
                 onClick={handleAuthClick}
                 disabled={isPending}
-                className="w-full rounded-full bg-[#2C4A3B] hover:bg-[#1A3325] text-[#EEEFE0] font-semibold py-3 transition-all duration-300 hover:shadow-lg flex items-center justify-center space-x-2"
+                className="w-full rounded-full bg-[#C0704D] hover:bg-[#A85D3F] text-[#F4F8F7] font-semibold py-3 transition-all duration-300 hover:shadow-lg flex items-center justify-center space-x-2"
               >
                 {isPending ? (
                   <div className="animate-spin rounded-full h-4 w-4 border-b-2 border-white"></div>
