@@ -1,19 +1,13 @@
 "use client";
 
 import { useState, useEffect } from "react";
-// We no longer need react-pdf, pdfjs, Document, or Page
-// We keep Button and Loader2 as placeholders for your UI kit
 import { Button } from "@/components/ui/button";
 import { Loader2 } from "lucide-react";
-
-// NOTE: All react-pdf logic has been removed to fix the "Could not resolve 'react-pdf'" error.
-// We are now using a simple <iframe> for native browser PDF viewing, which is highly reliable.
 
 interface PdfViewerProps {
   pdfUrl?: string;
 }
 
-// Helper component for error/loading messages
 const MessageOverlay = ({ children }: { children: React.ReactNode }) => (
   <div className="absolute inset-0 bg-gray-50/70 backdrop-blur-sm flex items-center justify-center p-4 z-10">
     <div className="text-center bg-white p-8 rounded-xl shadow-lg border border-gray-200">
@@ -22,33 +16,25 @@ const MessageOverlay = ({ children }: { children: React.ReactNode }) => (
   </div>
 );
 
-
 export default function PdfViewer({ pdfUrl }: PdfViewerProps) {
-  // State variables related to react-pdf (like numPages, pageNumber, scale) are no longer needed
   const [isLoading, setIsLoading] = useState<boolean>(true);
   const [error, setError] = useState<string | null>(null);
   const [isClient, setIsClient] = useState(false);
-  
-  // State to handle iframe load status
   const [isPdfLoaded, setIsPdfLoaded] = useState(false);
 
   useEffect(() => {
     setIsClient(true);
   }, []);
 
-  // Simulate loading: In a real iframe, the browser handles loading.
-  // We use a small timeout to ensure the iframe has a chance to mount and load.
   useEffect(() => {
     if (pdfUrl && isClient) {
       setIsLoading(true);
       setError(null);
       setIsPdfLoaded(false);
-      
+
       const timer = setTimeout(() => {
-        // If the URL is provided, we assume loading starts.
-        // The iframe onload event will set isPdfLoaded to true.
         setIsLoading(false);
-      }, 500); 
+      }, 500);
 
       return () => clearTimeout(timer);
     }
@@ -58,16 +44,18 @@ export default function PdfViewer({ pdfUrl }: PdfViewerProps) {
     setIsPdfLoaded(true);
     setIsLoading(false);
   };
-  
+
   const handleIframeError = () => {
-      // Set an error state if the iframe load fails (e.g., cross-origin or file not found)
-      setError("পিডিএফ ফাইল লোড করা যায়নি। ফাইল লিঙ্ক বা CORS সেটিংস যাচাই করুন।");
-      setIsLoading(false);
+    setError("পিডিএফ ফাইল লোড করা যায়নি। ফাইল লিঙ্ক বা CORS সেটিংস যাচাই করুন।");
+    setIsLoading(false);
   };
 
-
   if (!isClient) {
-    return <MessageOverlay><Loader2 className="h-6 w-6 animate-spin text-blue-500" /></MessageOverlay>;
+    return (
+      <MessageOverlay>
+        <Loader2 className="h-6 w-6 animate-spin text-blue-500" />
+      </MessageOverlay>
+    );
   }
 
   if (!pdfUrl) {
@@ -79,61 +67,60 @@ export default function PdfViewer({ pdfUrl }: PdfViewerProps) {
     );
   }
 
+  // ✅ ONLY change: hide toolbar/download in most browsers
+  const viewerUrl = pdfUrl.includes("#")
+    ? pdfUrl
+    : `${pdfUrl}#toolbar=0&navpanes=0&scrollbar=0`;
+
   return (
     <div className="h-full w-full flex flex-col p-4 bg-gray-50 rounded-lg shadow-inner">
-      
-      {/* Controls (Disabled/Removed since the browser's native viewer handles them) */}
       <div className="flex gap-3 mb-4 flex-wrap justify-center p-2 bg-white rounded-lg shadow-md border-b border-gray-200">
         <p className="text-sm text-gray-500 italic">
           আপনার ব্রাউজার স্বয়ংক্রিয়ভাবে পৃষ্ঠা এবং জুম নিয়ন্ত্রণ করবে।
         </p>
       </div>
 
-      {/* PDF Viewer Area */}
       <div className="flex-1 relative overflow-hidden w-full flex justify-center items-start pt-0 custom-scrollbar rounded-xl border-4 border-gray-200 shadow-xl">
-        
-        {/* Loading and Error Overlays */}
         {isLoading && (
           <MessageOverlay>
-              <div className="flex flex-col items-center">
-                <Loader2 className="h-8 w-8 animate-spin text-blue-600" />
-                <p className="mt-3 text-gray-700 font-medium">পিডিএফ লোড হচ্ছে...</p>
-              </div>
+            <div className="flex flex-col items-center">
+              <Loader2 className="h-8 w-8 animate-spin text-blue-600" />
+              <p className="mt-3 text-gray-700 font-medium">পিডিএফ লোড হচ্ছে...</p>
+            </div>
           </MessageOverlay>
         )}
-        
+
         {error && (
           <MessageOverlay>
-              <div className="text-center text-red-600">
-                <p className="font-semibold mb-2">{error}</p>
-                <Button
-                  className="mt-2 bg-red-500 hover:bg-red-600"
-                  onClick={() => {
-    
-                    setIsLoading(true);
-                    setError(null);
-                  }}
-                >
-                  আবার চেষ্টা করুন
-                </Button>
-              </div>
+            <div className="text-center text-red-600">
+              <p className="font-semibold mb-2">{error}</p>
+              <Button
+                className="mt-2 bg-red-500 hover:bg-red-600"
+                onClick={() => {
+                  setIsLoading(true);
+                  setError(null);
+                }}
+              >
+                আবার চেষ্টা করুন
+              </Button>
+            </div>
           </MessageOverlay>
         )}
+
         <iframe
-          src={pdfUrl}
+          src={viewerUrl}
           title="PDF Viewer"
           width="100%"
           height="100%"
-          style={{ 
-            border: 'none', 
-            visibility: isPdfLoaded ? 'visible' : 'hidden'
+          style={{
+            border: "none",
+            visibility: isPdfLoaded ? "visible" : "hidden",
           }}
           onLoad={handleIframeLoad}
           onError={handleIframeError}
           className="w-full h-full"
         />
       </div>
-      
     </div>
   );
 }
