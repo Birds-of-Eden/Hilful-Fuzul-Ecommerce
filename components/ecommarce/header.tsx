@@ -382,9 +382,7 @@ export default function Header() {
             )}
 
             {hasMounted && session && (
-              <Link
-                href={userRole === "admin" ? "/admin" : "/kitabghor/user/"}
-              >
+              <Link href={userRole === "admin" ? "/admin" : "/kitabghor/user/"}>
                 <Button
                   variant="ghost"
                   className="rounded-full bg-[#EEEFE0] bg-opacity-80 hover:bg-[#2C4A3B] hover:text-[#EEEFE0] text-[#819A91] transition-all duration-300 hover:scale-105 px-4"
@@ -596,6 +594,51 @@ export default function Header() {
                 </Link>
               )
             )}
+
+            {/* Cart & Wishlist (mobile) */}
+            <div className="flex items-center justify-around p-4 border-t border-[#D1D8BE] bg-[#EEEFE0]">
+              <Link
+                href="/kitabghor/wishlist"
+                className="relative"
+                onClick={() => setIsMenuOpen(false)}
+              >
+                <Button
+                  variant="ghost"
+                  size="icon"
+                  className="rounded-full bg-[#2C4A3B] hover:bg-[#1A3325] text-[#EEEFE0] transition-all duration-300 hover:scale-105"
+                >
+                  <Heart className="h-5 w-5" />
+                  {hasMounted && wishlistCount > 0 && (
+                    <span className="absolute -top-1 -right-1 bg-red-600 text-white text-xs rounded-full h-5 w-5 flex items-center justify-center shadow-md">
+                      {wishlistCount}
+                    </span>
+                  )}
+                </Button>
+                <span className="text-xs text-[#2C4A3B] mt-1 block">
+                  উইশলিস্ট
+                </span>
+              </Link>
+
+              <Link
+                href="/kitabghor/cart"
+                className="relative"
+                onClick={() => setIsMenuOpen(false)}
+              >
+                <Button
+                  variant="ghost"
+                  size="icon"
+                  className="rounded-full bg-[#2C4A3B] hover:bg-[#1A3325] text-[#EEEFE0] transition-all duration-300 hover:scale-105"
+                >
+                  <ShoppingCart className="h-5 w-5" />
+                  {hasMounted && cartCount > 0 && (
+                    <span className="absolute -top-1 -right-1 bg-red-600 text-white text-xs rounded-full h-5 w-5 flex items-center justify-center shadow-md">
+                      {cartCount}
+                    </span>
+                  )}
+                </Button>
+                <span className="text-xs text-[#2C4A3B] mt-1 block">কার্ট </span>
+              </Link>
+            </div>
 
             {/* User info (mobile) */}
             {hasMounted && session && (
