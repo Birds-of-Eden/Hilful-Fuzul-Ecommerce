@@ -152,7 +152,7 @@ export default function Footer() {
               <ul className="space-y-3">
                 {[
                   { href: "/kitabghor/books/", label: "সকল বই" },
-                  { href: "/categories", label: "বিষয়সমূহ" },
+                  { href: "/kitabghor/categories", label: "বিষয়সমূহ" },
                   { href: "/about", label: "আমাদের সম্পর্কে" },
                   { href: "/contact", label: "যোগাযোগ" },
                   { href: "/faq", label: "সাধারণ জিজ্ঞাসা" },
