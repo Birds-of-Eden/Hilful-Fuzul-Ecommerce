@@ -265,17 +265,15 @@ export default function Header() {
         <div className="flex items-center justify-between">
           {/* Logo */}
           <Link href="/" className="flex items-center space-x-3 group">
-            <div className="bg-[#EEEFE0] p-2 rounded-lg shadow-md group-hover:shadow-lg transition-shadow">
-              <div className="w-8 h-8 bg-gradient-to-br from-[#2C4A3B] to-[#819A91] rounded-md flex items-center justify-center">
-                <Book className="h-5 w-5 text-[#EEEFE0]" />
-              </div>
+            <div className="w-8 h-8 bg-gradient-to-br from-[#2C4A3B] to-[#819A91] rounded-md flex items-center justify-center">
+              <Book className="h-5 w-5 text-[#EEEFE0]" />
             </div>
             <div className="flex flex-col">
               <span
                 className={`font-bold transition-all duration-300 ${
                   isScrolled
-                    ? "text-lg text-[#EEEFE0]"
-                    : "text-xl text-[#EEEFE0]"
+                    ? "text-md text-[#EEEFE0]"
+                    : "text-lg text-[#EEEFE0]"
                 }`}
               >
                 হিলফুল-ফুযুল প্রকাশনী
@@ -285,6 +283,39 @@ export default function Header() {
               </span>
             </div>
           </Link>
+
+          {/* Mobile Cart & Wishlist */}
+          <div className="md:hidden flex items-center space-x-2">
+            <Link href="/kitabghor/wishlist" className="relative">
+              <Button
+                variant="ghost"
+                size="icon"
+                className="rounded-full bg-[#EEEFE0] bg-opacity-80 hover:bg-[#2C4A3B] hover:text-[#EEEFE0] text-[#819A91] transition-all duration-300 hover:scale-105"
+              >
+                <Heart className="h-5 w-5" />
+                {hasMounted && wishlistCount > 0 && (
+                  <span className="absolute -top-1 -right-1 bg-red-600 text-white text-xs rounded-full h-5 w-5 flex items-center justify-center shadow-md">
+                    {wishlistCount}
+                  </span>
+                )}
+              </Button>
+            </Link>
+
+            <Link href="/kitabghor/cart" className="relative">
+              <Button
+                variant="ghost"
+                size="icon"
+                className="rounded-full bg-[#EEEFE0] bg-opacity-80 hover:bg-[#2C4A3B] hover:text-[#EEEFE0] text-[#819A91] transition-all duration-300 hover:scale-105"
+              >
+                <ShoppingCart className="h-5 w-5" />
+                {hasMounted && cartCount > 0 && (
+                  <span className="absolute -top-1 -right-1 bg-red-600 text-white text-xs rounded-full h-5 w-5 flex items-center justify-center shadow-md">
+                    {cartCount}
+                  </span>
+                )}
+              </Button>
+            </Link>
+          </div>
 
           {/* Search Bar - Desktop */}
           <div className="hidden md:flex flex-1 max-w-md mx-8 header-search-wrapper relative">
@@ -594,51 +625,6 @@ export default function Header() {
                 </Link>
               )
             )}
-
-            {/* Cart & Wishlist (mobile) */}
-            <div className="flex items-center justify-around p-4 border-t border-[#D1D8BE] bg-[#EEEFE0]">
-              <Link
-                href="/kitabghor/wishlist"
-                className="relative"
-                onClick={() => setIsMenuOpen(false)}
-              >
-                <Button
-                  variant="ghost"
-                  size="icon"
-                  className="rounded-full bg-[#2C4A3B] hover:bg-[#1A3325] text-[#EEEFE0] transition-all duration-300 hover:scale-105"
-                >
-                  <Heart className="h-5 w-5" />
-                  {hasMounted && wishlistCount > 0 && (
-                    <span className="absolute -top-1 -right-1 bg-red-600 text-white text-xs rounded-full h-5 w-5 flex items-center justify-center shadow-md">
-                      {wishlistCount}
-                    </span>
-                  )}
-                </Button>
-                <span className="text-xs text-[#2C4A3B] mt-1 block">
-                  উইশলিস্ট
-                </span>
-              </Link>
-
-              <Link
-                href="/kitabghor/cart"
-                className="relative"
-                onClick={() => setIsMenuOpen(false)}
-              >
-                <Button
-                  variant="ghost"
-                  size="icon"
-                  className="rounded-full bg-[#2C4A3B] hover:bg-[#1A3325] text-[#EEEFE0] transition-all duration-300 hover:scale-105"
-                >
-                  <ShoppingCart className="h-5 w-5" />
-                  {hasMounted && cartCount > 0 && (
-                    <span className="absolute -top-1 -right-1 bg-red-600 text-white text-xs rounded-full h-5 w-5 flex items-center justify-center shadow-md">
-                      {cartCount}
-                    </span>
-                  )}
-                </Button>
-                <span className="text-xs text-[#2C4A3B] mt-1 block">কার্ট </span>
-              </Link>
-            </div>
 
             {/* User info (mobile) */}
             {hasMounted && session && (
