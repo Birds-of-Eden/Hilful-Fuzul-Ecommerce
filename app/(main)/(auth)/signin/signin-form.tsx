@@ -77,18 +77,18 @@ const SigninForm = () => {
   };
 
   return (
-    <Card className="border border-[#D1D8BE] bg-[#EEEFE0] shadow-md max-w-md mx-auto">
+    <Card className="border border-[#5FA3A3]/40 bg-[#F4F8F7] shadow-md max-w-md mx-auto">
       {/* Top accent bar */}
-      <div className="h-1 w-full bg-gradient-to-r from-[#819A91] via-[#A7C1A8] to-[#D1D8BE] rounded-t-xl" />
+      <div className="h-1 w-full bg-gradient-to-r from-[#0E4B4B] via-[#5FA3A3] to-[#C0704D] rounded-t-xl" />
 
       <CardHeader className="items-center pb-4 pt-6">
-        <div className="mb-3 flex h-12 w-12 items-center justify-center rounded-2xl bg-[#819A91]/10 text-[#819A91]">
+        <div className="mb-3 flex h-12 w-12 items-center justify-center rounded-2xl bg-[#0E4B4B]/10 text-[#0E4B4B]">
           <Lock className="h-6 w-6" />
         </div>
-        <CardTitle className="text-2xl font-semibold text-[#2D4A3C]">
+        <CardTitle className="text-2xl font-semibold text-[#0D1414]">
           Log In
         </CardTitle>
-        <CardDescription className="text-sm text-[#2D4A3C]/70 text-center">
+        <CardDescription className="text-sm text-[#0D1414]/70 text-center">
           Enter your account details to access your dashboard
         </CardDescription>
       </CardHeader>
@@ -103,7 +103,7 @@ const SigninForm = () => {
                 name="email"
                 render={({ field }) => (
                   <FormItem>
-                    <FormLabel className="text-sm font-medium text-[#2D4A3C]">
+                    <FormLabel className="text-sm font-medium text-[#0D1414]">
                       Email
                     </FormLabel>
                     <div className="relative">
@@ -112,11 +112,11 @@ const SigninForm = () => {
                           type="email"
                           placeholder="Enter email address"
                           autoComplete="email"
-                          className="border-[#D1D8BE] bg-[#EEEFE0] text-[#2D4A3C] placeholder:text-[#2D4A3C]/50 focus-visible:ring-[#819A91] focus-visible:border-[#819A91] pr-10"
+                          className="border-[#5FA3A3]/50 bg-[#F4F8F7] text-[#0D1414] placeholder:text-[#0D1414]/50 focus-visible:ring-[#5FA3A3] focus-visible:border-[#5FA3A3] pr-10"
                           {...field}
                         />
                       </FormControl>
-                      <Mail className="pointer-events-none absolute right-3 top-1/2 h-4 w-4 -translate-y-1/2 text-[#2D4A3C]/50" />
+                      <Mail className="pointer-events-none absolute right-3 top-1/2 h-4 w-4 -translate-y-1/2 text-[#0D1414]/50" />
                     </div>
                     <FormMessage className="text-xs text-red-500" />
                   </FormItem>
@@ -130,12 +130,12 @@ const SigninForm = () => {
                 render={({ field }) => (
                   <FormItem>
                     <div className="flex items-center justify-between">
-                      <FormLabel className="text-sm font-medium text-[#2D4A3C]">
+                      <FormLabel className="text-sm font-medium text-[#0D1414]">
                         Password
                       </FormLabel>
                       <Link
                         href="/auth/forgot-password"
-                        className="text-xs text-[#2D4A3C]/70 hover:text-[#2D4A3C] hover:underline"
+                        className="text-xs text-[#0D1414]/70 hover:text-[#0D1414] hover:underline"
                       >
                         Forgot password?
                       </Link>
@@ -146,13 +146,13 @@ const SigninForm = () => {
                           type={showPassword ? "text" : "password"}
                           placeholder="Enter password"
                           autoComplete="current-password"
-                          className="border-[#D1D8BE] bg-[#EEEFE0] text-[#2D4A3C] placeholder:text-[#2D4A3C]/50 focus-visible:ring-[#819A91] focus-visible:border-[#819A91] pr-10"
+                          className="border-[#5FA3A3]/50 bg-[#F4F8F7] text-[#0D1414] placeholder:text-[#0D1414]/50 focus-visible:ring-[#5FA3A3] focus-visible:border-[#5FA3A3] pr-10"
                           {...field}
                         />
                       </FormControl>
                       <button
                         type="button"
-                        className="absolute right-2 top-1/2 -translate-y-1/2 text-[#2D4A3C]/60 hover:text-[#2D4A3C]"
+                        className="absolute right-2 top-1/2 -translate-y-1/2 text-[#0D1414]/60 hover:text-[#0D1414]"
                         onClick={() => setShowPassword(!showPassword)}
                       >
                         {showPassword ? (
@@ -172,7 +172,7 @@ const SigninForm = () => {
 
             <Button
               type="submit"
-              className="mt-2 w-full rounded-lg bg-[#819A91] text-white hover:bg-[#819A91]/90 border border-[#819A91] text-sm font-medium py-2.5 shadow-sm hover:shadow-md transition-all duration-200"
+              className="mt-2 w-full rounded-lg bg-[#C0704D] text-white hover:bg-[#C0704D]/90 border border-[#C0704D] text-sm font-medium py-2.5 shadow-sm hover:shadow-md transition-all duration-200"
               disabled={status === "loading" || form.formState.isSubmitting}
             >
               {form.formState.isSubmitting ? "Signing in..." : "Sign In"}
@@ -182,18 +182,18 @@ const SigninForm = () => {
 
         {/* Divider */}
         <div className="mt-6 flex items-center gap-3">
-          <div className="h-px flex-1 bg-[#D1D8BE]" />
-          <span className="text-xs text-[#2D4A3C]/60">or</span>
-          <div className="h-px flex-1 bg-[#D1D8BE]" />
+          <div className="h-px flex-1 bg-[#5FA3A3]/50" />
+          <span className="text-xs text-[#0D1414]/60">or</span>
+          <div className="h-px flex-1 bg-[#5FA3A3]/50" />
         </div>
 
         <div className="mt-3 text-center text-sm">
-          <span className="text-[#2D4A3C]/70">
+          <span className="text-[#0D1414]/70">
             Don&apos;t have an account?{" "}
           </span>
           <Link
             href="/sign-up"
-            className="font-medium text-[#819A91] hover:underline"
+            className="font-medium text-[#0E4B4B] hover:underline"
           >
             Create an account
           </Link>
