@@ -8,6 +8,7 @@ import { Button } from "@/components/ui/button";
 import { Card, CardContent } from "@/components/ui/card";
 import { Trash2, ShoppingCart } from "lucide-react";
 import { useCart } from "@/components/ecommarce/CartContext";
+import { useWishlist } from "@/components/ecommarce/WishlistContext";
 import { toast } from "sonner";
 
 interface WishlistApiItem {
@@ -36,6 +37,7 @@ interface WishlistProduct {
 
 export default function WishlistPage() {
   const { addToCart } = useCart();
+  const { removeFromWishlist } = useWishlist();
 
   const [wishlistProducts, setWishlistProducts] = useState<WishlistProduct[]>(
     []
@@ -147,7 +149,7 @@ export default function WishlistPage() {
     fetchWishlist();
   }, [isAuthenticated]);
 
-  // 🔹 API + local state থেকে remove (productId দিয়ে, কারণ API productId expect করে)
+  // 🔹 API + local state + context থেকে remove (productId দিয়ে, কারণ API productId expect করে)
   const handleRemoveItem = async (productId: number) => {
     // 🔐 login না থাকলে wishlist এর কিছুই করতে পারবে না
     if (!isAuthenticated) {
@@ -174,10 +176,14 @@ export default function WishlistPage() {
         return;
       }
 
-      // 👉 state থেকেও productId দিয়ে সরিয়ে দিচ্ছি
+      // 👉 local state থেকে productId দিয়ে সরিয়ে দিচ্ছি
       setWishlistProducts((prev) =>
         prev.filter((p) => p.productId !== productId)
       );
+      
+      // 👉 WishlistContext থেকেও সরাচ্ছি (header count update হবে)
+      removeFromWishlist(productId);
+      
       toast.success("উইশলিস্ট থেকে সরানো হয়েছে");
     } catch (err) {
       console.error("Error removing wishlist item:", err);

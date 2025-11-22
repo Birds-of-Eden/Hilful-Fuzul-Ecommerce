@@ -39,6 +39,104 @@ export default function CheckoutPage() {
   const [prefilled, setPrefilled] = useState(false);
   const [paymentGateways, setPaymentGateways] = useState<any[]>([]);
 
+  // ✅ NextAuth session
+  const isAuthenticated = !!session;
+
+  // সার্ভার কার্ট আইটেম
+  const [serverCartItems, setServerCartItems] = useState<any[] | null>(null);
+  const [loadingServerCart, setLoadingServerCart] = useState(false);
+
+  useEffect(() => {
+    setIsMounted(true);
+  }, []);
+
+  // ✅ লগইন করা থাকলে সার্ভার থেকে কার্ট লোড করো
+  useEffect(() => {
+    if (!isMounted) return;
+    if (!isAuthenticated) {
+      setServerCartItems(null);
+      return;
+    }
+
+    const fetchServerCart = async () => {
+      try {
+        setLoadingServerCart(true);
+        const res = await fetch("/api/cart", { cache: "no-store" });
+
+        if (!res.ok) {
+          const data = await res.json().catch(() => null);
+          console.error("Failed to load server cart:", data || res.statusText);
+          return;
+        }
+
+        const data = await res.json();
+        const items = Array.isArray(data.items) ? data.items : [];
+
+        const mapped = items.map((item: any) => ({
+          id: item.id,
+          productId: item.productId,
+          name: item.product?.name ?? "অজানা বই",
+          price: Number(item.product?.price ?? 0),
+          image: item.product?.image ?? "/placeholder.svg",
+          quantity: Number(item.quantity ?? 1),
+        }));
+
+        setServerCartItems(mapped);
+      } catch (err) {
+        console.error("Error loading server cart:", err);
+      } finally {
+        setLoadingServerCart(false);
+      }
+    };
+
+    // ✅ Sync guest cart to server after login
+    const syncGuestCartToServer = async () => {
+      if (cartItems.length === 0) {
+        fetchServerCart();
+        return;
+      }
+
+      try {
+        setLoadingServerCart(true);
+        
+        // Add each guest cart item to server
+        for (const item of cartItems) {
+          const res = await fetch("/api/cart", {
+            method: "POST",
+            headers: {
+              "Content-Type": "application/json",
+            },
+            body: JSON.stringify({
+              productId: item.productId,
+              quantity: item.quantity,
+            }),
+          });
+
+          if (!res.ok) {
+            console.error("Failed to sync cart item:", item.productId);
+          }
+        }
+
+        // Clear guest cart after successful sync
+        clearCart();
+        
+        // Fetch updated server cart
+        fetchServerCart();
+      } catch (err) {
+        console.error("Error syncing guest cart to server:", err);
+        // Fallback to fetch server cart even if sync fails
+        fetchServerCart();
+      }
+    };
+
+    syncGuestCartToServer();
+  }, [isAuthenticated, isMounted, cartItems, clearCart]);
+
+  // ✅ UI তে যে লিস্ট দেখাবো: লগইন + serverCart থাকলে সেটা, নইলে context
+  const itemsToRender = isAuthenticated && serverCartItems
+    ? serverCartItems
+    : cartItems;
+
   // 🔹 payment screenshot
   const [paymentScreenshot, setPaymentScreenshot] = useState<File | null>(null);
   const [paymentScreenshotPreview, setPaymentScreenshotPreview] = useState<
@@ -201,7 +299,7 @@ const folder = "paymentScreenshot";
     return method === "CashOnDelivery" ? "Unpaid" : "Paid";
   };
 
-  const subtotal = cartItems.reduce(
+  const subtotal = itemsToRender.reduce(
     (total, item) => total + item.price * item.quantity,
     0
   );
@@ -286,7 +384,7 @@ const folder = "paymentScreenshot";
 
   // ✅ Orders API call
   const handlePlaceOrder = async () => {
-    if (cartItems.length === 0) {
+    if (itemsToRender.length === 0) {
       toast.error("আপনার কার্ট খালি");
       return;
     }
@@ -335,7 +433,7 @@ const folder = "paymentScreenshot";
         address: location,
         deliveryAddress: deliveryAddress || location,
       },
-      cartItems,
+      itemsToRender,
       paymentMethod,
       transactionId:
         paymentMethod !== "CashOnDelivery" ? transactionId : null,
@@ -344,7 +442,7 @@ const folder = "paymentScreenshot";
       paymentStatus: computedPaymentStatus,
     };
 
-    const items = cartItems.map((item) => ({
+    const items = itemsToRender.map((item) => ({
       productId: item.productId ?? item.id,
       quantity: item.quantity,
     }));
@@ -430,7 +528,7 @@ const folder = "paymentScreenshot";
     setStep("payment");
   };
 
-  if (!isMounted) return null;
+  if (!isMounted || (isAuthenticated && loadingServerCart)) return null;
 
   return (
     <div className="min-h-screen bg-gradient-to-br from-[#EEEFE0] to-[#D1D8BE] py-12">
@@ -883,7 +981,7 @@ const folder = "paymentScreenshot";
 
               {/* Cart Items */}
               <div className="space-y-4 mb-6 max-h-96 overflow-y-auto">
-                {cartItems.map((item) => (
+                {itemsToRender.map((item) => (
                   <div
                     key={item.id}
                     className="flex items-center gap-4 p-3 rounded-lg bg-[#EEEFE0] border border-[#D1D8BE]"

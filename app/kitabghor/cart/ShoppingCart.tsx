@@ -87,7 +87,12 @@ export default function CartPage() {
           quantity: Number(item.quantity ?? 1),
         }));
 
-        setServerCartItems(mapped);
+        // Only update if there are actual changes to prevent unnecessary re-renders
+        setServerCartItems(prev => {
+          const prevStr = JSON.stringify(prev || []);
+          const newStr = JSON.stringify(mapped);
+          return prevStr === newStr ? prev : mapped;
+        });
       } catch (err) {
         console.error("Error loading server cart:", err);
       } finally {
@@ -95,8 +100,57 @@ export default function CartPage() {
       }
     };
 
-    fetchServerCart();
-  }, [isAuthenticated, hasMounted]);
+    // ✅ Sync guest cart to server after login
+    const syncGuestCartToServer = async () => {
+      // If no items in local cart, just fetch server cart
+      if (cartItems.length === 0) {
+        await fetchServerCart();
+        return;
+      }
+
+      try {
+        setLoadingServerCart(true);
+        
+        // Get current server cart first
+        const serverRes = await fetch("/api/cart", { cache: "no-store" });
+        if (!serverRes.ok) throw new Error("Failed to fetch server cart");
+        
+        const serverData = await serverRes.json();
+        const existingItems = Array.isArray(serverData.items) ? serverData.items : [];
+        
+        // Find items that need to be added/updated (avoid duplicates)
+        const itemsToSync = cartItems.filter(localItem => 
+          !existingItems.some((serverItem: any) => 
+            String(serverItem.productId) === String(localItem.productId)
+          )
+        );
+
+        // Only add items that don't exist on server
+        for (const item of itemsToSync) {
+          await fetch("/api/cart", {
+            method: "POST",
+            headers: { "Content-Type": "application/json" },
+            body: JSON.stringify({
+              productId: item.productId,
+              quantity: item.quantity,
+            }),
+          });
+        }
+
+        // Clear local cart after successful sync
+        clearCart();
+        
+        // Fetch updated server cart
+        await fetchServerCart();
+      } catch (err) {
+        console.error("Error syncing guest cart to server:", err);
+        // Fallback to just fetch server cart
+        await fetchServerCart();
+      }
+    };
+
+    syncGuestCartToServer();
+  }, [isAuthenticated, hasMounted, cartItems, clearCart]);
 
   // Listen for server-side cart cleared events (dispatched after order placement)
   useEffect(() => {
@@ -176,7 +230,7 @@ export default function CartPage() {
         );
       }
 
-      removeFromCart(itemId);
+      removeFromCart(Number(itemId));
       toast.success("কার্ট থেকে বই সরানো হয়েছে");
     } catch (error) {
       console.error("Error removing cart item:", error);
@@ -217,7 +271,7 @@ export default function CartPage() {
         );
       }
 
-      updateQuantity(itemId, newQuantity);
+      updateQuantity(Number(itemId), newQuantity);
     } catch (error) {
       console.error("Error updating quantity:", error);
       toast.error("পরিমাণ পরিবর্তনে সমস্যা হয়েছে");

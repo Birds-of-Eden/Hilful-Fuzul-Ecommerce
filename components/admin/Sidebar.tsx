@@ -13,8 +13,10 @@ import {
   ChevronDown,
   ChevronRight,
   ClipboardList,
+  Bell,
 } from "lucide-react";
 import { useState, useEffect } from "react";
+import { useNewOrdersCount } from "@/hooks/useNewOrdersCount";
 
 // Updated menuItems (Using the provided structure)
 const menuItems = [
@@ -42,11 +44,13 @@ interface MenuItemProps {
 }
 
 const MenuItem = ({ item, pathname, onClose }: MenuItemProps) => {
+  const { newOrdersCount, markOrdersAsViewed } = useNewOrdersCount();
   const isManagementActive = pathname.startsWith("/admin/management");
   const initialOpenState = item.name === "Management" && isManagementActive;
 
   const [isOpen, setIsOpen] = useState(initialOpenState);
   const hasSubItems = item.subItems && item.subItems.length > 0;
+  const isOrdersItem = item.name === "Orders";
 
   // Determine active state for parent links
   const isActive = item.href
@@ -128,14 +132,25 @@ const MenuItem = ({ item, pathname, onClose }: MenuItemProps) => {
       ) : (
         <Link
           href={item.href || "#"}
+          onClick={isOrdersItem ? markOrdersAsViewed : undefined}
           className={cn(
             baseClasses,
             "w-full",
             isActive ? activeLinkClasses : defaultLinkClasses
           )}
         >
-          <item.icon className="h-5 w-5" />
-          {item.name}
+          <div className="flex items-center gap-3 flex-1">
+            <item.icon className="h-5 w-5" />
+            {item.name}
+          </div>
+          {isOrdersItem && newOrdersCount > 0 && (
+            <div className="relative">
+              <Bell className="h-4 w-4 text-yellow-400 animate-pulse" />
+              <span className="absolute -top-2 -right-2 bg-red-500 text-white text-xs rounded-full h-5 w-5 flex items-center justify-center font-bold">
+                {newOrdersCount > 99 ? "99+" : newOrdersCount}
+              </span>
+            </div>
+          )}
         </Link>
       )}
     </div>

@@ -5,10 +5,11 @@ import { prisma } from "@/lib/prisma";
 
 export async function GET(
   req: Request,
-  { params }: { params: { id: string } }
+  { params }: { params: Promise<{ id: string }> }
 ) {
   try {
-    const id = Number(params.id);
+    const resolvedParams = await params;
+    const id = Number(resolvedParams.id);
 
     const category = await prisma.category.findUnique({
       where: { id },
@@ -47,10 +48,11 @@ export async function GET(
 
 
 
-export async function PUT(req: Request, { params }: any) {
+export async function PUT(req: Request, { params }: { params: Promise<{ id: string }> }) {
   try {
+    const resolvedParams = await params;
     const { name } = await req.json();
-    const id = Number(params.id);
+    const id = Number(resolvedParams.id);
 
     const category = await prisma.category.update({
       where: { id },
@@ -66,9 +68,10 @@ export async function PUT(req: Request, { params }: any) {
   }
 }
 
-export async function DELETE(req: Request, { params }: any) {
+export async function DELETE(req: Request, { params }: { params: Promise<{ id: string }> }) {
   try {
-    const id = Number(params.id);
+    const resolvedParams = await params;
+    const id = Number(resolvedParams.id);
 
     await prisma.category.delete({ where: { id } });
 

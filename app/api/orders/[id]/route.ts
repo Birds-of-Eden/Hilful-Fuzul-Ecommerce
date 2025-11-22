@@ -8,9 +8,10 @@ import { OrderStatus, PaymentStatus } from "@prisma/client";
 // GET /api/orders/:id
 export async function GET(
   _request: NextRequest,
-  { params }: { params: { id: string } }
+  { params }: { params: Promise<{ id: string }> }
 ) {
   try {
+    const resolvedParams = await params;
     const session = await getServerSession(authOptions);
     if (!session?.user) {
       return NextResponse.json({ error: "Unauthorized" }, { status: 401 });
@@ -19,7 +20,7 @@ export async function GET(
     const userId = (session.user as any).id as string;
     const role = (session.user as any).role as string | undefined;
 
-    const orderId = Number(params.id);
+    const orderId = Number(resolvedParams.id);
     if (Number.isNaN(orderId)) {
       return NextResponse.json(
         { error: "Invalid order id" },
@@ -60,15 +61,16 @@ export async function GET(
 // Body: { status?: OrderStatus, paymentStatus?: PaymentStatus, transactionId?: string }
 export async function PATCH(
   request: NextRequest,
-  { params }: { params: { id: string } }
+  { params }: { params: Promise<{ id: string }> }
 ) {
   try {
+    const resolvedParams = await params;
     const session = await getServerSession(authOptions);
     if (!session?.user || (session.user as any).role !== "admin") {
       return NextResponse.json({ error: "Unauthorized" }, { status: 401 });
     }
 
-    const orderId = Number(params.id);
+    const orderId = Number(resolvedParams.id);
     if (Number.isNaN(orderId)) {
       return NextResponse.json(
         { error: "Invalid order id" },
