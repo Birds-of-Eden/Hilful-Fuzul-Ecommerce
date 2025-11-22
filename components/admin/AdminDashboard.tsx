@@ -433,7 +433,7 @@ export default function GlassmorphismAdminDashboard() {
         </div>
 
         {/* Analytics Section */}
-        <div className="grid grid-cols-1 xl:grid-cols-3 gap-6 mb-8">
+        <div className="grid grid-cols-1 xl:grid-cols-1 gap-6 mb-8">
           {/* Performance Metrics */}
           <div className="xl:col-span-2 bg-white/80 rounded-2xl p-6 shadow-lg">
             <div className="flex items-center justify-between mb-4">
@@ -498,7 +498,7 @@ export default function GlassmorphismAdminDashboard() {
           </div>
 
           {/* Category Distribution */}
-          <div className="bg-white/80 rounded-2xl p-6 shadow-lg">
+          {/* <div className="bg-white/80 rounded-2xl p-6 shadow-lg">
             <h2 className="text-xl font-bold text-gray-800 mb-6">
               বিভাগ অনুযায়ী বিক্রয়
             </h2>
@@ -529,7 +529,7 @@ export default function GlassmorphismAdminDashboard() {
                 </div>
               ))}
             </div>
-          </div>
+          </div> */}
         </div>
 
         {/* Additional Analytics Cards */}
