@@ -16,32 +16,52 @@ interface Blog {
 }
 
 // Helper function to format the time since creation in Bengali (e.g., "১৫ মিনিট আগে")
-const formatTimeSince = (date: string | Date): string => {
+const formatFacebookTime = (date: string | Date): string => {
   const now = new Date();
   const past = new Date(date);
-  const diffInMinutes = Math.floor(
-    (now.getTime() - past.getTime()) / (1000 * 60)
-  );
 
-  if (diffInMinutes < 60) {
-    return `${diffInMinutes === 0 ? 1 : diffInMinutes} মিনিট আগে`;
+  const diffMs = now.getTime() - past.getTime();
+  const seconds = Math.floor(diffMs / 1000);
+  const minutes = Math.floor(seconds / 60);
+  const hours = Math.floor(minutes / 60);
+  const days = Math.floor(hours / 24);
+
+  // ---- Facebook Short Rules ----
+  if (seconds < 60) return "Just now";
+  if (minutes < 60) return `${minutes}m`;
+  if (hours < 24) return `${hours}h`;
+
+  // ---- Yesterday ----
+  if (days === 1) {
+    return `Yesterday at ${past.toLocaleTimeString("en-US", {
+      hour: "numeric",
+      minute: "2-digit",
+    })}`;
   }
 
-  const diffInHours = Math.floor(diffInMinutes / 60);
-  if (diffInHours < 24) {
-    return `${diffInHours} ঘন্টা আগে`;
+  // ---- Same Year → March 12 at 3:45 PM ----
+  if (past.getFullYear() === now.getFullYear()) {
+    return past.toLocaleDateString("en-US", {
+      month: "long",
+      day: "numeric",
+    }) + 
+    " at " +
+    past.toLocaleTimeString("en-US", {
+      hour: "numeric",
+      minute: "2-digit",
+    });
   }
 
-  const diffInDays = Math.floor(diffInHours / 24);
-  if (diffInDays < 7) {
-    return `${diffInDays} দিন আগে`;
-  }
-
-  // Fallback to simple date
-  return past.toLocaleDateString("bn-BD", {
-    day: "numeric",
+  // ---- Previous Years → March 12, 2022 at 3:45 PM ----
+  return past.toLocaleDateString("en-US", {
     month: "long",
+    day: "numeric",
     year: "numeric",
+  }) + 
+  " at " +
+  past.toLocaleTimeString("en-US", {
+    hour: "numeric",
+    minute: "2-digit",
   });
 };
 
@@ -86,98 +106,158 @@ export default function AllBlogs() {
 
   if (loading) {
     return (
-      <div className="flex justify-center items-center h-64">
-        <div className="animate-spin rounded-full h-12 w-12 border-b-2 border-blue-600"></div>
+      <div className="flex justify-center items-center min-h-96 bg-gradient-to-br from-emerald-50/30 via-white to-teal-50/20">
+        <div className="text-center">
+          <div className="animate-spin rounded-full h-16 w-16 border-4 border-emerald-200 border-t-emerald-600 mx-auto mb-4"></div>
+          <p className="text-emerald-600 font-medium">ব্লগ লোড হচ্ছে...</p>
+        </div>
       </div>
     );
   }
 
   if (blogs.length === 0) {
     return (
-      <div className="text-center p-12 bg-white rounded-lg shadow-md">
-        <h3 className="text-xl font-medium text-gray-700">
-          কোনো ব্লগ পোস্ট পাওয়া যায়নি।
-        </h3>
-        <p className="text-gray-500 mt-2">নতুন পোস্টের জন্য অপেক্ষা করুন।</p>
+      <div className="flex justify-center items-center min-h-96 bg-gradient-to-br from-emerald-50/30 via-white to-teal-50/20">
+        <div className="text-center p-12 bg-white/80 backdrop-blur-sm rounded-3xl shadow-2xl border border-emerald-200/50 max-w-md">
+          <div className="w-20 h-20 bg-gradient-to-r from-emerald-100 to-teal-100 rounded-full flex items-center justify-center mx-auto mb-6">
+            <span className="text-3xl">📝</span>
+          </div>
+          <h3 className="text-2xl font-bold bg-gradient-to-r from-emerald-600 to-teal-600 bg-clip-text text-transparent mb-3">
+            কোনো ব্লগ পোস্ট পাওয়া যায়নি
+          </h3>
+          <p className="text-gray-600 leading-relaxed">নতুন পোস্টের জন্য অপেক্ষা করুন।</p>
+        </div>
       </div>
     );
   }
 
   return (
-    <div className="p-20 bg-gradient-to-br from-[#f4fff4] to-[#d1d1d1]">
-      <h1 className="text-3xl font-bold text-gray-900 mb-8 border-b pb-2">
-        সাম্প্রতিক ব্লগ পোস্ট
-      </h1>
+    <div className="min-h-screen bg-gradient-to-br from-emerald-50/30 via-white to-teal-50/20 py-12 px-4 sm:px-6 lg:px-8">
+      <div className="max-w-7xl mx-auto">
+        {/* Enhanced Header */}
+        <div className="text-center mb-12 relative">
+          <div className="absolute inset-0 overflow-hidden pointer-events-none">
+            <div className="absolute top-0 left-1/4 w-32 h-32 bg-gradient-to-r from-emerald-400/20 to-teal-400/20 rounded-full blur-3xl"></div>
+            <div className="absolute top-0 right-1/4 w-40 h-40 bg-gradient-to-r from-teal-400/20 to-emerald-400/20 rounded-full blur-3xl"></div>
+          </div>
+          
+          <div className="relative z-10">
+            <div className="flex items-center justify-center gap-3 mb-4">
+              <div className="w-3 h-12 bg-gradient-to-b from-emerald-600 to-teal-600 rounded-full shadow-lg"></div>
+              <h1 className="text-4xl md:text-5xl font-bold bg-gradient-to-r from-emerald-600 via-teal-600 to-emerald-700 bg-clip-text text-transparent">
+                সাম্প্রতিক ব্লগ পোস্ট
+              </h1>
+              <div className="w-3 h-12 bg-gradient-to-b from-teal-600 to-emerald-600 rounded-full shadow-lg"></div>
+            </div>
+            <div className="h-1 w-32 bg-gradient-to-r from-emerald-600 to-teal-600 rounded-full mx-auto"></div>
+          </div>
+        </div>
 
-      {/* Blog List Layout - Stacked, responsive, similar to the image */}
-      <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
-        {blogs.map((blog) => (
-          // Blog Card
-          <Link
-            key={blog.id}
-            href={`/kitabghor/blogs/${blog.id}`}
-            className="block"
-          >
-            <div className="flex flex-col sm:flex-row bg-white rounded-xl shadow-lg hover:shadow-xl transition-shadow duration-300 overflow-hidden border border-gray-100">
-              {/* Image Section - Takes 1/3 or full width on small screens */}
-              <div className="sm:w-1/3 w-full h-48 sm:h-auto flex-shrink-0">
-                {blog.image ? (
-                  <img
-                    src={blog.image}
-                    alt={blog.title}
-                    className="w-full h-full object-cover"
-                  />
-                ) : (
-                  <div className="w-full h-full bg-gray-200 flex items-center justify-center">
-                    <span className="text-gray-500">No Image</span>
+        {/* Enhanced Blog Grid */}
+        <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-8">
+          {blogs.map((blog) => (
+            <Link
+              key={blog.id}
+              href={`/kitabghor/blogs/${blog.id}`}
+              className="group block"
+            >
+              <div className="bg-white/80 backdrop-blur-sm rounded-3xl shadow-xl hover:shadow-2xl transition-all duration-500 overflow-hidden border border-emerald-200/30 hover:border-emerald-400/50 transform hover:scale-105 hover:-translate-y-2">
+                {/* Image Section */}
+                <div className="relative h-48 overflow-hidden">
+                  {blog.image ? (
+                    <>
+                      <img
+                        src={blog.image}
+                        alt={blog.title}
+                        className="w-full h-full object-cover transition-transform duration-700 group-hover:scale-110"
+                      />
+                      <div className="absolute inset-0 bg-gradient-to-t from-black/20 via-transparent to-transparent opacity-0 group-hover:opacity-100 transition-opacity duration-500"></div>
+                    </>
+                  ) : (
+                    <div className="w-full h-full bg-gradient-to-br from-emerald-100 to-teal-100 flex items-center justify-center">
+                      <div className="text-center">
+                        <div className="w-16 h-16 bg-white/50 rounded-full flex items-center justify-center mx-auto mb-3">
+                          <span className="text-2xl">📝</span>
+                        </div>
+                        <span className="text-emerald-600 font-medium">No Image</span>
+                      </div>
+                    </div>
+                  )}
+                  
+                  {/* Blog Badge */}
+                  <div className="absolute top-4 right-4">
+                    <div className="bg-gradient-to-r from-emerald-600 to-teal-600 text-white text-xs font-bold px-3 py-1.5 rounded-full shadow-lg">
+                      ব্লগ
+                    </div>
                   </div>
-                )}
-              </div>
+                </div>
 
-              {/* Content Section - Takes 2/3 or full width on small screens */}
-              <div className="p-4 sm:p-6 sm:w-2/3 flex flex-col justify-center">
-                <h2 className="text-xl sm:text-2xl font-bold text-gray-900 mb-2 hover:text-blue-600 transition-colors line-clamp-2">
-                  {blog.title}
-                </h2>
-                <p className="text-gray-600 line-clamp-3 mb-3">
-                  {blog.summary}
-                </p>
-
-                {/* Meta Info: Time Since/Author/Date */}
-                <div className="mt-auto text-sm text-gray-500 pt-2 border-t border-gray-50">
-                  <p className="font-medium">
-                    {/* Assuming createdAt represents the post time */}
-                    {formatTimeSince(blog.createdAt)}
+                {/* Content Section */}
+                <div className="p-6">
+                  <h2 className="text-xl sm:text-2xl font-bold text-gray-900 mb-3 hover:text-emerald-600 transition-colors duration-300 line-clamp-2 group-hover:translate-x-1 transform">
+                    {blog.title}
+                  </h2>
+                  <p className="text-gray-600 line-clamp-3 mb-4 leading-relaxed">
+                    {blog.summary}
                   </p>
+
+                  {/* Enhanced Meta Info */}
+                  <div className="flex items-center justify-between pt-4 border-t border-emerald-100">
+                    <div className="flex items-center gap-2">
+                      <div className="w-2 h-2 bg-gradient-to-r from-emerald-600 to-teal-600 rounded-full"></div>
+                      <p className="text-sm font-medium text-emerald-600">
+                        {formatFacebookTime(blog.createdAt)}
+                      </p>
+                    </div>
+                    <div className="text-emerald-600 group-hover:translate-x-1 transition-transform duration-300">
+                      <svg className="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                        <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M9 5l7 7-7 7" />
+                      </svg>
+                    </div>
+                  </div>
                 </div>
               </div>
-            </div>
-          </Link>
-        ))}
-      </div>
-
-      {/* Simple Pagination */}
-      {totalPages > 1 && (
-        <div className="flex justify-center mt-10 space-x-2">
-          <button
-            onClick={() => setPage(page - 1)}
-            disabled={page === 1}
-            className="px-4 py-2 border rounded-lg text-gray-700 hover:bg-gray-100 disabled:opacity-50"
-          >
-            পূর্ববর্তী
-          </button>
-          <span className="px-4 py-2 text-gray-700">
-            Page {page} of {totalPages}
-          </span>
-          <button
-            onClick={() => setPage(page + 1)}
-            disabled={page === totalPages}
-            className="px-4 py-2 border rounded-lg text-gray-700 hover:bg-gray-100 disabled:opacity-50"
-          >
-            পরবর্তী
-          </button>
+            </Link>
+          ))}
         </div>
-      )}
+
+        {/* Enhanced Pagination */}
+        {totalPages > 1 && (
+          <div className="flex justify-center items-center mt-16 gap-4">
+            <button
+              onClick={() => setPage(page - 1)}
+              disabled={page === 1}
+              className="px-6 py-3 bg-gradient-to-r from-emerald-600 to-teal-600 text-white font-medium rounded-2xl hover:from-emerald-700 hover:to-teal-700 disabled:opacity-50 disabled:cursor-not-allowed transition-all duration-300 hover:scale-105 shadow-lg hover:shadow-xl"
+            >
+              পূর্ববর্তী
+            </button>
+            
+            <div className="flex items-center gap-2">
+              {Array.from({ length: totalPages }, (_, i) => i + 1).map((pageNum) => (
+                <button
+                  key={pageNum}
+                  onClick={() => setPage(pageNum)}
+                  className={`w-10 h-10 rounded-full font-medium transition-all duration-300 ${
+                    page === pageNum
+                      ? "bg-gradient-to-r from-emerald-600 to-teal-600 text-white shadow-lg"
+                      : "bg-white/80 text-gray-700 hover:bg-emerald-100 border border-emerald-200"
+                  }`}
+                >
+                  {pageNum}
+                </button>
+              ))}
+            </div>
+            
+            <button
+              onClick={() => setPage(page + 1)}
+              disabled={page === totalPages}
+              className="px-6 py-3 bg-gradient-to-r from-emerald-600 to-teal-600 text-white font-medium rounded-2xl hover:from-emerald-700 hover:to-teal-700 disabled:opacity-50 disabled:cursor-not-allowed transition-all duration-300 hover:scale-105 shadow-lg hover:shadow-xl"
+            >
+              পরবর্তী
+            </button>
+          </div>
+        )}
+      </div>
     </div>
   );
 }

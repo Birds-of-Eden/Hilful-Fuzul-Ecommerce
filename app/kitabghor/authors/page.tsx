@@ -61,10 +61,10 @@ export default function AuthorCategoriesPage() {
   // ⏳ Loader state
   if (loading) {
     return (
-      <div className="min-h-screen bg-gradient-to-b from-[#EEEFE0]/20 to-white flex items-center justify-center">
+      <div className="min-h-screen bg-gradient-to-b from-[#F4F8F7]/30 to-white flex items-center justify-center">
         <div className="text-center">
-          <Users className="h-10 w-10 text-[#819A91] mx-auto mb-3 animate-pulse" />
-          <p className="text-gray-600 text-lg">লেখকদের ডাটা লোড হচ্ছে...</p>
+          <Users className="h-10 w-10 text-[#0E4B4B] mx-auto mb-3 animate-pulse" />
+          <p className="text-[#5FA3A3] text-lg">লেখকদের ডাটা লোড হচ্ছে...</p>
         </div>
       </div>
     );
@@ -73,13 +73,13 @@ export default function AuthorCategoriesPage() {
   // ❌ Error / empty state
   if (error || authors.length === 0) {
     return (
-      <div className="min-h-screen bg-gradient-to-b from-[#EEEFE0]/20 to-white flex items-center justify-center">
+      <div className="min-h-screen bg-gradient-to-b from-[#F4F8F7]/30 to-white flex items-center justify-center">
         <div className="text-center">
-          <Users className="h-12 w-12 text-gray-300 mx-auto mb-4" />
-          <h2 className="text-2xl font-bold text-gray-800 mb-2">
+          <Users className="h-12 w-12 text-[#5FA3A3]/30 mx-auto mb-4" />
+          <h2 className="text-2xl font-bold text-[#0D1414] mb-2">
             কোন লেখক পাওয়া যায়নি
           </h2>
-          <p className="text-gray-600 mb-2">
+          <p className="text-[#5FA3A3] mb-2">
             {error || "বর্তমানে কোন লেখকের তথ্য পাওয়া যায়নি"}
           </p>
         </div>
@@ -88,18 +88,18 @@ export default function AuthorCategoriesPage() {
   }
 
   return (
-    <div className="min-h-screen bg-gradient-to-b from-[#EEEFE0]/20 to-white py-8 md:py-12 lg:py-16">
+    <div className="min-h-screen bg-gradient-to-b from-[#F4F8F7]/30 to-white py-8 md:py-12 lg:py-16">
       <div className="container mx-auto px-4 sm:px-6 lg:px-8">
         {/* Enhanced Header */}
         <div className="text-center mb-12 md:mb-16">
           <div className="flex items-center justify-center gap-3 mb-4">
-            <div className="w-2 h-12 bg-gradient-to-b from-[#819A91] to-[#A7C1A8] rounded-full"></div>
-            <h1 className="text-3xl md:text-4xl lg:text-5xl font-bold text-gray-800">
+            <div className="w-2 h-12 bg-gradient-to-b from-[#0E4B4B] to-[#5FA3A3] rounded-full"></div>
+            <h1 className="text-3xl md:text-4xl lg:text-5xl font-bold text-[#0D1414]">
               লেখকবৃন্দ
             </h1>
-            <Users className="h-8 w-8 md:h-10 md:w-10 text-[#819A91]" />
+            <Users className="h-8 w-8 md:h-10 md:w-10 text-[#0E4B4B]" />
           </div>
-          <p className="text-gray-600 text-lg max-w-2xl mx-auto">
+          <p className="text-[#5FA3A3] text-lg max-w-2xl mx-auto">
             আমাদের বিশিষ্ট লেখকদের পরিচিতি এবং তাদের রচিত বইসমূহ দেখুন
           </p>
         </div>
@@ -115,10 +115,10 @@ export default function AuthorCategoriesPage() {
 
             // Generate different background colors for variety
             const colorVariants = [
-              "from-[#819A91] to-[#A7C1A8]",
-              "from-[#A7C1A8] to-[#819A91]",
-              "from-[#819A91] to-[#D1D8BE]",
-              "from-[#A7C1A8] to-[#D1D8BE]",
+              "from-[#0E4B4B] to-[#5FA3A3]",
+              "from-[#5FA3A3] to-[#0E4B4B]",
+              "from-[#0E4B4B] to-[#C0704D]",
+              "from-[#5FA3A3] to-[#A85D3F]",
             ];
             const colorVariant = colorVariants[index % colorVariants.length];
 
@@ -128,15 +128,15 @@ export default function AuthorCategoriesPage() {
                 key={author.id}
                 className="group hover:no-underline block"
               >
-                <Card className="h-full border-0 bg-gradient-to-br from-white to-[#EEEFE0] shadow-lg hover:shadow-2xl transition-all duration-500 rounded-2xl overflow-hidden relative">
+                <Card className="h-full border-0 bg-gradient-to-br from-white to-[#F4F8F7] shadow-lg hover:shadow-2xl transition-all duration-500 rounded-2xl overflow-hidden relative">
                   {/* Background Pattern */}
                   <div className="absolute inset-0 opacity-5">
-                    <div className="absolute top-3 right-3 w-6 h-6 border border-[#819A91] rounded-full"></div>
-                    <div className="absolute bottom-3 left-3 w-4 h-4 bg-[#A7C1A8] rotate-45"></div>
+                    <div className="absolute top-3 right-3 w-6 h-6 border border-[#0E4B4B] rounded-full"></div>
+                    <div className="absolute bottom-3 left-3 w-4 h-4 bg-[#5FA3A3] rotate-45"></div>
                   </div>
 
                   {/* Hover Border Effect */}
-                  <div className="absolute inset-0 rounded-2xl border-2 border-transparent group-hover:border-[#819A91]/20 transition-all duration-500 pointer-events-none"></div>
+                  <div className="absolute inset-0 rounded-2xl border-2 border-transparent group-hover:border-[#5FA3A3]/20 transition-all duration-500 pointer-events-none"></div>
 
                   <CardContent className="p-6 md:p-8 text-center flex flex-col items-center justify-center h-full relative z-10">
                     {/* Author Avatar Container */}
@@ -147,8 +147,8 @@ export default function AuthorCategoriesPage() {
                       ></div>
 
                       {/* Main Avatar */}
-                      <div className="relative bg-white p-1 rounded-2xl shadow-lg group-hover:shadow-xl transition-all duration-300 group-hover:scale-110 border-2 border-[#D1D8BE]">
-                        <div className="w-20 h-20 md:w-24 md:h-24 rounded-xl overflow-hidden relative bg-gradient-to-br from-[#EEEFE0] to-[#D1D8BE] flex items-center justify-center">
+                      <div className="relative bg-white p-1 rounded-2xl shadow-lg group-hover:shadow-xl transition-all duration-300 group-hover:scale-110 border-2 border-[#5FA3A3]/30">
+                        <div className="w-20 h-20 md:w-24 md:h-24 rounded-xl overflow-hidden relative bg-gradient-to-br from-[#F4F8F7] to-[#5FA3A3]/20 flex items-center justify-center">
                           <Image
                             src="/assets/authors/profile.png"
                             alt={author.name}
@@ -173,47 +173,47 @@ export default function AuthorCategoriesPage() {
 
                       {/* Pen Icon Decoration */}
                       <div className="absolute -top-2 -left-2 bg-white p-1.5 rounded-full shadow-md">
-                        <PenTool className="h-3 w-3 text-[#819A91]" />
+                        <PenTool className="h-3 w-3 text-[#0E4B4B]" />
                       </div>
                     </div>
 
                     {/* Author Name */}
-                    <h3 className="text-lg md:text-xl font-bold text-gray-800 mb-2 group-hover:text-[#819A91] transition-colors duration-300 line-clamp-2 leading-tight min-h-[3rem] flex items-center justify-center">
+                    <h3 className="text-lg md:text-xl font-bold text-[#0D1414] mb-2 group-hover:text-[#0E4B4B] transition-colors duration-300 line-clamp-2 leading-tight min-h-[3rem] flex items-center justify-center">
                       {author.name}
                     </h3>
 
                     {/* Book Count Text */}
-                    <p className="text-sm text-gray-600 mb-4 flex items-center gap-2">
-                      <BookOpen className="h-4 w-4 text-[#819A91]" />
+                    <p className="text-sm text-[#5FA3A3] mb-4 flex items-center gap-2">
+                      <BookOpen className="h-4 w-4 text-[#0E4B4B]" />
                       <span>মোট {authoredBooksCount} টি বই</span>
                     </p>
 
                     {/* CTA Button */}
-                    <div className="flex items-center justify-center gap-2 text-[#819A91] group-hover:text-[#A7C1A8] transition-colors duration-300 font-semibold text-sm">
+                    <div className="flex items-center justify-center gap-2 text-[#0E4B4B] group-hover:text-[#5FA3A3] transition-colors duration-300 font-semibold text-sm">
                       <span>বই দেখুন</span>
                       <ArrowRight className="h-4 w-4 transform group-hover:translate-x-1 transition-transform duration-300" />
                     </div>
 
                     {/* Hover Effect Line */}
-                    <div className="w-0 group-hover:w-12 h-0.5 bg-gradient-to-r from-[#819A91] to-[#A7C1A8] rounded-full transition-all duration-500 mt-2"></div>
+                    <div className="w-0 group-hover:w-12 h-0.5 bg-gradient-to-r from-[#0E4B4B] to-[#5FA3A3] rounded-full transition-all duration-500 mt-2"></div>
                   </CardContent>
 
                   {/* Popular Author Badge */}
                   {authoredBooksCount >= 5 && (
-                    <div className="absolute top-4 right-4 bg-gradient-to-r from-amber-500 to-orange-500 text-white text-xs font-bold px-2 py-1 rounded-full shadow-lg z-20">
+                    <div className="absolute top-4 right-4 bg-gradient-to-r from-[#C0704D] to-[#A85D3F] text-white text-xs font-bold px-2 py-1 rounded-full shadow-lg z-20">
                       জনপ্রিয়
                     </div>
                   )}
 
                   {/* New Author Badge */}
                   {authoredBooksCount <= 2 && (
-                    <div className="absolute top-4 right-4 bg-gradient-to-r from-emerald-500 to-green-500 text-white text-xs font-bold px-2 py-1 rounded-full shadow-lg z-20">
+                    <div className="absolute top-4 right-4 bg-gradient-to-r from-[#5FA3A3] to-[#0E4B4B] text-white text-xs font-bold px-2 py-1 rounded-full shadow-lg z-20">
                       নতুন
                     </div>
                   )}
 
                   {/* Gradient Overlay on Hover */}
-                  <div className="absolute inset-0 bg-gradient-to-br from-[#819A91]/5 to-[#A7C1A8]/5 opacity-0 group-hover:opacity-100 transition-opacity duration-300 rounded-2xl pointer-events-none"></div>
+                  <div className="absolute inset-0 bg-gradient-to-br from-[#0E4B4B]/5 to-[#5FA3A3]/5 opacity-0 group-hover:opacity-100 transition-opacity duration-300 rounded-2xl pointer-events-none"></div>
                 </Card>
               </Link>
             );

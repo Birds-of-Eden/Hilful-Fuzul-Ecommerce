@@ -60,34 +60,34 @@ export default function PublisherCategoriesPage() {
 
   // UI শুরু
   return (
-    <div className="min-h-screen bg-gradient-to-b from-[#EEEFE0]/20 to-white py-8 md:py-12 lg:py-16">
+    <div className="min-h-screen bg-gradient-to-b from-[#F4F8F7]/30 to-white py-8 md:py-12 lg:py-16">
       <div className="container mx-auto px-4 sm:px-6 lg:px-8">
         {/* Header */}
         <div className="text-center mb-12 md:mb-16">
           <div className="flex items-center justify-center gap-3 mb-4">
-            <div className="w-2 h-12 bg-gradient-to-b from-[#819A91] to-[#A7C1A8] rounded-full"></div>
-            <h1 className="text-3xl md:text-4xl lg:text-5xl font-bold text-gray-800">
+            <div className="w-2 h-12 bg-gradient-to-b from-[#0E4B4B] to-[#5FA3A3] rounded-full"></div>
+            <h1 className="text-3xl md:text-4xl lg:text-5xl font-bold text-[#0D1414]">
               প্রকাশকবৃন্দ
             </h1>
-            <Building className="h-8 w-8 md:h-10 md:w-10 text-[#819A91]" />
+            <Building className="h-8 w-8 md:h-10 md:w-10 text-[#0E4B4B]" />
           </div>
-          <p className="text-gray-600 text-lg max-w-2xl mx-auto">
+          <p className="text-[#5FA3A3] text-lg max-w-2xl mx-auto">
             আমাদের বিশ্বস্ত প্রকাশক প্রতিষ্ঠানসমূহ এবং তাদের প্রকাশিত বইয়ের সংগ্রহ
           </p>
         </div>
 
         {/* Loading / Error Handling */}
         {loading ? (
-          <div className="text-center text-gray-600 py-16">
+          <div className="text-center text-[#5FA3A3] py-16">
             প্রকাশকদের তালিকা লোড হচ্ছে...
           </div>
         ) : error ? (
-          <div className="text-center text-gray-600 py-16">
+          <div className="text-center text-[#5FA3A3] py-16">
             <p className="mb-4">{error}</p>
-            <Button onClick={() => location.reload()}>আবার চেষ্টা করুন</Button>
+            <Button className="bg-gradient-to-r from-[#0E4B4B] to-[#5FA3A3] hover:from-[#5FA3A3] hover:to-[#0E4B4B] text-white" onClick={() => location.reload()}>আবার চেষ্টা করুন</Button>
           </div>
         ) : publishers.length === 0 ? (
-          <div className="text-center text-gray-600 py-16">
+          <div className="text-center text-[#5FA3A3] py-16">
             কোনো প্রকাশক পাওয়া যায়নি।
           </div>
         ) : (
@@ -98,26 +98,26 @@ export default function PublisherCategoriesPage() {
 
               // আগের মতই ভ্যারিয়েন্ট রঙ
               const colorVariants = [
-                "from-[#819A91] to-[#A7C1A8]",
-                "from-[#A7C1A8] to-[#819A91]",
-                "from-[#819A91] to-[#D1D8BE]",
-                "from-[#A7C1A8] to-[#D1D8BE]",
+                "from-[#0E4B4B] to-[#5FA3A3]",
+                "from-[#5FA3A3] to-[#0E4B4B]",
+                "from-[#0E4B4B] to-[#C0704D]",
+                "from-[#5FA3A3] to-[#A85D3F]",
               ];
               const colorVariant = colorVariants[index % colorVariants.length];
 
               return (
                 <Card
                   key={publisher.id}
-                  className="group h-full border-0 bg-gradient-to-br from-white to-[#EEEFE0] shadow-lg hover:shadow-2xl transition-all duration-500 rounded-2xl overflow-hidden relative"
+                  className="group h-full border-0 bg-gradient-to-br from-white to-[#F4F8F7] shadow-lg hover:shadow-2xl transition-all duration-500 rounded-2xl overflow-hidden relative"
                 >
                   {/* Background Pattern */}
                   <div className="absolute inset-0 opacity-5">
-                    <div className="absolute top-3 right-3 w-6 h-6 border border-[#819A91] rounded-full"></div>
-                    <div className="absolute bottom-3 left-3 w-4 h-4 bg-[#A7C1A8] rotate-45"></div>
+                    <div className="absolute top-3 right-3 w-6 h-6 border border-[#0E4B4B] rounded-full"></div>
+                    <div className="absolute bottom-3 left-3 w-4 h-4 bg-[#5FA3A3] rotate-45"></div>
                   </div>
 
                   {/* Hover Border Effect */}
-                  <div className="absolute inset-0 rounded-2xl border-2 border-transparent group-hover:border-[#819A91]/20 transition-all duration-500 pointer-events-none"></div>
+                  <div className="absolute inset-0 rounded-2xl border-2 border-transparent group-hover:border-[#5FA3A3]/20 transition-all duration-500 pointer-events-none"></div>
 
                   <CardContent className="p-6 md:p-8 text-center flex flex-col items-center justify-center h-full relative z-10">
                     {/* Publisher Logo Container */}
@@ -128,8 +128,8 @@ export default function PublisherCategoriesPage() {
                       ></div>
 
                       {/* Main Logo */}
-                      <div className="relative bg-white p-2 rounded-2xl shadow-lg group-hover:shadow-xl transition-all duration-300 group-hover:scale-110 border-2 border-[#D1D8BE]">
-                        <div className="w-16 h-16 md:w-20 md:h-20 rounded-xl overflow-hidden relative bg-gradient-to-br from-[#EEEFE0] to-[#D1D8BE] flex items-center justify-center">
+                      <div className="relative bg-white p-2 rounded-2xl shadow-lg group-hover:shadow-xl transition-all duration-300 group-hover:scale-110 border-2 border-[#5FA3A3]/30">
+                        <div className="w-16 h-16 md:w-20 md:h-20 rounded-xl overflow-hidden relative bg-gradient-to-br from-[#F4F8F7] to-[#5FA3A3]/20 flex items-center justify-center">
                           <Image
                             src={
                               publisher.image ||
@@ -157,23 +157,23 @@ export default function PublisherCategoriesPage() {
 
                       {/* Globe Icon Decoration */}
                       <div className="absolute -top-2 -left-2 bg-white p-1.5 rounded-full shadow-md">
-                        <Globe className="h-3 w-3 text-[#819A91]" />
+                        <Globe className="h-3 w-3 text-[#0E4B4B]" />
                       </div>
                     </div>
 
                     {/* Publisher Name */}
-                    <h3 className="text-lg md:text-xl font-bold text-gray-800 mb-2 group-hover:text-[#819A91] transition-colors duration-300 line-clamp-2 leading-tight">
+                    <h3 className="text-lg md:text-xl font-bold text-[#0D1414] mb-2 group-hover:text-[#0E4B4B] transition-colors duration-300 line-clamp-2 leading-tight">
                       {publisher.name}
                     </h3>
 
                     {/* Location */}
-                    <p className="text-sm text-gray-600 mb-3 flex items-center justify-center gap-2">
-                      <MapPin className="h-4 w-4 text-[#819A91]" />
+                    <p className="text-sm text-[#5FA3A3] mb-3 flex items-center justify-center gap-2">
+                      <MapPin className="h-4 w-4 text-[#0E4B4B]" />
                       <span>অজানা স্থান</span>
                     </p>
 
                     {/* Description */}
-                    <p className="text-sm text-gray-500 mb-6 leading-relaxed">
+                    <p className="text-sm text-[#5FA3A3]/70 mb-6 leading-relaxed">
                       এই প্রকাশকের সম্পর্কে আরও তথ্য প্রাপ্ত হয়নি।
                     </p>
 
@@ -183,7 +183,7 @@ export default function PublisherCategoriesPage() {
                         href={`/kitabghor/publishers/${publisher.id}`}
                         className="block w-full"
                       >
-                        <Button className="w-full rounded-xl bg-gradient-to-r from-[#819A91] to-[#A7C1A8] hover:from-[#A7C1A8] hover:to-[#819A91] text-white font-semibold py-3 border-0 shadow-md hover:shadow-lg transition-all duration-300 hover:scale-105 group/btn">
+                        <Button className="w-full rounded-xl bg-gradient-to-r from-[#187a7a] to-[#5b9b9b] hover:from-[#0E4B4B] hover:to-[#42a8a8] text-white font-semibold py-3 border-0 shadow-md hover:shadow-lg transition-all duration-300 hover:scale-105 group/btn">
                           <BookOpen className="mr-2 h-4 w-4 group-hover/btn:scale-110 transition-transform" />
                           সকল বই দেখুন
                         </Button>
@@ -191,7 +191,7 @@ export default function PublisherCategoriesPage() {
 
                       <Button
                         variant="outline"
-                        className="w-full rounded-xl border-[#D1D8BE] text-gray-600 hover:bg-[#819A91] hover:text-white hover:border-[#819A91] transition-all duration-300 flex items-center justify-center gap-2 group/learn"
+                        className="w-full rounded-xl border-[#5FA3A3]/30 text-[#5FA3A3] hover:bg-[#0E4B4B] hover:text-white hover:border-[#0E4B4B] transition-all duration-300 flex items-center justify-center gap-2 group/learn"
                         disabled
                       >
                         <span>আরো জানুন</span>
@@ -200,25 +200,25 @@ export default function PublisherCategoriesPage() {
                     </div>
 
                     {/* Hover Effect Line */}
-                    <div className="w-0 group-hover:w-12 h-0.5 bg-gradient-to-r from-[#819A91] to-[#A7C1A8] rounded-full transition-all duration-500 mt-3"></div>
+                    <div className="w-0 group-hover:w-12 h-0.5 bg-gradient-to-r from-[#0E4B4B] to-[#5FA3A3] rounded-full transition-all duration-500 mt-3"></div>
                   </CardContent>
 
                   {/* Established Publisher Badge */}
                   {booksCount >= 10 && (
-                    <div className="absolute top-4 right-4 bg-gradient-to-r from-amber-500 to-orange-500 text-white text-xs font-bold px-2 py-1 rounded-full shadow-lg z-20">
+                    <div className="absolute top-4 right-4 bg-gradient-to-r from-[#C0704D] to-[#A85D3F] text-white text-xs font-bold px-2 py-1 rounded-full shadow-lg z-20">
                       প্রতিষ্ঠিত
                     </div>
                   )}
 
                   {/* New Publisher Badge */}
                   {booksCount > 0 && booksCount <= 3 && (
-                    <div className="absolute top-4 right-4 bg-gradient-to-r from-emerald-500 to-green-500 text-white text-xs font-bold px-2 py-1 rounded-full shadow-lg z-20">
+                    <div className="absolute top-4 right-4 bg-gradient-to-r from-[#5FA3A3] to-[#0E4B4B] text-white text-xs font-bold px-2 py-1 rounded-full shadow-lg z-20">
                       নতুন
                     </div>
                   )}
 
                   {/* Gradient Overlay on Hover */}
-                  <div className="absolute inset-0 bg-gradient-to-br from-[#819A91]/5 to-[#A7C1A8]/5 opacity-0 group-hover:opacity-100 transition-opacity duration-300 rounded-2xl pointer-events-none"></div>
+                  <div className="absolute inset-0 bg-gradient-to-br from-[#0E4B4B]/5 to-[#5FA3A3]/5 opacity-0 group-hover:opacity-100 transition-opacity duration-300 rounded-2xl pointer-events-none"></div>
                 </Card>
               );
             })}

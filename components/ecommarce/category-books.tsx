@@ -449,12 +449,11 @@ export default function CategoryBooks({ category }: { category: Category }) {
                 <Button
                   disabled={book.stock === 0}
                   className={`w-full rounded-xl py-6 text-white font-semibold border-0 shadow-md transition-all duration-300
-    =${
-      book.stock === 0
-        ? "bg-gray-400 cursor-not-allowed opacity-60"
-        : "bg-gradient-to-r from-[#C0704D] to-[#A85D3F] hover:from-[#0E4B4B] hover:to-[#5FA3A3] hover:shadow-lg hover:scale-105 group/btn"
-    }
-  `}
+              =${
+                book.stock === 0
+                  ? "bg-gray-400 cursor-not-allowed opacity-60"
+                  : "bg-gradient-to-r from-[#C0704D] to-[#A85D3F] hover:from-[#0E4B4B] hover:to-[#5FA3A3] hover:shadow-lg hover:scale-105 group/btn"
+              }`}
                   onClick={(e) => {
                     e.preventDefault();
                     if (book.stock !== 0) {

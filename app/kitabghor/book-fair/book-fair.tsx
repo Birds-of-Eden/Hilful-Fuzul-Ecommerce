@@ -5,7 +5,7 @@ import Image from "next/image";
 import Link from "next/link";
 import { Button } from "@/components/ui/button";
 import { Card, CardContent, CardFooter } from "@/components/ui/card";
-import { Filter, Calendar, BookOpen, ArrowRight, Zap } from "lucide-react";
+import { Filter, Calendar, BookOpen, ArrowRight, Zap, Sparkles, Gift, Clock } from "lucide-react";
 
 // ====== API Types (তোমার দেওয়া API অনুযায়ী) ======
 interface CategoryApi {
@@ -198,61 +198,93 @@ export default function BookFairPage() {
       : null;
 
   return (
-    <div className="min-h-screen bg-gradient-to-b from-[#EEEFE0]/30 to-white py-8 md:py-12 lg:py-16">
+    <div className="min-h-screen bg-gradient-to-br from-emerald-50/30 via-white to-teal-50/20 py-8 md:py-12 lg:py-16">
       <div className="container mx-auto px-4 sm:px-6 lg:px-8">
         {/* Enhanced Header */}
-        <div className="text-center mb-12 md:mb-16">
-          <div className="flex items-center justify-center gap-3 mb-4">
-            <div className="w-2 h-12 bg-gradient-to-b from-[#819A91] to-[#A7C1A8] rounded-full"></div>
-            <h1 className="text-3xl md:text-4xl lg:text-5xl font-bold text-gray-800">
-              বইমেলা ২০২৫
-            </h1>
-            <Calendar className="h-8 w-8 md:h-10 md:w-10 text-[#819A91]" />
+        <div className="text-center mb-12 md:mb-16 relative">
+          {/* Background decoration */}
+          <div className="absolute inset-0 overflow-hidden pointer-events-none">
+            <div className="absolute top-0 left-1/4 w-32 h-32 bg-gradient-to-r from-emerald-400/20 to-teal-400/20 rounded-full blur-3xl"></div>
+            <div className="absolute top-0 right-1/4 w-40 h-40 bg-gradient-to-r from-teal-400/20 to-emerald-400/20 rounded-full blur-3xl"></div>
           </div>
-          <p className="text-gray-600 text-lg max-w-2xl mx-auto">
-            বিশেষ বইমেলা অফার! সীমিত সময়ের জন্য বিশেষ মূল্যে বই কিনুন
-          </p>
+          
+          <div className="relative z-10">
+            <div className="flex items-center justify-center gap-3 mb-6">
+              <div className="w-3 h-16 bg-gradient-to-b from-emerald-600 to-teal-600 rounded-full shadow-lg"></div>
+              <div className="relative">
+                <h1 className="text-4xl md:text-5xl lg:text-6xl font-bold bg-gradient-to-r from-emerald-600 via-teal-600 to-emerald-700 bg-clip-text text-transparent">
+                  বইমেলা ২০২৫
+                </h1>
+                <div className="absolute -bottom-2 left-0 right-0 h-1 bg-gradient-to-r from-emerald-600 via-teal-600 to-emerald-600 rounded-full opacity-50"></div>
+              </div>
+              <div className="w-3 h-16 bg-gradient-to-b from-teal-600 to-emerald-600 rounded-full shadow-lg"></div>
+            </div>
+            
+            <p className="text-gray-600 text-xl max-w-3xl mx-auto mb-8 leading-relaxed">
+              বিশেষ বইমেলা অফার! সীমিত সময়ের জন্য বিশেষ মূল্যে বই কিনুন
+            </p>
 
-          {/* Fair Countdown/Tag */}
-          <div className="mt-6 inline-flex items-center gap-2 bg-gradient-to-r from-[#819A91] to-[#A7C1A8] text-white px-6 py-3 rounded-full shadow-lg">
-            <Zap className="h-5 w-5" />
-            <span className="font-semibold">
-              স্পেশাল অফার - সীমিত সময়ের জন্য
-            </span>
+            {/* Enhanced Fair Countdown/Tag */}
+            <div className="flex flex-col sm:flex-row items-center justify-center gap-4 mb-8">
+              <div className="inline-flex items-center gap-3 bg-gradient-to-r from-emerald-600 to-teal-600 text-white px-8 py-4 rounded-full shadow-xl hover:shadow-2xl transition-all duration-300 hover:scale-105">
+                <Sparkles className="h-6 w-6 animate-pulse" />
+                <span className="font-bold text-lg">
+                  স্পেশাল অফার - সীমিত সময়ের জন্য
+                </span>
+                <Gift className="h-6 w-6 animate-bounce" />
+              </div>
+              
+              <div className="inline-flex items-center gap-2 bg-gradient-to-r from-amber-500 to-orange-500 text-white px-6 py-3 rounded-full shadow-lg">
+                <Clock className="h-5 w-5" />
+                <span className="font-semibold">
+                  অফার শেষ হতে আরও কিছুক্ষণ
+                </span>
+              </div>
+            </div>
           </div>
         </div>
 
         <div className="grid grid-cols-1 lg:grid-cols-4 gap-8">
           {/* Sidebar Filter */}
           <div className="lg:col-span-1">
-            <Card className="border-0 bg-gradient-to-b from-[#EEEFE0] to-white shadow-lg rounded-2xl sticky top-8">
-              <CardContent className="p-6">
-                {/* Filter Header */}
-                <div className="flex items-center gap-3 mb-6 pb-4 border-b border-[#D1D8BE]">
-                  <Filter className="h-5 w-5 text-[#819A91]" />
-                  <h2 className="text-xl font-bold text-gray-800">
-                    কওমী পাঠ্য কিতাব
-                  </h2>
+            <Card className="bg-gradient-to-br from-emerald-50/50 to-white/80 backdrop-blur-sm shadow-2xl rounded-3xl sticky top-8 hover:shadow-3xl transition-all duration-500 border border-emerald-200/30">
+              <CardContent className="p-8">
+                {/* Enhanced Filter Header */}
+                <div className="flex items-center gap-3 mb-6 pb-4 border-b border-emerald-200/50">
+                  <div className="p-2 bg-gradient-to-r from-emerald-600 to-teal-600 rounded-xl shadow-lg">
+                    <Filter className="h-5 w-5 text-white" />
+                  </div>
+                  <div>
+                    <h2 className="text-2xl font-bold bg-gradient-to-r from-emerald-600 to-teal-600 bg-clip-text text-transparent">
+                      কওমী পাঠ্য কিতাব
+                    </h2>
+                    <p className="text-sm text-gray-600">ক্যাটাগরি অনুযায়ী বই দেখুন</p>
+                  </div>
                 </div>
 
-                {/* Category List */}
-                <div className="space-y-3">
+                {/* Enhanced Category List */}
+                <div className="space-y-2">
                   {/* All Categories Button */}
                   <button
-                    className={`w-full text-left p-3 rounded-xl transition-all duration-300 flex items-center justify-between group ${
+                    className={`w-full text-left p-4 rounded-2xl transition-all duration-300 flex items-center justify-between group transform hover:scale-105 ${
                       selectedCategoryId === null
-                        ? "bg-gradient-to-r from-[#819A91] to-[#A7C1A8] text-white shadow-lg"
-                        : "bg-white hover:bg-[#D1D8BE] text-gray-700 border border-[#D1D8BE]"
+                        ? "bg-gradient-to-r from-emerald-600 to-teal-600 text-white shadow-xl border-2 border-transparent"
+                        : "bg-white hover:bg-gradient-to-r hover:from-emerald-50 hover:to-teal-50 text-gray-700 border-2 border-emerald-200/50 hover:border-emerald-400/50"
                     }`}
                     onClick={() => setSelectedCategoryId(null)}
                     disabled={loading || !!error}
                   >
-                    <span className="font-semibold">সকল বই</span>
+                    <div className="flex items-center gap-3">
+                      <div className={`w-2 h-2 rounded-full ${
+                        selectedCategoryId === null ? "bg-white" : "bg-emerald-600"
+                      }`}></div>
+                      <span className="font-bold text-base">সকল বই</span>
+                    </div>
                     <div
-                      className={`px-2 py-1 rounded-full text-xs ${
+                      className={`px-3 py-1.5 rounded-full text-sm font-bold ${
                         selectedCategoryId === null
-                          ? "bg-white/20"
-                          : "bg-[#819A91] text-white"
+                          ? "bg-white/20 text-white"
+                          : "bg-gradient-to-r from-emerald-600 to-teal-600 text-white shadow-lg"
                       }`}
                     >
                       {allProducts.length}
@@ -262,22 +294,27 @@ export default function BookFairPage() {
                   {fairCategories.map((category) => (
                     <button
                       key={category.id}
-                      className={`w-full text-left p-3 rounded-xl transition-all duration-300 flex items-center justify-between group ${
+                      className={`w-full text-left p-4 rounded-2xl transition-all duration-300 flex items-center justify-between group transform hover:scale-105 ${
                         selectedCategoryId === category.id
-                          ? "bg-gradient-to-r from-[#819A91] to-[#A7C1A8] text-white shadow-lg"
-                          : "bg-white hover:bg-[#D1D8BE] text-gray-700 border border-[#D1D8BE]"
+                          ? "bg-gradient-to-r from-emerald-600 to-teal-600 text-white shadow-xl border-2 border-transparent"
+                          : "bg-white hover:bg-gradient-to-r hover:from-emerald-50 hover:to-teal-50 text-gray-700 border-2 border-emerald-200/50 hover:border-emerald-400/50"
                       }`}
                       onClick={() => setSelectedCategoryId(category.id)}
                       disabled={loading || !!error}
                     >
-                      <span className="font-medium text-sm group-hover:translate-x-1 transition-transform">
-                        {category.name}
-                      </span>
+                      <div className="flex items-center gap-3">
+                        <div className={`w-2 h-2 rounded-full ${
+                          selectedCategoryId === category.id ? "bg-white" : "bg-emerald-600"
+                        }`}></div>
+                        <span className="font-bold text-sm group-hover:translate-x-2 transition-transform duration-300">
+                          {category.name}
+                        </span>
+                      </div>
                       <div
-                        className={`px-2 py-1 rounded-full text-xs ${
+                        className={`px-3 py-1.5 rounded-full text-sm font-bold ${
                           selectedCategoryId === category.id
-                            ? "bg-white/20"
-                            : "bg-[#819A91]/10 text-[#819A91]"
+                            ? "bg-white/20 text-white"
+                            : "bg-gradient-to-r from-emerald-600/80 to-teal-600/80 text-white shadow-lg"
                         }`}
                       >
                         {category.productCount}
@@ -286,18 +323,32 @@ export default function BookFairPage() {
                   ))}
                 </div>
 
-                {/* Fair Info */}
-                <div className="mt-8 p-4 bg-gradient-to-r from-[#819A91]/10 to-[#A7C1A8]/10 rounded-xl border border-[#D1D8BE]">
-                  <h3 className="font-semibold text-gray-800 mb-2 flex items-center gap-2">
-                    <Zap className="h-4 w-4 text-[#819A91]" />
+                {/* Enhanced Fair Info */}
+                <div className="mt-8 p-6 bg-gradient-to-br from-emerald-100/50 via-teal-100/50 to-emerald-100/50 rounded-2xl border border-emerald-200/50 backdrop-blur-sm">
+                  <h3 className="font-bold text-lg bg-gradient-to-r from-emerald-600 to-teal-600 bg-clip-text text-transparent mb-4 flex items-center gap-2">
+                    <div className="p-1.5 bg-gradient-to-r from-emerald-600 to-teal-600 rounded-lg">
+                      <Zap className="h-4 w-4 text-white" />
+                    </div>
                     বইমেলা তথ্য
                   </h3>
-                  <ul className="text-sm text-gray-600 space-y-1">
-                    <li>• বিশেষ মূল্যে সকল বই</li>
-                    <li>• বিনামূল্যে হোম ডেলিভারি</li>
-                    <li>• এক্সক্লুসিভ অফার</li>
-                    <li>• সীমিত সময়ের জন্য</li>
-                  </ul>
+                  <div className="space-y-3">
+                    <div className="flex items-center gap-3 p-3 bg-white/50 rounded-xl">
+                      <Gift className="h-5 w-5 text-emerald-600 flex-shrink-0" />
+                      <span className="text-sm font-medium text-gray-700">বিশেষ মূল্যে সকল বই</span>
+                    </div>
+                    <div className="flex items-center gap-3 p-3 bg-white/50 rounded-xl">
+                      <Sparkles className="h-5 w-5 text-emerald-600 flex-shrink-0" />
+                      <span className="text-sm font-medium text-gray-700">বিনামূল্যে হোম ডেলিভারি</span>
+                    </div>
+                    <div className="flex items-center gap-3 p-3 bg-white/50 rounded-xl">
+                      <Zap className="h-5 w-5 text-emerald-600 flex-shrink-0" />
+                      <span className="text-sm font-medium text-gray-700">এক্সক্লুসিভ অফার</span>
+                    </div>
+                    <div className="flex items-center gap-3 p-3 bg-white/50 rounded-xl">
+                      <Clock className="h-5 w-5 text-emerald-600 flex-shrink-0" />
+                      <span className="text-sm font-medium text-gray-700">সীমিত সময়ের জন্য</span>
+                    </div>
+                  </div>
                 </div>
               </CardContent>
             </Card>
@@ -314,7 +365,7 @@ export default function BookFairPage() {
                   <span className="text-red-500">{error}</span>
                 ) : (
                   <>
-                    <span className="font-semibold text-[#819A91]">
+                    <span className="font-semibold text-emerald-600">
                       {filteredBooks.length}
                     </span>
                     টি বই পাওয়া গেছে
@@ -334,7 +385,7 @@ export default function BookFairPage() {
                 <Button
                   variant="outline"
                   onClick={() => setSelectedCategoryId(null)}
-                  className="rounded-full border-[#819A91] text-[#819A91] hover:bg-[#819A91] hover:text-white"
+                  className="rounded-full border-emerald-600 text-emerald-600 hover:bg-emerald-600 hover:text-white"
                 >
                   ফিল্টার সরান
                 </Button>
@@ -367,7 +418,7 @@ export default function BookFairPage() {
                 </p>
                 <Button
                   onClick={() => setSelectedCategoryId(null)}
-                  className="rounded-full bg-gradient-to-r from-[#819A91] to-[#A7C1A8] text-white px-8"
+                  className="rounded-full bg-gradient-to-r from-emerald-600 to-teal-600 text-white px-8"
                 >
                   সব বই দেখুন
                 </Button>
@@ -377,48 +428,52 @@ export default function BookFairPage() {
                 {filteredBooks.map((book) => (
                   <Card
                     key={book.id}
-                    className="group overflow-hidden border-0 bg-gradient-to-br from-white to-[#EEEFE0] shadow-lg hover:shadow-2xl transition-all duration-500 rounded-2xl relative"
+                    className="group overflow-hidden bg-gradient-to-br from-white to-emerald-50/80 backdrop-blur-sm shadow-2xl hover:shadow-3xl transition-all duration-700 rounded-3xl relative transform hover:scale-105 hover:-translate-y-2"
                   >
-                    {/* Fair Badge */}
-                    <div className="absolute top-3 left-3 z-10">
-                      <div className="bg-gradient-to-r from-amber-500 to-orange-500 text-white text-xs font-bold px-3 py-1 rounded-full shadow-lg">
+                    {/* Enhanced Fair Badge */}
+                    <div className="absolute top-4 left-4 z-10">
+                      <div className="bg-gradient-to-r from-amber-500 to-orange-500 text-white text-xs font-bold px-4 py-2 rounded-full shadow-xl flex items-center gap-2 animate-pulse">
+                        <Sparkles className="h-3 w-3" />
                         বইমেলা বিশেষ
                       </div>
                     </div>
 
-                    {/* Book Image */}
+                    {/* Enhanced Book Image */}
                     <Link href={`/kitabghor/books/${book.id}`}>
-                      <div className="relative h-48 sm:h-56 w-full overflow-hidden">
+                      <div className="relative h-56 sm:h-64 w-full overflow-hidden">
+                        <div className="absolute inset-0 bg-gradient-to-br from-emerald-600/10 to-teal-600/10 opacity-0 group-hover:opacity-100 transition-opacity duration-500"></div>
                         <Image
                           src={book.image}
                           alt={book.name}
                           fill
-                          className="object-cover transition-transform duration-700 group-hover:scale-110"
+                          className="object-cover transition-all duration-700 group-hover:scale-110 group-hover:rotate-1"
                           sizes="(max-width: 768px) 100vw, (max-width: 1200px) 50vw, 33vw"
                         />
-                        {/* Overlay */}
-                        <div className="absolute inset-0 bg-gradient-to-t from-black/20 via-transparent to-transparent opacity-0 group-hover:opacity-100 transition-opacity duration-300" />
+                        {/* Enhanced Overlay */}
+                        <div className="absolute inset-0 bg-gradient-to-t from-black/30 via-transparent to-transparent opacity-0 group-hover:opacity-100 transition-all duration-500" />
+                        {/* Hover glow effect */}
+                        <div className="absolute inset-0 bg-gradient-to-r from-emerald-600/20 to-teal-600/20 opacity-0 group-hover:opacity-30 transition-all duration-700 blur-xl"></div>
                       </div>
                     </Link>
 
-                    <CardContent className="p-4 sm:p-5">
-                      {/* Book Title */}
+                    <CardContent className="p-5 sm:p-6">
+                      {/* Enhanced Book Title */}
                       <Link href={`/kitabghor/books/${book.id}`}>
-                        <h3 className="font-bold text-base sm:text-lg mb-2 text-gray-800 hover:text-[#819A91] duration-300 line-clamp-2 leading-tight group-hover:translate-x-1 transition-transform">
+                        <h3 className="font-bold text-lg sm:text-xl mb-3 text-gray-800 hover:text-emerald-600 line-clamp-2 leading-tight group-hover:translate-x-2 transition-transform duration-300">
                           {book.name}
                         </h3>
                       </Link>
 
-                      {/* Author */}
-                      <p className="text-sm text-gray-600 mb-3 flex items-center">
-                        <span className="w-1 h-1 bg-[#819A91] rounded-full mr-2"></span>
-                        {book.writer.name}
+                      {/* Enhanced Author */}
+                      <p className="text-sm text-gray-600 mb-4 flex items-center">
+                        <div className="w-1.5 h-1.5 bg-gradient-to-r from-emerald-600 to-teal-600 rounded-full mr-3"></div>
+                        <span className="font-medium">{book.writer.name}</span>
                       </p>
 
-                      {/* Price */}
-                      <div className="flex items-center justify-between mb-3">
-                        <div className="flex items-baseline gap-2">
-                          <span className="font-bold text-lg sm:text-xl text-[#819A91]">
+                      {/* Enhanced Price */}
+                      <div className="flex items-center justify-between mb-4">
+                        <div className="flex items-baseline gap-3">
+                          <span className="font-bold text-xl sm:text-2xl bg-gradient-to-r from-emerald-600 to-teal-600 bg-clip-text text-transparent">
                             ৳{book.price}
                           </span>
                           {book.original_price > book.price && (
@@ -428,27 +483,29 @@ export default function BookFairPage() {
                           )}
                         </div>
                         {book.original_price > book.price && (
-                          <div className="text-xs font-semibold bg-[#D1D8BE] text-gray-700 px-2 py-1 rounded-full">
+                          <div className="text-xs font-bold bg-gradient-to-r from-emerald-100 to-teal-100 text-gray-700 px-3 py-1.5 rounded-full border border-emerald-300/30">
                             সাশ্রয় করুন
                           </div>
                         )}
                       </div>
                     </CardContent>
 
-                    <CardFooter className="p-4 sm:p-5 pt-0">
+                    <CardFooter className="p-5 sm:p-6 pt-0">
                       <Link
                         href={`/kitabghor/books/${book.id}`}
                         className="w-full"
                       >
-                        <Button className="w-full rounded-xl py-3 sm:py-4 bg-gradient-to-r from-[#819A91] to-[#A7C1A8] hover:from-[#A7C1A8] hover:to-[#819A91] text-white font-semibold border-0 shadow-md hover:shadow-lg transition-all duration-300 hover:scale-105 group/btn">
-                          <BookOpen className="mr-2 h-4 w-4 group-hover/btn:scale-110 transition-transform" />
+                        <Button className="w-full rounded-2xl py-4 sm:py-5 bg-gradient-to-r from-emerald-600 to-teal-600 hover:from-teal-600 hover:to-emerald-600 text-white font-bold shadow-xl hover:shadow-2xl transition-all duration-300 hover:scale-105 group/btn text-base">
+                          <BookOpen className="mr-3 h-5 w-5 group-hover/btn:scale-110 transition-transform" />
                           বিস্তারিত দেখুন
+                          <ArrowRight className="ml-2 h-4 w-4 group-hover/btn:translate-x-1 transition-transform" />
                         </Button>
                       </Link>
                     </CardFooter>
 
-                    {/* Hover Effect Border */}
-                    <div className="absolute inset-0 rounded-2xl border-2 border-transparent group-hover:border-[#819A91]/20 transition-all duration-500 pointer-events-none"></div>
+                    {/* Enhanced Hover Effect Border */}
+                    <div className="absolute inset-0 rounded-3xl border-2 border-transparent group-hover:border-emerald-600/30 transition-all duration-700 pointer-events-none"></div>
+                    <div className="absolute inset-0 rounded-3xl bg-gradient-to-r from-emerald-600/5 to-teal-600/5 opacity-0 group-hover:opacity-100 transition-all duration-700 pointer-events-none"></div>
                   </Card>
                 ))}
               </div>
@@ -457,7 +514,7 @@ export default function BookFairPage() {
             {/* Load More Section */}
             {filteredBooks.length > 0 && !loading && !error && (
               <div className="text-center mt-12">
-                <div className="bg-gradient-to-r from-[#819A91] to-[#A7C1A8] p-0.5 rounded-full inline-block">
+                <div className="bg-gradient-to-r from-emerald-600 to-teal-600 p-0.5 rounded-full inline-block">
                   <Button
                     variant="ghost"
                     className="rounded-full bg-white hover:bg-gray-50 text-gray-800 font-semibold px-8 py-6 group text-sm sm:text-base"

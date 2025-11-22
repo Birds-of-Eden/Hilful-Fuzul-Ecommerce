@@ -218,8 +218,8 @@ export default function AuthorBooksPage() {
   // 🔄 Loading
   if (loading) {
     return (
-      <div className="min-h-screen bg-gradient-to-b from-[#EEEFE0]/30 to-white py-16 flex items-center justify-center">
-        <p className="text-gray-600">ডাটা লোড হচ্ছে...</p>
+      <div className="min-h-screen bg-gradient-to-b from-[#F4F8F7]/30 to-white py-16 flex items-center justify-center">
+        <p className="text-[#5FA3A3]">ডাটা লোড হচ্ছে...</p>
       </div>
     );
   }
@@ -227,17 +227,17 @@ export default function AuthorBooksPage() {
   // ❌ Error / no author / no books
   if (!author || totalBooks === 0 || error) {
     return (
-      <div className="min-h-screen bg-gradient-to-b from-[#EEEFE0]/30 to-white py-16 flex items-center justify-center">
+      <div className="min-h-screen bg-gradient-to-b from-[#F4F8F7]/30 to-white py-16 flex items-center justify-center">
         <div className="text-center">
-          <User className="h-16 w-16 text-gray-300 mx-auto mb-4" />
-          <h2 className="text-2xl font-bold text-gray-800 mb-2">
+          <User className="h-16 w-16 text-[#5FA3A3]/30 mx-auto mb-4" />
+          <h2 className="text-2xl font-bold text-[#0D1414] mb-2">
             কোন বই পাওয়া যায়নি
           </h2>
-          <p className="text-gray-600 mb-6">
+          <p className="text-[#5FA3A3] mb-6">
             এই লেখকের কোন বই খুঁজে পাওয়া যায়নি
           </p>
           <Link href="/kitabghor/authors">
-            <Button className="rounded-full bg-gradient-to-r from-[#819A91] to-[#A7C1A8] text-white px-8">
+            <Button className="rounded-full bg-gradient-to-r from-[#0E4B4B] to-[#5FA3A3] hover:from-[#5FA3A3] hover:to-[#0E4B4B] text-white px-8">
               সকল লেখক দেখুন
             </Button>
           </Link>
@@ -247,22 +247,22 @@ export default function AuthorBooksPage() {
   }
 
   return (
-    <div className="min-h-screen bg-gradient-to-b from-[#EEEFE0]/30 to-white py-8 md:py-12 lg:py-16">
+    <div className="min-h-screen bg-gradient-to-b from-[#F4F8F7]/30 to-white py-8 md:py-12 lg:py-16">
       <div className="container mx-auto px-4 sm:px-6 lg:px-8">
         {/* Enhanced Header */}
         <div className="mb-8 md:mb-12">
           <div className="flex items-center gap-4 mb-6">
             <Link
               href="/kitabghor/authors"
-              className="flex items-center gap-2 text-[#819A91] hover:text-[#A7C1A8] transition-colors duration-300 group"
+              className="flex items-center gap-2 text-[#0E4B4B] hover:text-[#5FA3A3] transition-colors duration-300 group"
             >
               <ArrowLeft className="h-5 w-5 group-hover:-translate-x-1 transition-transform" />
               <span>সকল লেখক</span>
             </Link>
-            <div className="w-1 h-8 bg-gradient-to-b from-[#819A91] to-[#A7C1A8] rounded-full"></div>
+            <div className="w-1 h-8 bg-gradient-to-b from-[#0E4B4B] to-[#5FA3A3] rounded-full"></div>
           </div>
 
-          <div className="bg-gradient-to-r from-[#819A91] to-[#A7C1A8] rounded-2xl p-6 md:p-8 text-white">
+          <div className="bg-gradient-to-r from-[#0E4B4B] to-[#5FA3A3] rounded-2xl p-6 md:p-8 text-white">
             <div className="flex flex-col md:flex-row items-center gap-6 md:gap-8">
               {/* Author Avatar */}
               <div className="relative">
@@ -281,7 +281,7 @@ export default function AuthorBooksPage() {
                     )}
                   </div>
                 </div>
-                <div className="absolute -bottom-2 -right-2 bg-white text-[#819A91] p-2 rounded-full shadow-lg">
+                <div className="absolute -bottom-2 -right-2 bg-white text-[#0E4B4B] p-2 rounded-full shadow-lg">
                   <PenTool className="h-4 w-4" />
                 </div>
               </div>
@@ -327,22 +327,22 @@ export default function AuthorBooksPage() {
             return (
               <Card
                 key={book.id}
-                className="group overflow-hidden border-0 bg-gradient-to-br from-white to-[#EEEFE0] shadow-lg hover:shadow-2xl transition-all duration-500 rounded-2xl relative"
+                className="group overflow-hidden border-0 bg-gradient-to-br from-white to-[#F4F8F7] shadow-lg hover:shadow-2xl transition-all duration-500 rounded-2xl relative"
               >
                 {/* Badges */}
                 <div className="absolute top-3 left-3 z-10 flex flex-col gap-2">
                   {enhancedBook.discount > 0 && (
-                    <div className="bg-gradient-to-r from-[#819A91] to-[#A7C1A8] text-white text-xs font-bold px-3 py-1 rounded-full shadow-lg">
+                    <div className="bg-gradient-to-r from-[#0E4B4B] to-[#5FA3A3] text-white text-xs font-bold px-3 py-1 rounded-full shadow-lg">
                       {enhancedBook.discount}% ছাড়
                     </div>
                   )}
                   {enhancedBook.isBestseller && (
-                    <div className="bg-gradient-to-r from-amber-500 to-orange-500 text-white text-xs font-bold px-3 py-1 rounded-full shadow-lg">
+                    <div className="bg-gradient-to-r from-[#C0704D] to-[#A85D3F] text-white text-xs font-bold px-3 py-1 rounded-full shadow-lg">
                       বেস্টসেলার
                     </div>
                   )}
                   {enhancedBook.isNew && (
-                    <div className="bg-gradient-to-r from-emerald-500 to-green-500 text-white text-xs font-bold px-3 py-1 rounded-full shadow-lg">
+                    <div className="bg-gradient-to-r from-[#5FA3A3] to-[#0E4B4B] text-white text-xs font-bold px-3 py-1 rounded-full shadow-lg">
                       নতুন
                     </div>
                   )}
@@ -385,7 +385,7 @@ export default function AuthorBooksPage() {
                     {/* Quick View */}
                     <div className="absolute inset-0 flex items-center justify-center opacity-0 group-hover:opacity-100 transition-all	duration-300">
                       <div className="bg-white/90 backdrop-blur-sm rounded-full p-3 transform translate-y-4 group-hover:translate-y-0 transition-transform	duration-300">
-                        <BookOpen className="h-6 w-6 text-[#819A91]" />
+                        <BookOpen className="h-6 w-6 text-[#0E4B4B]" />
                       </div>
                     </div>
                   </div>
@@ -408,12 +408,12 @@ export default function AuthorBooksPage() {
                             />
                           ))}
                         </div>
-                        <span className="text-xs text-gray-500 ml-1">
+                        <span className="text-xs text-[#5FA3A3] ml-1">
                           ({avgRating.toFixed(1)} · {reviewCount} রিভিউ)
                         </span>
                       </>
                     ) : (
-                      <span className="text-xs text-gray-400">
+                      <span className="text-xs text-[#5FA3A3]/50">
                         এখনও কোন রিভিউ নেই
                       </span>
                     )}
@@ -421,31 +421,31 @@ export default function AuthorBooksPage() {
 
                   {/* Book Title */}
                   <Link href={`/kitabghor/books/${book.id}`}>
-                    <h4 className="font-bold text-lg mb-2 text-gray-800 hover:text-[#819A91] duration-300 line-clamp-2 leading-tight group-hover:translate-x-1 transition-transform">
+                    <h4 className="font-bold text-lg mb-2 text-[#0D1414] hover:text-[#0E4B4B] duration-300 line-clamp-2 leading-tight group-hover:translate-x-1 transition-transform">
                       {book.name}
                     </h4>
                   </Link>
 
                   {/* Author */}
-                  <p className="text-sm text-gray-600 mb-3 flex items-center">
-                    <span className="w-1 h-1 bg-[#819A91] rounded-full mr-2"></span>
+                  <p className="text-sm text-[#5FA3A3] mb-3 flex items-center">
+                    <span className="w-1 h-1 bg-[#0E4B4B] rounded-full mr-2"></span>
                     {book.writer.name}
                   </p>
 
                   {/* Price */}
                   <div className="flex items-center justify-between mb-3">
                     <div className="flex items-baseline gap-2">
-                      <span className="font-bold text-xl text-[#819A91]">
+                      <span className="font-bold text-xl text-[#0E4B4B]">
                         ৳{book.price}
                       </span>
                       {book.discount > 0 && (
-                        <span className="text-sm text-gray-500 line-through">
+                        <span className="text-sm text-[#5FA3A3]/60 line-through">
                           ৳{book.original_price}
                         </span>
                       )}
                     </div>
                     {book.stock > 0 ? (
-                      <div className="text-xs font-semibold bg-emerald-50 text-emerald-700 px-2 py-1 rounded-full">
+                      <div className="text-xs font-semibold bg-[#F4F8F7] text-[#0E4B4B] px-2 py-1 rounded-full border border-[#5FA3A3]/30">
                         স্টকে আছে
                       </div>
                     ) : (
@@ -458,7 +458,7 @@ export default function AuthorBooksPage() {
 
                 <CardFooter className="p-4 sm:p-5 pt-0">
                   <Button
-                    className="w-full rounded-xl py-3 sm:py-4 bg-gradient-to-r from-[#819A91] to-[#A7C1A8] hover:from-[#A7C1A8] hover:to-[#819A91] text-white font-semibold border-0 shadow-md hover:shadow-lg transition-all duration-300 hover:scale-105 group/btn"
+                    className="w-full rounded-xl py-3 sm:py-4 bg-gradient-to-r from-[#187a7a] to-[#5b9b9b] hover:from-[#0E4B4B] hover:to-[#42a8a8] text-white font-semibold border-0 shadow-md hover:shadow-lg transition-all duration-300 hover:scale-105 group/btn"
                     onClick={() => handleAddToCart(book)}
                   >
                     <ShoppingCart className="mr-2 h-4 w-4 group-hover/btn:scale-110 transition-transform" />
@@ -467,25 +467,25 @@ export default function AuthorBooksPage() {
                 </CardFooter>
 
                 {/* Hover Effect Border */}
-                <div className="absolute inset-0 rounded-2xl border-2 border-transparent group-hover:border-[#819A91]/20 transition-all	duration-500 pointer-events-none"></div>
+                <div className="absolute inset-0 rounded-2xl border-2 border-transparent group-hover:border-[#5FA3A3]/20 transition-all	duration-500 pointer-events-none"></div>
               </Card>
             );
           })}
         </div>
 
         {/* Bottom Navigation */}
-        <div className="flex justify-between items-center mt-12 pt-8 border-t border-[#D1D8BE]">
+        <div className="flex justify-between items-center mt-12 pt-8 border-t border-[#5FA3A3]/30">
           <Link
             href="/kitabghor/authors"
-            className="flex items-center gap-2 text-[#819A91] hover:text-[#A7C1A8] transition-colors	duration-300 group"
+            className="flex items-center gap-2 text-[#0E4B4B] hover:text-[#5FA3A3] transition-colors	duration-300 group"
           >
             <ArrowLeft className="h-5 w-5 group-hover:-translate-x-1 transition-transform" />
             <span>সকল লেখকের বই দেখুন</span>
           </Link>
 
-          <div className="text-sm text-gray-600">
+          <div className="text-sm text-[#5FA3A3]">
             মোট{" "}
-            <span className="font-semibold text-[#819A91]">
+            <span className="font-semibold text-[#0E4B4B]">
               {authorBooks.length}
             </span>{" "}
             টি বই
