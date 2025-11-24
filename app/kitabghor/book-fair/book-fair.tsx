@@ -466,7 +466,7 @@ export default function BookFairPage() {
 
                       {/* Enhanced Author */}
                       <p className="text-sm text-gray-600 mb-4 flex items-center">
-                        <div className="w-1.5 h-1.5 bg-gradient-to-r from-emerald-600 to-teal-600 rounded-full mr-3"></div>
+                        <span className="w-1.5 h-1.5 bg-gradient-to-r from-emerald-600 to-teal-600 rounded-full mr-3 inline-block"></span>
                         <span className="font-medium">{book.writer.name}</span>
                       </p>
 

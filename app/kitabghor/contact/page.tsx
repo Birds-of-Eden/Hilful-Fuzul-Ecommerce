@@ -9,6 +9,9 @@ import {
   MessageCircle,
   User,
   BookOpen,
+  CheckCircle,
+  AlertCircle,
+  Loader2,
 } from "lucide-react";
 import { Button } from "@/components/ui/button";
 
@@ -20,10 +23,90 @@ export default function ContactPage() {
     message: "",
   });
 
-  const handleSubmit = (e: React.FormEvent) => {
+  const [isSubmitting, setIsSubmitting] = useState(false);
+  const [submitStatus, setSubmitStatus] = useState<
+    "idle" | "success" | "error"
+  >("idle");
+  const [errorMessage, setErrorMessage] = useState("");
+
+  const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
-    // Handle form submission here
-    console.log("Form submitted:", formData);
+    setIsSubmitting(true);
+    setSubmitStatus("idle");
+    setErrorMessage("");
+
+    try {
+      // Validate form data
+      if (
+        !formData.name ||
+        !formData.email ||
+        !formData.subject ||
+        !formData.message
+      ) {
+        throw new Error("অনুগ্রহ করে সকল ঘর পূরণ করুন");
+      }
+
+      // Validate email format
+      const emailRegex = /^[^\s@]+@[^\s@]+\.[^\s@]+$/;
+      if (!emailRegex.test(formData.email)) {
+        throw new Error("অনুগ্রহ করে একটি সঠিক ইমেইল ঠিকানা দিন");
+      }
+
+      // Create email content
+      const emailContent = {
+        to: "islamidawainstitute@gmail.com, service@birdsofeden.me",
+        subject: `নতুন যোগাযোগ মেসেজ: ${formData.subject}`,
+        body: `
+নাম: ${formData.name}
+ইমেইল: ${formData.email}
+বিষয়: ${formData.subject}
+
+মেসেজ:
+${formData.message}
+
+---
+এই মেসেজটি হিলফুল-ফুযুল বইয়ের দোকান ওয়েবসাইট থেকে পাঠানো হয়েছে।
+সময়: ${new Date().toLocaleString("bn-BD", { timeZone: "Asia/Dhaka" })}
+        `,
+        replyTo: formData.email,
+      };
+
+      // Send email via API
+      const response = await fetch('/api/contact', {
+        method: 'POST',
+        headers: {
+          'Content-Type': 'application/json',
+        },
+        body: JSON.stringify(formData),
+      });
+      
+      const result = await response.json();
+      
+      if (!response.ok || !result.success) {
+        throw new Error(result.error || 'মেসেজ পাঠাতে সমস্যা হয়েছে, অনুগ্রহ করে আবার চেষ্টা করুন');
+      }
+      
+      // Show success message
+      setSubmitStatus("success");
+      
+      // Reset form
+      setFormData({
+        name: "",
+        email: "",
+        subject: "",
+        message: "",
+      });
+    } catch (error) {
+      console.error("Form submission error:", error);
+      setSubmitStatus("error");
+      setErrorMessage(
+        error instanceof Error
+          ? error.message
+          : "মেসেজ পাঠাতে সমস্যা হয়েছে, অনুগ্রহ করে আবার চেষ্টা করুন"
+      );
+    } finally {
+      setIsSubmitting(false);
+    }
   };
 
   const handleChange = (
@@ -209,12 +292,49 @@ export default function ContactPage() {
                   />
                 </div>
 
+                {/* Status Messages */}
+                {submitStatus === "success" && (
+                  <div className="p-4 bg-green-50 border border-green-200 rounded-lg flex items-center space-x-3">
+                    <CheckCircle className="h-5 w-5 text-green-600 flex-shrink-0" />
+                    <div>
+                      <p className="text-green-800 font-semibold">
+                        মেসেজ সফলভাবে পাঠানো হয়েছে!
+                      </p>
+                      <p className="text-green-700 text-sm">
+                        আমরা শীঘ্রই আপনার সাথে যোগাযোগ করব।
+                      </p>
+                    </div>
+                  </div>
+                )}
+
+                {submitStatus === "error" && (
+                  <div className="p-4 bg-red-50 border border-red-200 rounded-lg flex items-center space-x-3">
+                    <AlertCircle className="h-5 w-5 text-red-600 flex-shrink-0" />
+                    <div>
+                      <p className="text-red-800 font-semibold">
+                        মেসেজ পাঠাতে সমস্যা হয়েছে
+                      </p>
+                      <p className="text-red-700 text-sm">{errorMessage}</p>
+                    </div>
+                  </div>
+                )}
+
                 <Button
                   type="submit"
-                  className="w-full bg-[#C0704D] hover:bg-[#A85D3F] text-[#F4F8F7] font-semibold py-3 rounded-lg transition-all duration-300 hover:shadow-lg hover:scale-105 flex items-center justify-center space-x-2"
+                  disabled={isSubmitting}
+                  className="w-full bg-[#C0704D] hover:bg-[#A85D3F] text-[#F4F8F7] font-semibold py-3 rounded-lg transition-all duration-300 hover:shadow-lg hover:scale-105 flex items-center justify-center space-x-2 disabled:opacity-50 disabled:cursor-not-allowed disabled:transform-none"
                 >
-                  <Send className="h-4 w-4" />
-                  <span>মেসেজ পাঠান</span>
+                  {isSubmitting ? (
+                    <>
+                      <Loader2 className="h-4 w-4 animate-spin" />
+                      <span>পাঠানো হচ্ছে...</span>
+                    </>
+                  ) : (
+                    <>
+                      <Send className="h-4 w-4" />
+                      <span>মেসেজ পাঠান</span>
+                    </>
+                  )}
                 </Button>
               </form>
             </div>
@@ -252,7 +372,7 @@ export default function ContactPage() {
                       লেখক হওয়ার জন্য
                     </h4>
                     <p className="text-sm text-[#0D1414]">
-                      আপনার বই প্রকাশ করতে চাইলে publisher@hilfulfujul.com এ
+                      আপনার বই প্রকাশ করতে চাইলে islamidawainstitute@gmail.com এ
                       মেইল করুন।
                     </p>
                   </div>
