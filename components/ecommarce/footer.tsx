@@ -153,9 +153,9 @@ export default function Footer() {
                 {[
                   { href: "/kitabghor/books/", label: "সকল বই" },
                   { href: "/kitabghor/categories", label: "বিষয়সমূহ" },
-                  { href: "/about", label: "আমাদের সম্পর্কে" },
-                  { href: "/contact", label: "যোগাযোগ" },
-                  { href: "/faq", label: "সাধারণ জিজ্ঞাসা" },
+                  { href: "/kitabghor/about", label: "আমাদের সম্পর্কে" },
+                  { href: "/kitabghor/contact", label: "যোগাযোগ" },
+                  { href: "/kitabghor/faq", label: "সাধারণ জিজ্ঞাসা" },
                 ].map((link) => (
                   <li key={link.href}>
                     <Link
@@ -178,10 +178,10 @@ export default function Footer() {
               </h3>
               <ul className="space-y-3">
                 {[
-                  { href: "/shipping", label: "শিপিং নীতিমালা", icon: Truck },
-                  { href: "/returns", label: "রিটার্ন এবং রিফান্ড", icon: HeadphonesIcon },
-                  { href: "/privacy", label: "প্রাইভেসি পলিসি", icon: Shield },
-                  { href: "/terms", label: "ব্যবহারের শর্তাবলি", icon: BookOpen },
+                  { href: "/kitabghor/shipping", label: "শিপিং নীতিমালা", icon: Truck },
+                  { href: "/kitabghor/returns", label: "রিটার্ন এবং রিফান্ড", icon: HeadphonesIcon },
+                  { href: "/kitabghor/privacy", label: "প্রাইভেসি পলিসি", icon: Shield },
+                  { href: "/kitabghor/terms", label: "ব্যবহারের শর্তাবলি", icon: BookOpen },
                 ].map((link) => (
                   <li key={link.href}>
                     <Link
