@@ -179,7 +179,7 @@ ${formData.message}
               </h3>
               <p className="text-[#0D1414]">
                 islamidawainstitute@gmail.com <br />
-                atservice@birdsofeden.me
+                islamidawainstitute@gmail.com
               </p>
             </div>
 

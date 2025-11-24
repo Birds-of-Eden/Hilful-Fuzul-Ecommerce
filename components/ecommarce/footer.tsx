@@ -76,7 +76,7 @@ export default function Footer() {
                 </div>
                 <div>
                   <p className="text-sm text-white">ইমেইল করুন</p>
-                  <p className="font-semibold text-[#F4F8F7]">atservice@birdsofeden.me</p>
+                  <p className="font-semibold text-[#F4F8F7]">islamidawainstitute@gmail.com</p>
                 </div>
               </div>
 

@@ -236,9 +236,9 @@ export default function FAQPage() {
     {
       icon: Mail,
       title: "ইমেইল করুন",
-      description: "atservice@birdsofeden.me",
+      description: "islamidawainstitute@gmail.com",
       action: "মেইল করুন",
-      href: "mailto:atservice@birdsofeden.me"
+      href: "mailto:islamidawainstitute@gmail.com"
     },
     {
       icon: Clock,
