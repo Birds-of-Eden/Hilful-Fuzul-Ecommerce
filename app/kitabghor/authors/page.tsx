@@ -1,6 +1,6 @@
 "use client";
 
-import { useState, useEffect } from "react";
+import { useState, useEffect, useRef } from "react";
 import Link from "next/link";
 import Image from "next/image";
 import { Card, CardContent } from "@/components/ui/card";
@@ -21,41 +21,76 @@ export default function AuthorCategoriesPage() {
   const [authors, setAuthors] = useState<Writer[]>([]);
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState<string | null>(null);
+  const isMounted = useRef(true);
 
   useEffect(() => {
+    const abortController = new AbortController();
+    const signal = abortController.signal;
+    isMounted.current = true;
+
+    // Add a timeout to prevent infinite loading
+    const timeoutId = setTimeout(() => {
+      if (isMounted.current && loading) {
+        console.error('Request timeout - taking too long to fetch writers');
+        setError("লোড হতে অনেক সময় লাগছে। দয়া করে পুনরায় চেষ্টা করুন।");
+        setLoading(false);
+      }
+    }, 10000); // 10 seconds timeout
+
     const fetchWriters = async () => {
       try {
-        setLoading(true);
-        setError(null);
-
-        const res = await fetch("/api/writers");
+        console.log('Fetching writers...');
+        const res = await fetch("/api/writers", { signal });
+        
         if (!res.ok) {
-          throw new Error("Failed to fetch writers");
+          const errorText = await res.text();
+          throw new Error(`HTTP error! status: ${res.status}, message: ${errorText}`);
         }
 
-        const data: Writer[] = await res.json();
+        const data = await res.json();
+        console.log('API Response:', data);
+        
+        if (!isMounted.current) return;
+        
+        if (!Array.isArray(data)) {
+          throw new Error(`Expected array but got ${typeof data}`);
+        }
 
-        // 🔁 Normalize bookCount যাতে সব জায়গায় ঠিকমতো count পাই
+        if (data.length === 0) {
+          console.log('No writers found');
+          setAuthors([]);
+          setError("কোন লেখক পাওয়া যায়নি");
+          return;
+        }
+
         const normalized = data.map((w) => ({
           ...w,
-          bookCount:
-            w.bookCount ??
-            w.productCount ??
-            w._count?.products ??
-            0,
+          bookCount: w.bookCount ?? w.productCount ?? w._count?.products ?? 0,
         }));
 
+        console.log('Normalized writers:', normalized);
         setAuthors(normalized);
-      } catch (error) {
-        console.error(error);
+        setError(null);
+      } catch (error: any) {
+        if (!isMounted.current || error.name === 'AbortError') return;
+        console.error('Error in fetchWriters:', error);
+        setError("লেখকদের তালিকা লোড করতে সমস্যা হয়েছে। দয়া করে পুনরায় চেষ্টা করুন।");
         setAuthors([]);
-        setError("ডাটা লোড করতে সমস্যা হচ্ছে");
       } finally {
-        setLoading(false);
+        clearTimeout(timeoutId);
+        if (isMounted.current) {
+          setLoading(false);
+        }
       }
     };
 
     fetchWriters();
+
+    return () => {
+      isMounted.current = false;
+      abortController.abort();
+      clearTimeout(timeoutId);
+    };
   }, []);
 
   // ⏳ Loader state
@@ -150,11 +185,17 @@ export default function AuthorCategoriesPage() {
                       <div className="relative bg-white p-1 rounded-2xl shadow-lg group-hover:shadow-xl transition-all duration-300 group-hover:scale-110 border-2 border-[#5FA3A3]/30">
                         <div className="w-20 h-20 md:w-24 md:h-24 rounded-xl overflow-hidden relative bg-gradient-to-br from-[#F4F8F7] to-[#5FA3A3]/20 flex items-center justify-center">
                           <Image
-                            src="/assets/authors/profile.png"
+                            src={author.image || "/assets/authors/profile.png"}
                             alt={author.name}
-                            fill
+                            width={96}
+                            height={96}
                             className="object-cover transition-transform duration-700 group-hover:scale-110"
                             sizes="(max-width: 768px) 100vw, (max-width: 1200px) 50vw, 33vw"
+                            onError={(e) => {
+                              // If the image fails to load, fall back to the default profile image
+                              const target = e.target as HTMLImageElement;
+                              target.src = "/assets/authors/profile.png";
+                            }}
                           />
                           {/* Fallback Icon */}
                           <div className="absolute inset-0 bg-black/10 flex items-center justify-center opacity-0 group-hover:opacity-100 transition-opacity duration-300">

@@ -32,28 +32,51 @@ interface RatingInfo {
   totalReviews: number;
 }
 
-export default function CategoryBooks({ category }: { category: Category }) {
+export default function CategoryBooks({
+  category,
+  allProducts,
+  ratings,
+}: {
+  category: Category;
+  allProducts?: Product[];
+  ratings?: Record<string, RatingInfo>;
+}) {
   const { addToCart } = useCart();
   const { addToWishlist, removeFromWishlist, isInWishlist } = useWishlist();
   const { data: session } = useSession();
 
-  const [allProducts, setAllProducts] = useState<Product[]>([]);
-  const [ratings, setRatings] = useState<Record<string, RatingInfo>>({});
-  const [loadingProducts, setLoadingProducts] = useState(true);
+  // Use shared data if provided, otherwise fall back to local fetching
+  const [localProducts, setLocalProducts] = useState<Product[]>([]);
+  const [localRatings, setLocalRatings] = useState<Record<string, RatingInfo>>(
+    {}
+  );
+  const [loadingProducts, setLoadingProducts] = useState(!allProducts);
 
-  // 🔹 /api/products থেকে সব প্রোডাক্ট লোড
+  // 🔹 Use shared products or fetch locally if not provided
+  const products = allProducts || localProducts;
+  const reviewRatings = ratings || localRatings;
+
+  // 🔹 Only fetch locally if shared data is not provided
   useEffect(() => {
+    if (allProducts) {
+      setLoadingProducts(false);
+      return;
+    }
+
     const fetchProducts = async () => {
       try {
         setLoadingProducts(true);
 
-        const res = await fetch("/api/products", { cache: "no-store" });
+        const res = await fetch("/api/products", {
+          cache: "force-cache",
+          next: { revalidate: 300 }, // Cache for 5 minutes
+        });
         if (!res.ok) {
           console.error(
             "Failed to fetch products for CategoryBooks:",
             res.statusText
           );
-          setAllProducts([]);
+          setLocalProducts([]);
           return;
         }
 
@@ -61,15 +84,16 @@ export default function CategoryBooks({ category }: { category: Category }) {
 
         if (!Array.isArray(data)) {
           console.error("Invalid products response for CategoryBooks:", data);
-          setAllProducts([]);
+          setLocalProducts([]);
           return;
         }
 
-        const mapped: Product[] = data.map((p: any) => ({
-          id: p.id,
+        const mapped = data.map((p: any) => ({
+          id: Number(p.id),
           name: p.name,
           category: {
-            id: p.category?.id ?? p.categoryId ?? "unknown",
+            id: Number(p.category?.id ?? 0),
+            name: p.category?.name ?? "Uncategorized",
           },
           price: Number(p.price ?? 0),
           original_price: Number(p.original_price ?? p.price ?? 0),
@@ -81,33 +105,36 @@ export default function CategoryBooks({ category }: { category: Category }) {
           image: p.image ?? "/placeholder.svg",
         }));
 
-        setAllProducts(mapped);
+        setLocalProducts(mapped);
       } catch (err) {
         console.error("Error fetching products for CategoryBooks:", err);
-        setAllProducts([]);
+        setLocalProducts([]);
       } finally {
         setLoadingProducts(false);
       }
     };
 
     fetchProducts();
-  }, []);
+  }, [allProducts]);
 
-  // 🔹 ক্যাটাগরি অনুযায়ি প্রোডাক্ট ফিল্টার
-  const categoryBooks =
-    category.id === "all"
-      ? allProducts
-      : allProducts.filter(
-          (product: Product) =>
-            String(product.category.id) === String(category.id)
-        );
-
-  const displayBooks = categoryBooks.slice(0, 8);
-
-  // ⭐ এই ক্যাটাগরির বইগুলোর রিভিউ থেকে রেটিং লোড
+  // 🔹 Only fetch ratings locally if shared data is not provided
   useEffect(() => {
+    if (ratings) {
+      return;
+    }
+
     const fetchRatings = async () => {
       try {
+        const categoryBooks =
+          category.id === "all"
+            ? products
+            : products.filter(
+                (product: Product) =>
+                  String(product.category.id) === String(category.id)
+              );
+
+        const displayBooks = categoryBooks.slice(0, 8);
+        
         const ids = Array.from(
           new Set(
             displayBooks
@@ -117,7 +144,7 @@ export default function CategoryBooks({ category }: { category: Category }) {
         );
 
         if (ids.length === 0) {
-          setRatings({});
+          setLocalRatings({});
           return;
         }
 
@@ -125,7 +152,8 @@ export default function CategoryBooks({ category }: { category: Category }) {
           ids.map(async (id) => {
             try {
               const res = await fetch(
-                `/api/reviews?productId=${id}&page=1&limit=1`
+                `/api/reviews?productId=${id}&page=1&limit=1`,
+                { cache: "force-cache" }
               );
 
               if (!res.ok) {
@@ -152,17 +180,25 @@ export default function CategoryBooks({ category }: { category: Category }) {
             totalReviews: r.total,
           };
         }
-        setRatings(map);
-      } catch (err) {
-        console.error("Error loading ratings:", err);
+        setLocalRatings(map);
+      } catch (error) {
+        console.error(error);
       }
     };
 
-    if (!loadingProducts) {
-      fetchRatings();
-    }
-    // eslint-disable-next-line react-hooks/exhaustive-deps
-  }, [category.id, loadingProducts, allProducts.length]);
+    fetchRatings();
+  }, [products, category.id, ratings]);
+
+  // 🔹 ক্যাটাগরি অনুযায়ি প্রোডাক্ট ফিল্টার
+  const categoryBooks =
+    category.id === "all"
+      ? products
+      : products.filter(
+          (product: Product) =>
+            String(product.category.id) === String(category.id)
+        );
+
+  const displayBooks = categoryBooks.slice(0, 8);
 
   // 🔹 Wishlist toggle (with API) - শুধু wishlist-এ login required
   const toggleWishlist = async (product: Product) => {
@@ -300,7 +336,7 @@ export default function CategoryBooks({ category }: { category: Category }) {
       {/* Books Grid */}
       <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-8">
         {displayBooks.map((book: Product, index) => {
-          const ratingInfo = ratings[String(book.id)];
+          const ratingInfo = reviewRatings[String(book.id)];
           const avgRating = ratingInfo?.averageRating ?? 0;
           const reviewCount = ratingInfo?.totalReviews ?? 0;
 

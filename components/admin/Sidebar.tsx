@@ -232,7 +232,7 @@ export default function Sidebar({
       {/* Footer */}
       <div className="p-4 border-t border-[#F4F8F7]/10 flex-shrink-0">
         <div className="text-center text-xs text-[#F4F8F7]/50">
-          <p>প্রকাশনী ব্যবস্থাপনা সিস্টেম</p>
+          <p>হিলফুল-ফুযুল প্রকাশনী</p>
           <p className="mt-1">v1.0.0</p>
         </div>
       </div>

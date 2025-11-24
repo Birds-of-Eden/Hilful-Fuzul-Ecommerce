@@ -1,10 +1,11 @@
 "use client";
 
-import { useEffect, useState } from "react";
+import { useEffect, useState, useMemo, useCallback, memo, Suspense } from "react";
 import Link from "next/link";
 import Image from "next/image";
 import { Card, CardContent } from "@/components/ui/card";
 import { Button } from "@/components/ui/button";
+import { Skeleton } from "@/components/ui/skeleton";
 import { MapPin, Building, BookOpen, ArrowRight, Globe } from "lucide-react";
 
 interface PublisherFromApi {
@@ -15,12 +16,12 @@ interface PublisherFromApi {
   products: any[];
 }
 
-export default function PublisherCategoriesPage() {
+const PublisherCategoriesPage = memo(function PublisherCategoriesPage() {
   const [publishers, setPublishers] = useState<PublisherFromApi[]>([]);
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState<string | null>(null);
 
-  // 🔹 API থেকে publishers লোড
+  // 🔹 Optimized publishers fetch with caching
   useEffect(() => {
     const fetchPublishers = async () => {
       try {
@@ -32,19 +33,15 @@ export default function PublisherCategoriesPage() {
           headers: {
             "Content-Type": "application/json",
           },
-          cache: "no-store",
+          cache: "force-cache",
+          next: { revalidate: 600 } // Cache for 10 minutes
         });
 
         if (!res.ok) {
-          const data = await res.json().catch(() => null);
-          console.error("Failed to fetch publishers:", data || res.statusText);
-          setError("প্রকাশক লোড করতে সমস্যা হয়েছে।");
-          setPublishers([]);
-          return;
+          throw new Error("Failed to fetch publishers");
         }
 
         const data = await res.json();
-        // API থেকে যা আসবে তাই স্টেটে বসিয়ে দিচ্ছি
         setPublishers(Array.isArray(data) ? data : []);
       } catch (err) {
         console.error("Error fetching publishers:", err);
@@ -57,6 +54,9 @@ export default function PublisherCategoriesPage() {
 
     fetchPublishers();
   }, []);
+
+  // 🔹 Memoized publishers data
+  const memoizedPublishers = useMemo(() => publishers, [publishers]);
 
   // UI শুরু
   return (
@@ -131,14 +131,18 @@ export default function PublisherCategoriesPage() {
                       <div className="relative bg-white p-2 rounded-2xl shadow-lg group-hover:shadow-xl transition-all duration-300 group-hover:scale-110 border-2 border-[#5FA3A3]/30">
                         <div className="w-16 h-16 md:w-20 md:h-20 rounded-xl overflow-hidden relative bg-gradient-to-br from-[#F4F8F7] to-[#5FA3A3]/20 flex items-center justify-center">
                           <Image
-                            src={
-                              publisher.image ||
-                              "/assets/publication/logo.jpg"
-                            }
+                            src={publisher.image || "/placeholder.svg"}
                             alt={publisher.name}
                             fill
-                            className="object-cover transition-transform duration-700 group-hover:scale-110"
+                            className="object-cover transition-transform duration-500 group-hover:scale-110"
                             sizes="(max-width: 768px) 100vw, (max-width: 1200px) 50vw, 33vw"
+                            loading="lazy"
+                            placeholder="blur"
+                            blurDataURL="data:image/jpeg;base64,/9j/4AAQSkZJRgABAQAAAQABAAD/2wBDAAYEBQYFBAYGBQYHBwYIChAKCgkJChQODwwQFxQYGBcUFhYaHSUfGhsjHBYWICwgIyYnKSopGR8tMC0oMCUoKSj/2wBDAQcHBwoIChMKChMoGhYaKCgoKCgoKCgoKCgoKCgoKCgoKCgoKCgoKCgoKCgoKCgoKCgoKCgoKCgoKCgoKCgoKCj/wAARCAABAAEDASIAAhEBAxEB/8QAFQABAQAAAAAAAAAAAAAAAAAAAAv/xAAUEAEAAAAAAAAAAAAAAAAAAAAA/8QAFQEBAQAAAAAAAAAAAAAAAAAAAAX/xAAUEQEAAAAAAAAAAAAAAAAAAAAA/9oADAMBAAIRAxEAPwCdABmX/9k="
+                            onError={(e) => {
+                              const target = e.target as HTMLImageElement;
+                              target.src = "/placeholder.svg";
+                            }}
                           />
                           {/* Fallback Icon Overlay */}
                           <div className="absolute inset-0 bg-black/10 flex items-center justify-center opacity-0 group-hover:opacity-100 transition-opacity duration-300">
@@ -224,6 +228,51 @@ export default function PublisherCategoriesPage() {
             })}
           </div>
         )}
+      </div>
+    </div>
+  );
+});
+
+PublisherCategoriesPage.displayName = 'PublisherCategoriesPage';
+
+export default function PublishersPage() {
+  return (
+    <Suspense fallback={<PublishersSkeleton />}>
+      <PublisherCategoriesPage />
+    </Suspense>
+  );
+}
+
+// Skeleton component for loading state
+function PublishersSkeleton() {
+  return (
+    <div className="min-h-screen bg-gradient-to-br from-slate-50 via-white to-gray-50 py-12">
+      <div className="container mx-auto px-4 sm:px-6 lg:px-8">
+        {/* Header Skeleton */}
+        <div className="text-center mb-16">
+          <Skeleton className="h-16 w-48 mx-auto mb-4" />
+          <Skeleton className="h-6 w-96 mx-auto" />
+        </div>
+
+        {/* Grid Skeleton */}
+        <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 xl:grid-cols-4 gap-8">
+          {[...Array(8)].map((_, i) => (
+            <Card key={i} className="group overflow-hidden bg-white rounded-2xl shadow-lg hover:shadow-2xl transition-all duration-500">
+              <div className="relative h-48 overflow-hidden">
+                <Skeleton className="h-full w-full" />
+              </div>
+              <CardContent className="p-6 space-y-4">
+                <Skeleton className="h-6 w-3/4" />
+                <Skeleton className="h-4 w-full" />
+                <Skeleton className="h-4 w-2/3" />
+                <div className="flex justify-between items-center pt-4">
+                  <Skeleton className="h-8 w-20" />
+                  <Skeleton className="h-10 w-24" />
+                </div>
+              </CardContent>
+            </Card>
+          ))}
+        </div>
       </div>
     </div>
   );

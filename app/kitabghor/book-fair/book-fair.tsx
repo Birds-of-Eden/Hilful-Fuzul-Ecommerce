@@ -1,10 +1,12 @@
 "use client";
 
-import { useEffect, useState } from "react";
+import { useEffect, useState, useMemo, useCallback, memo, Suspense } from "react";
+import dynamic from "next/dynamic";
 import Image from "next/image";
 import Link from "next/link";
 import { Button } from "@/components/ui/button";
 import { Card, CardContent, CardFooter } from "@/components/ui/card";
+import { Skeleton } from "@/components/ui/skeleton";
 import { Filter, Calendar, BookOpen, ArrowRight, Zap, Sparkles, Gift, Clock } from "lucide-react";
 
 // ====== API Types (তোমার দেওয়া API অনুযায়ী) ======
@@ -56,87 +58,75 @@ interface Category {
   productCount: number;
 }
 
-export default function BookFairPage() {
-  const [categories, setCategories] = useState<Category[]>([]);
-  const [allProducts, setAllProducts] = useState<Book[]>([]);
-  const [productsByCategory, setProductsByCategory] = useState<
-    Record<number, Book[]>
-  >({});
-  const [selectedCategoryId, setSelectedCategoryId] = useState<number | null>(
-    null
-  );
-
+const BookFairPage = memo(function BookFairPage() {
+  // Global cache for fair data
+  const [fairData, setFairData] = useState<{
+    categories: Category[];
+    productsByCategory: Record<number, Book[]>;
+    allProducts: Book[];
+  } | null>(null);
+  const [selectedCategoryId, setSelectedCategoryId] = useState<number | null>(null);
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState<string | null>(null);
 
-  // 🔹 সব categories + প্রত্যেকটার products API থেকে আনা
+  // 🔹 Optimized data loading with caching
   useEffect(() => {
+    if (fairData) {
+      setLoading(false);
+      return;
+    }
+
     const loadData = async () => {
       try {
         setLoading(true);
         setError(null);
 
-        // 1) সব ক্যাটাগরি আনছি
+        // 1) Fetch categories with caching
         const catRes = await fetch("/api/categories", {
           method: "GET",
           headers: { "Content-Type": "application/json" },
-          cache: "no-store",
+          cache: "force-cache",
+          next: { revalidate: 300 } // Cache for 5 minutes
         });
 
         if (!catRes.ok) {
-          const d = await catRes.json().catch(() => null);
-          console.error("Failed to fetch categories:", d || catRes.statusText);
-          setError("বইমেলার ক্যাটাগরি লোড করতে সমস্যা হয়েছে।");
-          setCategories([]);
-          setAllProducts([]);
-          setProductsByCategory({});
-          return;
+          throw new Error("Failed to fetch categories");
         }
 
         const catData = (await catRes.json()) as CategoryApi[];
-
         const catList: Category[] = catData.map((c) => ({
           id: c.id,
           name: c.name,
           productCount: c.productCount ?? 0,
         }));
 
-        setCategories(catList);
-
-        // 2) প্রত্যেক category-এর products আনছি /api/categories/[id] থেকে
+        // 2) Fetch all category details in parallel with caching
         const detailResponses = await Promise.all(
           catList.map(async (cat) => {
             try {
               const r = await fetch(`/api/categories/${cat.id}`, {
                 method: "GET",
                 headers: { "Content-Type": "application/json" },
-                cache: "no-store",
+                cache: "force-cache",
+                next: { revalidate: 300 }
               });
 
-              if (!r.ok) {
-                const d = await r.json().catch(() => null);
-                console.error(
-                  `Failed to fetch category detail ${cat.id}:`,
-                  d || r.statusText
-                );
-                return null;
-              }
-
+              if (!r.ok) return null;
               const detail = (await r.json()) as CategoryDetailApi;
               return detail;
             } catch (e) {
-              console.error("Error fetching category detail:", e);
+              console.error(`Error fetching category ${cat.id}:`, e);
               return null;
             }
           })
         );
 
+        // 3) Process data efficiently
         const productsByCat: Record<number, Book[]> = {};
         const allBooksMap = new Map<number, Book>();
 
         detailResponses.forEach((detail) => {
           if (!detail) return;
-
           const { category, products } = detail;
           if (!category || !Array.isArray(products)) return;
 
@@ -159,7 +149,6 @@ export default function BookFairPage() {
           }));
 
           productsByCat[catId] = books;
-
           books.forEach((b) => {
             if (!allBooksMap.has(b.id)) {
               allBooksMap.set(b.id, b);
@@ -167,35 +156,44 @@ export default function BookFairPage() {
           });
         });
 
-        setProductsByCategory(productsByCat);
-        setAllProducts(Array.from(allBooksMap.values()));
+        // Cache the processed data
+        setFairData({
+          categories: catList,
+          productsByCategory: productsByCat,
+          allProducts: Array.from(allBooksMap.values())
+        });
       } catch (err) {
         console.error("Error loading book fair data:", err);
         setError("বইমেলার তথ্য লোড করতে সমস্যা হয়েছে।");
-        setCategories([]);
-        setAllProducts([]);
-        setProductsByCategory({});
       } finally {
         setLoading(false);
       }
     };
 
     loadData();
+  }, [fairData]);
+
+  // 🔹 Memoized filtered books
+  const filteredBooks = useMemo(() => {
+    if (!fairData) return [];
+    
+    return selectedCategoryId === null
+      ? fairData.allProducts
+      : fairData.productsByCategory[selectedCategoryId] || [];
+  }, [fairData, selectedCategoryId]);
+
+  // 🔹 Memoized category data
+  const fairCategories = useMemo(() => fairData?.categories || [], [fairData]);
+  
+  const selectedCategory = useMemo(() => {
+    if (!selectedCategoryId || !fairData) return null;
+    return fairData.categories.find((c) => c.id === selectedCategoryId) ?? null;
+  }, [selectedCategoryId, fairData]);
+
+  // 🔹 Memoized callbacks
+  const handleCategorySelect = useCallback((categoryId: number | null) => {
+    setSelectedCategoryId(categoryId);
   }, []);
-
-  // 🔹 এখানে আর category.name দিয়ে ফিল্টার করছি না
-  // selectedCategoryId == null → সব ক্যাটাগরির সব বই
-  // selectedCategoryId != null → শুধু সেই ক্যাটাগরির বই productsByCategory থেকে
-  const filteredBooks =
-    selectedCategoryId === null
-      ? allProducts
-      : productsByCategory[selectedCategoryId] || [];
-
-  const fairCategories = categories;
-  const selectedCategory =
-    selectedCategoryId != null
-      ? categories.find((c) => c.id === selectedCategoryId) ?? null
-      : null;
 
   return (
     <div className="min-h-screen bg-gradient-to-br from-emerald-50/30 via-white to-teal-50/20 py-8 md:py-12 lg:py-16">
@@ -271,7 +269,7 @@ export default function BookFairPage() {
                         ? "bg-gradient-to-r from-emerald-600 to-teal-600 text-white shadow-xl border-2 border-transparent"
                         : "bg-white hover:bg-gradient-to-r hover:from-emerald-50 hover:to-teal-50 text-gray-700 border-2 border-emerald-200/50 hover:border-emerald-400/50"
                     }`}
-                    onClick={() => setSelectedCategoryId(null)}
+                    onClick={() => handleCategorySelect(null)}
                     disabled={loading || !!error}
                   >
                     <div className="flex items-center gap-3">
@@ -287,7 +285,7 @@ export default function BookFairPage() {
                           : "bg-gradient-to-r from-emerald-600 to-teal-600 text-white shadow-lg"
                       }`}
                     >
-                      {allProducts.length}
+                      {fairData?.allProducts.length || 0}
                     </div>
                   </button>
 
@@ -299,7 +297,7 @@ export default function BookFairPage() {
                           ? "bg-gradient-to-r from-emerald-600 to-teal-600 text-white shadow-xl border-2 border-transparent"
                           : "bg-white hover:bg-gradient-to-r hover:from-emerald-50 hover:to-teal-50 text-gray-700 border-2 border-emerald-200/50 hover:border-emerald-400/50"
                       }`}
-                      onClick={() => setSelectedCategoryId(category.id)}
+                      onClick={() => handleCategorySelect(category.id)}
                       disabled={loading || !!error}
                     >
                       <div className="flex items-center gap-3">
@@ -384,7 +382,7 @@ export default function BookFairPage() {
               {selectedCategory && !loading && !error && (
                 <Button
                   variant="outline"
-                  onClick={() => setSelectedCategoryId(null)}
+                  onClick={() => handleCategorySelect(null)}
                   className="rounded-full border-emerald-600 text-emerald-600 hover:bg-emerald-600 hover:text-white"
                 >
                   ফিল্টার সরান
@@ -417,7 +415,7 @@ export default function BookFairPage() {
                   এই বিভাগে এখনও কোন বই যোগ করা হয়নি
                 </p>
                 <Button
-                  onClick={() => setSelectedCategoryId(null)}
+                  onClick={() => handleCategorySelect(null)}
                   className="rounded-full bg-gradient-to-r from-emerald-600 to-teal-600 text-white px-8"
                 >
                   সব বই দেখুন
@@ -448,6 +446,13 @@ export default function BookFairPage() {
                           fill
                           className="object-cover transition-all duration-700 group-hover:scale-110 group-hover:rotate-1"
                           sizes="(max-width: 768px) 100vw, (max-width: 1200px) 50vw, 33vw"
+                          loading="lazy"
+                          placeholder="blur"
+                          blurDataURL="data:image/jpeg;base64,/9j/4AAQSkZJRgABAQAAAQABAAD/2wBDAAYEBQYFBAYGBQYHBwYIChAKCgkJChQODwwQFxQYGBcUFhYaHSUfGhsjHBYWICwgIyYnKSopGR8tMC0oMCUoKSj/2wBDAQcHBwoIChMKChMoGhYaKCgoKCgoKCgoKCgoKCgoKCgoKCgoKCgoKCgoKCgoKCgoKCgoKCgoKCgoKCgoKCgoKCj/wAARCAABAAEDASIAAhEBAxEB/8QAFQABAQAAAAAAAAAAAAAAAAAAAAv/xAAUEAEAAAAAAAAAAAAAAAAAAAAA/8QAFQEBAQAAAAAAAAAAAAAAAAAAAAX/xAAUEQEAAAAAAAAAAAAAAAAAAAAA/9oADAMBAAIRAxEAPwCdABmX/9k="
+                          onError={(e) => {
+                            const target = e.target as HTMLImageElement;
+                            target.src = "/placeholder.svg";
+                          }}
                         />
                         {/* Enhanced Overlay */}
                         <div className="absolute inset-0 bg-gradient-to-t from-black/30 via-transparent to-transparent opacity-0 group-hover:opacity-100 transition-all duration-500" />
@@ -525,6 +530,65 @@ export default function BookFairPage() {
                 </div>
               </div>
             )}
+          </div>
+        </div>
+      </div>
+    </div>
+  );
+});
+
+BookFairPage.displayName = 'BookFairPage';
+
+export default function BookFair() {
+  return (
+    <Suspense fallback={<BookFairSkeleton />}>
+      <BookFairPage />
+    </Suspense>
+  );
+}
+
+// Skeleton component for loading state
+function BookFairSkeleton() {
+  return (
+    <div className="min-h-screen bg-gradient-to-br from-emerald-50/30 via-white to-teal-50/20 py-8 md:py-12 lg:py-16">
+      <div className="container mx-auto px-4 sm:px-6 lg:px-8">
+        {/* Header Skeleton */}
+        <div className="text-center mb-12 md:mb-16">
+          <Skeleton className="h-16 w-64 mx-auto mb-4" />
+          <Skeleton className="h-6 w-96 mx-auto mb-8" />
+          <div className="flex justify-center gap-4">
+            <Skeleton className="h-12 w-48 rounded-full" />
+            <Skeleton className="h-12 w-40 rounded-full" />
+          </div>
+        </div>
+
+        <div className="grid grid-cols-1 lg:grid-cols-4 gap-8">
+          {/* Sidebar Skeleton */}
+          <div className="lg:col-span-1">
+            <Card className="p-8">
+              <Skeleton className="h-8 w-32 mb-6" />
+              <div className="space-y-2">
+                {[...Array(5)].map((_, i) => (
+                  <Skeleton key={i} className="h-12 w-full rounded-xl" />
+                ))}
+              </div>
+            </Card>
+          </div>
+
+          {/* Content Skeleton */}
+          <div className="lg:col-span-3">
+            <div className="grid grid-cols-1 xs:grid-cols-2 sm:grid-cols-2 lg:grid-cols-3 gap-6">
+              {[...Array(9)].map((_, i) => (
+                <Card key={i} className="overflow-hidden">
+                  <Skeleton className="h-64 w-full" />
+                  <div className="p-6 space-y-3">
+                    <Skeleton className="h-6 w-full" />
+                    <Skeleton className="h-4 w-3/4" />
+                    <Skeleton className="h-8 w-20" />
+                  </div>
+                </Card>
+              ))}
+            </div>
           </div>
         </div>
       </div>

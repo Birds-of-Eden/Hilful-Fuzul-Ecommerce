@@ -1,8 +1,9 @@
 "use client";
 
-import { useEffect, useState } from "react";
+import { useEffect, useState, useMemo, useCallback, memo, Suspense } from "react";
 import Link from "next/link";
 import { Card, CardContent } from "@/components/ui/card";
+import { Skeleton } from "@/components/ui/skeleton";
 import { BookOpen, ArrowRight, Library } from "lucide-react";
 
 type Category = {
@@ -12,37 +13,40 @@ type Category = {
   slug?: string; // thakle use korte parba
 };
 
-// name onujayi icon choose korar helper
-function getCategoryIcon(name: string) {
-  switch (name) {
-    case "আত্মজীবনী":
-      return "📖";
-    case "রীতিনীতি":
-      return "🏛️";
-    case "হযরত মাওলানা কালিম সিদ্দিকী":
-      return "👳";
-    case "ইসলাম ও হেদায়েত":
-      return "🕌";
-    case "দাওয়াত ও দায়ী":
-      return "📢";
-    case "হিন্দু ভাইদের জন্য":
-      return "🕉️";
-    case "খ্রিষ্টান ভাইদের জন্য":
-      return "✝️";
-    default:
-      return "📚";
-  }
-}
-
-export default function CategoryCardsPage() {
+const CategoryCardsPage = memo(function CategoryCardsPage() {
   const [categories, setCategories] = useState<Category[]>([]);
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState<string | null>(null);
 
+  // 🔹 Memoized icon function
+  const getCategoryIcon = useCallback((name: string) => {
+    switch (name) {
+      case "আত্মজীবনী":
+        return "📖";
+      case "রীতিনীতি":
+        return "🏛️";
+      case "হযরত মাওলানা কালিম সিদ্দিকী":
+        return "👳";
+      case "ইসলাম ও হেদায়েত":
+        return "🕌";
+      case "দাওয়াত ও দায়ী":
+        return "📢";
+      case "হিন্দু ভাইদের জন্য":
+        return "🕉️";
+      case "খ্রিষ্টান ভাইদের জন্য":
+        return "✝️";
+      default:
+        return "📚";
+    }
+  }, []);
+
   useEffect(() => {
     const fetchCategories = async () => {
       try {
-        const res = await fetch("/api/categories");
+        const res = await fetch("/api/categories", {
+          cache: "force-cache",
+          next: { revalidate: 600 } // Cache for 10 minutes
+        });
 
         if (!res.ok) {
           throw new Error("Failed to fetch categories");
@@ -167,6 +171,44 @@ export default function CategoryCardsPage() {
               </p>
             </div>
           </div>
+        </div>
+      </div>
+    </div>
+  );
+});
+
+CategoryCardsPage.displayName = 'CategoryCardsPage';
+
+export default function CategoriesPage() {
+  return (
+    <Suspense fallback={<CategoriesSkeleton />}>
+      <CategoryCardsPage />
+    </Suspense>
+  );
+}
+
+// Skeleton component for loading state
+function CategoriesSkeleton() {
+  return (
+    <div className="min-h-screen bg-gradient-to-br from-slate-50 via-white to-gray-50 py-12">
+      <div className="container mx-auto px-4 sm:px-6 lg:px-8">
+        {/* Header Skeleton */}
+        <div className="text-center mb-12">
+          <Skeleton className="h-12 w-48 mx-auto mb-4" />
+          <Skeleton className="h-6 w-96 mx-auto" />
+        </div>
+
+        {/* Grid Skeleton */}
+        <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 xl:grid-cols-4 gap-6">
+          {[...Array(8)].map((_, i) => (
+            <Card key={i} className="h-48 bg-white rounded-2xl shadow-lg">
+              <CardContent className="p-8 text-center space-y-4">
+                <Skeleton className="h-12 w-12 mx-auto rounded-full" />
+                <Skeleton className="h-6 w-3/4 mx-auto" />
+                <Skeleton className="h-4 w-1/2 mx-auto" />
+              </CardContent>
+            </Card>
+          ))}
         </div>
       </div>
     </div>

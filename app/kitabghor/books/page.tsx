@@ -2,10 +2,11 @@
 
 import Link from "next/link";
 import Image from "next/image";
-import { useState, useEffect } from "react";
+import { useState, useEffect, useMemo, useCallback, memo, Suspense } from "react";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
 import { Card, CardContent, CardFooter } from "@/components/ui/card";
+import { Skeleton } from "@/components/ui/skeleton";
 import { Heart, ShoppingCart, Star, BookOpen, Search, Zap } from "lucide-react";
 import { useCart } from "@/components/ecommarce/CartContext";
 import { useWishlist } from "@/components/ecommarce/WishlistContext";
@@ -28,7 +29,7 @@ interface RatingInfo {
   totalReviews: number;
 }
 
-export default function AllBooksPage() {
+const AllBooksPage = memo(function AllBooksPage() {
   const { addToCart } = useCart();
   const { addToWishlist, removeFromWishlist, isInWishlist } = useWishlist();
   const { status } = useSession(); // "loading" | "authenticated" | "unauthenticated"
@@ -36,12 +37,22 @@ export default function AllBooksPage() {
   const [products, setProducts] = useState<Product[]>([]);
   const [searchTerm, setSearchTerm] = useState("");
   const [ratings, setRatings] = useState<Record<string, RatingInfo>>({});
+  const [loading, setLoading] = useState(true);
+  const [error, setError] = useState<string | null>(null);
 
+  // 🔹 Optimized data fetch with caching
   useEffect(() => {
     const fetchProductsAndRatings = async () => {
       try {
-        // 1) সব প্রোডাক্ট লোড
-        const res = await fetch("/api/products");
+        setLoading(true);
+        setError(null);
+
+        // 1) Fetch products with caching
+        const res = await fetch("/api/products", {
+          cache: "force-cache",
+          next: { revalidate: 300 } // Cache for 5 minutes
+        });
+        
         if (!res.ok) {
           throw new Error("Failed to fetch products");
         }
@@ -49,107 +60,121 @@ export default function AllBooksPage() {
         const data: Product[] = await res.json();
         setProducts(data);
 
-        // 2) প্রতিটা প্রোডাক্টের জন্য রেটিং লোড
-        const ids = Array.from(
-          new Set(
-            data
-              .map((p) => Number(p.id))
-              .filter((id) => !!id && !Number.isNaN(id))
-          )
-        );
-
-        if (ids.length === 0) {
-          setRatings({});
-          return;
-        }
-
-        const results = await Promise.all(
-          ids.map(async (id) => {
+        // 2) Fetch ratings with caching (only for visible products)
+        const productIds = data.slice(0, 20).map(p => p.id); // First 20 products
+        
+        const ratingResults = await Promise.all(
+          productIds.map(async (id) => {
             try {
-              const res = await fetch(
-                `/api/reviews?productId=${id}&page=1&limit=1`
+              const ratingRes = await fetch(
+                `/api/reviews?productId=${id}&page=1&limit=1`,
+                { cache: "force-cache" }
               );
-
-              if (!res.ok) {
+              
+              if (!ratingRes.ok) {
                 return { id, avg: 0, total: 0 };
               }
-
-              const rdata = await res.json();
+              
+              const ratingData = await ratingRes.json();
               return {
                 id,
-                avg: Number(rdata.averageRating ?? 0),
-                total: Number(rdata.pagination?.total ?? 0),
+                avg: Number(ratingData.averageRating ?? 0),
+                total: Number(ratingData.pagination?.total ?? 0),
               };
             } catch (err) {
-              console.error("Error fetching rating for product:", id, err);
+              console.error(`Error fetching rating for product ${id}:`, err);
               return { id, avg: 0, total: 0 };
             }
           })
         );
 
-        const map: Record<string, RatingInfo> = {};
-        for (const r of results) {
-          map[String(r.id)] = {
-            averageRating: r.avg,
-            totalReviews: r.total,
+        const ratingsMap: Record<string, RatingInfo> = {};
+        ratingResults.forEach(({ id, avg, total }) => {
+          ratingsMap[String(id)] = {
+            averageRating: avg,
+            totalReviews: total,
           };
-        }
-        setRatings(map);
-      } catch (error) {
-        console.error(error);
+        });
+        
+        setRatings(ratingsMap);
+      } catch (err) {
+        console.error("Error fetching data:", err);
+        setError("বই লোড করতে সমস্যা হয়েছে।");
+      } finally {
+        setLoading(false);
       }
     };
 
     fetchProductsAndRatings();
   }, []);
 
-  const handleToggleWishlist = (bookId: number) => {
-    if (isInWishlist(bookId)) {
-      removeFromWishlist(bookId);
-      toast.success("উইশলিস্ট থেকে সরানো হয়েছে");
-    } else {
-      addToWishlist(bookId);
-      toast.success("উইশলিস্টে যোগ করা হয়েছে");
-    }
-  };
+  // 🔹 Memoized filtered products
+  const filteredProducts = useMemo(() => {
+    if (!searchTerm) return products;
+    
+    const term = searchTerm.toLowerCase();
+    return products.filter(
+      (product) =>
+        product.name.toLowerCase().includes(term) ||
+        product.writer.name.toLowerCase().includes(term) ||
+        product.category.name.toLowerCase().includes(term)
+    );
+  }, [products, searchTerm]);
 
-  // ✅ Login থাকুক আর না থাকুক, আগে লোকাল cart context আপডেট হবে
-  // ✅ শুধু authenticated হলে API দিয়ে /api/cart এ sync করবে
-  const handleAddToCart = async (book: Product) => {
-    // ১) লোকাল কার্টে আগে যোগ করি (guest mode এর জন্য সবচেয়ে জরুরি)
-    addToCart(book.id);
-    toast.success(`"${book.name}" কার্টে যোগ করা হয়েছে`);
+  // 🔹 Memoized callbacks
+  const handleSearchChange = useCallback((e: React.ChangeEvent<HTMLInputElement>) => {
+    setSearchTerm(e.target.value);
+  }, []);
 
-    // ২) যদি ইউজার লগইন করা থাকে, তখন server-side cart এ sync করি
-    if (status === "authenticated") {
-      try {
-        const res = await fetch("/api/cart", {
-          method: "POST",
-          headers: {
-            "Content-Type": "application/json",
-          },
-          body: JSON.stringify({
-            productId: book.id,
-            quantity: 1,
-          }),
+  const toggleWishlist = useCallback(async (product: Product) => {
+    try {
+      if (status !== "authenticated") {
+        toast.error("উইশলিস্ট ব্যবহার করতে আগে লগইন করুন");
+        return;
+      }
+
+      const alreadyInWishlist = isInWishlist(product.id);
+
+      if (alreadyInWishlist) {
+        const res = await fetch(`/api/wishlist?productId=${product.id}`, {
+          method: "DELETE",
         });
 
         if (!res.ok) {
-          const data = await res.json().catch(() => null);
-          console.error("Server cart sync failed:", data || res.statusText);
-          // এখানে চাইলে warning type toast দিতে পারো
-          // toast.warning("সার্ভারের কার্ট আপডেট হয়নি, তবে লোকাল কার্টে আছে");
+          throw new Error("Failed to remove from wishlist");
         }
-      } catch (err) {
-        console.error("Error syncing cart to server:", err);
-        // এখানেও warning দিলে হবে, কিন্তু লোকাল cart ঠিক আছে
-      }
-    }
-  };
 
-  const filteredBooks = products.filter((book) =>
-    book.name.toLowerCase().includes(searchTerm.toLowerCase())
-  );
+        removeFromWishlist(product.id);
+        toast.success("উইশলিস্ট থেকে সরানো হয়েছে");
+      } else {
+        const res = await fetch("/api/wishlist", {
+          method: "POST",
+          headers: { "Content-Type": "application/json" },
+          body: JSON.stringify({ productId: product.id }),
+        });
+
+        if (!res.ok) {
+          throw new Error("Failed to add to wishlist");
+        }
+
+        addToWishlist(product.id);
+        toast.success("উইশলিস্টে যোগ করা হয়েছে");
+      }
+    } catch (error) {
+      console.error("Error toggling wishlist:", error);
+      toast.error("উইশলিস্ট হালনাগাদ করতে সমস্যা হয়েছে");
+    }
+  }, [status, isInWishlist, addToWishlist, removeFromWishlist]);
+
+  const handleAddToCart = useCallback((product: Product) => {
+    try {
+      addToCart(product.id);
+      toast.success(`"${product.name}" কার্টে যোগ করা হয়েছে`);
+    } catch (error) {
+      console.error("Error adding to cart:", error);
+      toast.error("কার্টে যোগ করতে সমস্যা হয়েছে");
+    }
+  }, [addToCart]);
 
   return (
     <div className="min-h-screen bg-gradient-to-b from-[#F4F8F7]/30 to-white">
@@ -176,51 +201,71 @@ export default function AllBooksPage() {
                 type="text"
                 placeholder="বই, লেখক বা বিষয় অনুসন্ধান করুন..."
                 value={searchTerm}
-                onChange={(e) => setSearchTerm(e.target.value)}
+                onChange={handleSearchChange}
                 className="pl-10 sm:pl-12 pr-4 py-4 sm:py-6 text-base sm:text-lg rounded-xl sm:rounded-2xl border-2 border-[#5FA3A3]/30 focus:border-[#0E4B4B] focus:ring-2 focus:ring-[#0E4B4B]/20 bg-white shadow-lg"
               />
             </div>
           </div>
 
-          {/* Results Count */}
-          <div className="flex flex-col sm:flex-row justify-between items-start sm:items-center gap-3 mb-6 md:mb-8 px-4">
-            <div className="text-[#5FA3A3] text-sm sm:text-base">
-              <span className="font-semibold text-[#0E4B4B]">
-                {filteredBooks.length}
-              </span>
-              টি বই পাওয়া গেছে
+          {/* Loading / Error Handling */}
+          {loading ? (
+            <div className="text-center py-16">
+              <div className="flex flex-col items-center space-y-4">
+                <div className="animate-spin rounded-full h-12 w-12 border-b-2 border-[#5FA3A3]"></div>
+                <p className="text-[#5FA3A3]">বই লোড হচ্ছে...</p>
+              </div>
             </div>
-            {searchTerm && (
-              <Button
-                variant="outline"
-                onClick={() => setSearchTerm("")}
-                className="rounded-full border-[#0E4B4B] text-[#0E4B4B] hover:bg-[#0E4B4B] hover:text-white text-sm px-4 py-2"
+          ) : error ? (
+            <div className="text-center py-16">
+              <p className="text-red-500 mb-4">{error}</p>
+              <button
+                onClick={() => window.location.reload()}
+                className="px-6 py-2 bg-[#0E4B4B] text-white rounded-lg hover:bg-[#5FA3A3] transition-colors"
               >
-                অনুসন্ধান সরান
-              </Button>
-            )}
-          </div>
-
-          {/* Books Grid */}
-          {filteredBooks.length === 0 ? (
-            <div className="text-center py-12 md:py-16 lg:py-20">
-              <BookOpen className="h-12 w-12 sm:h-16 sm:w-16 text-[#5FA3A3]/30 mx-auto mb-3 sm:mb-4" />
-              <h3 className="text-lg sm:text-xl font-semibold text-[#0D1414] mb-2">
-                কোন বই পাওয়া যায়নি
-              </h3>
-              <p className="text-[#5FA3A3] text-sm sm:text-base mb-4 sm:mb-6 max-w-md mx-auto">
-                আপনার অনুসন্ধানের সাথে মিলছে এমন কোন বই নেই
-              </p>
-              <Button
-                onClick={() => setSearchTerm("")}
-                className="rounded-full bg-gradient-to-r from-[#0E4B4B] to-[#5FA3A3] hover:from-[#5FA3A3] hover:to-[#0E4B4B] text-white px-6 sm:px-8 py-2 sm:py-3 text-sm sm:text-base"
-              >
-                সব বই দেখুন
-              </Button>
+                আবার চেষ্টা করুন
+              </button>
             </div>
           ) : (
-            <div className="grid grid-cols-1 xs:grid-cols-2 sm:grid-cols-2 lg:grid-cols-3 xl:grid-cols-4 gap-4 sm:gap-6 md:gap-8 px-4 sm:px-0">
-              {filteredBooks.map((book, index) => {
+            <>
+              {/* Results Count */}
+              <div className="flex flex-col sm:flex-row justify-between items-start sm:items-center gap-3 mb-6 md:mb-8 px-4">
+                <div className="text-[#5FA3A3] text-sm sm:text-base">
+                  <span className="font-semibold text-[#0E4B4B]">
+                    {filteredProducts.length}
+                  </span>
+                  টি বই পাওয়া গেছে
+                </div>
+                {searchTerm && (
+                  <Button
+                    variant="outline"
+                    onClick={() => setSearchTerm("")}
+                    className="rounded-full border-[#0E4B4B] text-[#0E4B4B] hover:bg-[#0E4B4B] hover:text-white text-sm px-4 py-2"
+                  >
+                    অনুসন্ধান সরান
+                  </Button>
+                )}
+              </div>
+
+              {/* Books Grid */}
+              {filteredProducts.length === 0 ? (
+                <div className="text-center py-12 md:py-16 lg:py-20">
+                  <BookOpen className="h-12 w-12 sm:h-16 sm:w-16 text-[#5FA3A3]/30 mx-auto mb-3 sm:mb-4" />
+                  <h3 className="text-lg sm:text-xl font-semibold text-[#0D1414] mb-2">
+                    কোন বই পাওয়া যায়নি
+                  </h3>
+                  <p className="text-[#5FA3A3] text-sm sm:text-base mb-4 sm:mb-6 max-w-md mx-auto">
+                    আপনার অনুসন্ধানের সাথে মিলছে এমন কোন বই নেই
+                  </p>
+                  <Button
+                    onClick={() => setSearchTerm("")}
+                    className="rounded-full bg-gradient-to-r from-[#0E4B4B] to-[#5FA3A3] hover:from-[#5FA3A3] hover:to-[#0E4B4B] text-white px-6 sm:px-8 py-2 sm:py-3 text-sm sm:text-base"
+                  >
+                    সব বই দেখুন
+                  </Button>
+                </div>
+              ) : (
+                <div className="grid grid-cols-1 xs:grid-cols-2 sm:grid-cols-2 lg:grid-cols-3 xl:grid-cols-4 gap-4 sm:gap-6 md:gap-8 px-4 sm:px-0">
+              {filteredProducts.map((book, index) => {
                 const ratingInfo = ratings[String(book.id)];
                 const avgRating = ratingInfo?.averageRating ?? 0;
                 const reviewCount = ratingInfo?.totalReviews ?? 0;
@@ -255,7 +300,7 @@ export default function AllBooksPage() {
 
                     {/* Wishlist Button */}
                     <button
-                      onClick={() => handleToggleWishlist(book.id)}
+                      onClick={() => toggleWishlist(book)}
                       className={`absolute top-2 sm:top-3 right-2 sm:right-3 z-10 p-1.5 sm:p-2 rounded-full backdrop-blur-sm transition-all duration-300 ${
                         isWishlisted
                           ? "bg-red-500/20 text-red-500"
@@ -285,6 +330,13 @@ export default function AllBooksPage() {
                           fill
                           className="object-cover transition-transform duration-700 group-hover:scale-110"
                           sizes="(max-width: 480px) 100vw, (max-width: 768px) 50vw, (max-width: 1200px) 33vw, 25vw"
+                          loading="lazy"
+                          placeholder="blur"
+                          blurDataURL="data:image/jpeg;base64,/9j/4AAQSkZJRgABAQAAAQABAAD/2wBDAAYEBQYFBAYGBQYHBwYIChAKCgkJChQODwwQFxQYGBcUFhYaHSUfGhsjHBYWICwgIyYnKSopGR8tMC0oMCUoKSj/2wBDAQcHBwoIChMKChMoGhYaKCgoKCgoKCgoKCgoKCgoKCgoKCgoKCgoKCgoKCgoKCgoKCgoKCgoKCgoKCgoKCgoKCj/wAARCAABAAEDASIAAhEBAxEB/8QAFQABAQAAAAAAAAAAAAAAAAAAAAv/xAAUEAEAAAAAAAAAAAAAAAAAAAAA/8QAFQEBAQAAAAAAAAAAAAAAAAAAAAX/xAAUEQEAAAAAAAAAAAAAAAAAAAAA/9oADAMBAAIRAxEAPwCdABmX/9k="
+                          onError={(e) => {
+                            const target = e.target as HTMLImageElement;
+                            target.src = "/placeholder.svg";
+                          }}
                         />
                         <div className="absolute inset-0 bg-gradient-to-t from-black/20 via-transparent to-transparent opacity-0 group-hover:opacity-100 transition-opacity duration-300" />
                         <div className="absolute inset-0 flex items-center justify-center opacity-0 group-hover:opacity-100 transition-all duration-300">
@@ -374,7 +426,7 @@ export default function AllBooksPage() {
           )}
 
           {/* Load More CTA */}
-          {filteredBooks.length > 0 && (
+          {filteredProducts.length > 0 && (
             <div className="text-center mt-12 md:mt-16 px-4">
               <div className="bg-gradient-to-r from-[#0E4B4B] to-[#5FA3A3] p-0.5 rounded-full inline-block">
                 <Button
@@ -387,6 +439,53 @@ export default function AllBooksPage() {
               </div>
             </div>
           )}
+        </>
+      )}
+        </div>
+      </div>
+    </div>
+  );
+});
+
+AllBooksPage.displayName = 'AllBooksPage';
+
+export default function BooksPage() {
+  return (
+    <Suspense fallback={<BooksSkeleton />}>
+      <AllBooksPage />
+    </Suspense>
+  );
+}
+
+// Skeleton component for loading state
+function BooksSkeleton() {
+  return (
+    <div className="min-h-screen bg-gradient-to-br from-slate-50 via-white to-gray-50 py-8">
+      <div className="container mx-auto px-4 sm:px-6 lg:px-8">
+        {/* Header Skeleton */}
+        <div className="text-center mb-8">
+          <Skeleton className="h-12 w-48 mx-auto mb-4" />
+          <Skeleton className="h-6 w-96 mx-auto mb-6" />
+          <Skeleton className="h-12 w-full max-w-md mx-auto" />
+        </div>
+
+        {/* Grid Skeleton */}
+        <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 xl:grid-cols-4 gap-6">
+          {[...Array(12)].map((_, i) => (
+            <Card key={i} className="overflow-hidden bg-white rounded-2xl shadow-lg">
+              <div className="relative h-64 overflow-hidden">
+                <Skeleton className="h-full w-full" />
+              </div>
+              <CardContent className="p-4 space-y-3">
+                <Skeleton className="h-6 w-full" />
+                <Skeleton className="h-4 w-3/4" />
+                <Skeleton className="h-8 w-20" />
+              </CardContent>
+              <CardFooter className="p-4 pt-0">
+                <Skeleton className="h-10 w-full" />
+              </CardFooter>
+            </Card>
+          ))}
         </div>
       </div>
     </div>

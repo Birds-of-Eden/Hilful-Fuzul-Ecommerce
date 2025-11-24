@@ -10,7 +10,7 @@ export async function GET(request: NextRequest) {
 
     // Calculate date ranges
     const now = new Date();
-    let startDate = new Date();
+    const startDate = new Date();
     
     switch (range) {
       case 'today':
