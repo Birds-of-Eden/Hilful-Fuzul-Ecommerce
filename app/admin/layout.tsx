@@ -22,15 +22,24 @@ function AdminLayoutContent({ children }: { children: React.ReactNode }) {
   }, [status, session, router]);
 
   if (status === "loading") {
-    return <div className="flex items-center justify-center min-h-screen">Loading...</div>;
+    return (
+      <div className="flex items-center justify-center min-h-screen bg-gradient-to-br from-[#0E4B4B] to-[#086666]">
+        <div className="text-center">
+          <div className="w-16 h-16 bg-gradient-to-br from-[#0E4B4B] to-[#5FA3A3] rounded-2xl flex items-center justify-center mb-4 shadow-xl animate-pulse">
+            <div className="w-8 h-8 bg-[#F4F8F7]/20 rounded-lg animate-spin border-2 border-[#F4F8F7] border-t-transparent"></div>
+          </div>
+          <p className="text-[#F4F8F7] font-semibold">লোড হচ্ছে...</p>
+        </div>
+      </div>
+    );
   }
 
   return (
-    <div className="flex min-h-screen bg-gray-50 relative">
+    <div className="flex min-h-screen bg-gradient-to-br from-[#F8FFFE] to-[#F0F9F8] relative">
       {/* Mobile Sidebar Overlay */}
       {openMobile && (
         <div 
-          className="fixed inset-0 bg-black bg-opacity-50 z-20 lg:hidden"
+          className="fixed inset-0 bg-black/60 backdrop-blur-sm z-20 lg:hidden transition-opacity duration-300"
           onClick={() => setOpenMobile(false)}
         />
       )}
@@ -41,15 +50,17 @@ function AdminLayoutContent({ children }: { children: React.ReactNode }) {
       </div>
       
       {/* Desktop Sidebar */}
-      <div className="hidden lg:block lg:w-64">
+      <div className="hidden lg:block lg:w-60">
         <Sidebar />
       </div>
       
       {/* Main Content */}
-      <div className="flex-1 flex flex-col overflow-hidden">
+      <div className="flex-1 flex flex-col overflow-hidden lg:ml-0">
         <Header onMenuClick={toggleSidebar} />
-        <main className="flex-1 overflow-y-auto">
-          {children}
+        <main className="flex-1 overflow-y-auto bg-gradient-to-br from-[#F8FFFE] to-[#F0F9F8]">
+          <div>
+            {children}
+          </div>
         </main>
       </div>
     </div>
