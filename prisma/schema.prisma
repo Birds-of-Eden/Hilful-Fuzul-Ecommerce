@@ -233,3 +233,37 @@ model Shipment {
   createdAt DateTime @default(now())
   updatedAt DateTime @updatedAt
 }
+
+model NewsletterSubscriber {
+  id              String   @id @default(uuid())
+  email           String   @unique
+  status          String   @default("subscribed")
+  unsubscribedAt  DateTime?
+  createdAt       DateTime @default(now())
+}
+
+model Newsletter {
+  id          String   @id @default(uuid())
+  title       String
+  subject     String
+  content     String   @db.Text
+  status      String   @default("draft")
+  sentAt      DateTime?
+  createdAt   DateTime @default(now())
+  updatedAt   DateTime @updatedAt
+}
+
+model Coupon {
+  id            String    @id @default(uuid())
+  code          String    @unique
+  discountType  String    // "percentage" or "fixed"
+  discountValue Decimal   @db.Decimal(10, 2)
+  minOrderValue Decimal?  @db.Decimal(10, 2)
+  maxDiscount   Decimal?  @db.Decimal(10, 2)
+  usageLimit    Int?
+  usedCount     Int       @default(0)
+  isValid       Boolean   @default(true)
+  expiresAt     DateTime?
+  createdAt     DateTime  @default(now())
+  updatedAt     DateTime  @updatedAt
+}

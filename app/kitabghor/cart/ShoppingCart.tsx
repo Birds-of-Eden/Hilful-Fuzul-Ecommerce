@@ -44,6 +44,8 @@ export default function CartPage() {
 
   const [couponCode, setCouponCode] = useState("");
   const [discount, setDiscount] = useState(0);
+  const [discountAmount, setDiscountAmount] = useState(0);
+  const [appliedCoupon, setAppliedCoupon] = useState<any>(null);
   const [hasMounted, setHasMounted] = useState(false);
 
   // সার্ভার কার্ট আইটেম
@@ -278,17 +280,53 @@ export default function CartPage() {
     }
   };
 
-  const applyCoupon = () => {
-    if (couponCode.toUpperCase() === "DISCOUNT20") {
-      setDiscount(20);
-      toast.success("কুপন প্রয়োগ করা হয়েছে!");
-    } else if (couponCode.toUpperCase() === "WELCOME10") {
-      setDiscount(10);
-      toast.success("কুপন প্রয়োগ করা হয়েছে!");
-    } else {
-      setDiscount(0);
-      toast.error("কুপন কোড অবৈধ!");
+  const applyCoupon = async () => {
+    if (!couponCode.trim()) {
+      toast.error("কুপন কোড লিখুন");
+      return;
     }
+
+    try {
+      console.log("Applying coupon:", couponCode.trim(), "with subtotal:", subtotal);
+      
+      const response = await fetch("/api/coupons/validate", {
+        method: "POST",
+        headers: { "Content-Type": "application/json" },
+        body: JSON.stringify({ 
+          code: couponCode.trim(),
+          subtotal: subtotal 
+        }),
+      });
+
+      const data = await response.json();
+      console.log("Coupon API response:", data);
+
+      if (!response.ok) {
+        throw new Error(data.error || "কুপন প্রয়োগে সমস্যা হয়েছে");
+      }
+
+      if (data.success) {
+        setDiscountAmount(data.coupon.discountAmount);
+        setDiscount(data.coupon.discountType === "percentage" ? data.coupon.discountValue : (data.coupon.discountAmount / subtotal) * 100);
+        setAppliedCoupon(data.coupon);
+        toast.success("কুপন প্রয়োগ করা হয়েছে!");
+        setCouponCode("");
+      }
+    } catch (error) {
+      console.error("Coupon application error:", error);
+      toast.error(error instanceof Error ? error.message : "কুপন কোড অবৈধ!");
+      setDiscount(0);
+      setDiscountAmount(0);
+      setAppliedCoupon(null);
+    }
+  };
+
+  const removeCoupon = () => {
+    setDiscount(0);
+    setDiscountAmount(0);
+    setAppliedCoupon(null);
+    setCouponCode("");
+    toast.info("কুপন সরানো হয়েছে");
   };
 
   const subtotal = itemsToRender.reduce(
@@ -296,7 +334,6 @@ export default function CartPage() {
     0
   );
 
-  const discountAmount = (subtotal * discount) / 100;
   const shippingCost = subtotal > 500 ? 0 : 60;
   const total = subtotal - discountAmount + shippingCost;
 
@@ -483,11 +520,12 @@ export default function CartPage() {
                     </span>
                   </div>
 
-                  {discount > 0 && (
+                  {discountAmount > 0 && (
                     <div className="flex justify-between items-center py-2 text-green-600 bg-green-50 rounded-xl px-3">
                       <span className="flex items-center gap-2">
                         <Tag className="h-4 w-4 text-[#C0704D]" />
-                        ডিসকাউন্ট ({discount}%)
+                        ডিসকাউন্ট
+                        {appliedCoupon?.discountType === "percentage" && ` (${appliedCoupon.discountValue}%)`}
                       </span>
                       <span className="font-semibold">
                         -৳{discountAmount.toFixed(2)}
@@ -529,24 +567,47 @@ export default function CartPage() {
 
                 {/* Coupon Section */}
                 <div className="mb-6">
-                  <div className="flex gap-2 mb-4">
-                    <Input
-                      placeholder="কুপন কোড"
-                      value={couponCode}
-                      onChange={(e) => setCouponCode(e.target.value)}
-                      className="rounded-xl border-[#5FA3A3]/30 focus:border-[#0E4B4B]"
-                    />
-                    <Button
-                      onClick={applyCoupon}
-                      className="rounded-xl bg-[#F4F8F7] text-[#0D1414] hover:bg-[#C0704D] hover:text-white transition-all duration-300 whitespace-nowrap"
-                    >
-                      প্রয়োগ করুন
-                    </Button>
-                  </div>
-                  <div className="text-xs text-[#5FA3A3] text-center">
-                    ট্রাই করুন: <strong>DISCOUNT20</strong> বা{" "}
-                    <strong>WELCOME10</strong>
-                  </div>
+                  {appliedCoupon ? (
+                    <div className="bg-green-50 border border-green-200 rounded-xl p-3">
+                      <div className="flex justify-between items-center mb-2">
+                        <div className="flex items-center gap-2">
+                          <Tag className="h-4 w-4 text-green-600" />
+                          <span className="font-semibold text-green-800">
+                            {appliedCoupon.code}
+                          </span>
+                          {appliedCoupon.discountType === "percentage" && (
+                            <span className="text-sm text-green-600">
+                              ({appliedCoupon.discountValue}% off)
+                            </span>
+                          )}
+                        </div>
+                        <button
+                          onClick={removeCoupon}
+                          className="text-red-500 hover:text-red-700 text-sm"
+                        >
+                          সরান
+                        </button>
+                      </div>
+                      <div className="text-sm text-green-600">
+                        সফলভাবে প্রয়োগ করা হয়েছে!
+                      </div>
+                    </div>
+                  ) : (
+                    <div className="flex gap-2">
+                      <Input
+                        placeholder="কুপন কোড"
+                        value={couponCode}
+                        onChange={(e) => setCouponCode(e.target.value)}
+                        className="rounded-xl border-[#5FA3A3]/30 focus:border-[#0E4B4B]"
+                      />
+                      <Button
+                        onClick={applyCoupon}
+                        className="rounded-xl bg-[#F4F8F7] text-[#0D1414] hover:bg-[#C0704D] hover:text-white transition-all duration-300 whitespace-nowrap"
+                      >
+                        প্রয়োগ করুন
+                      </Button>
+                    </div>
+                  )}
                 </div>
 
                 {/* Checkout Button */}

@@ -13,6 +13,8 @@ import {
   ChevronDown,
   ChevronRight,
   ClipboardList,
+  Mail,
+  Tag,
 } from "lucide-react";
 import { useState, useEffect } from "react";
 
@@ -32,6 +34,8 @@ const menuItems = [
     ],
   },
   { name: "ব্লগ", href: "/admin/blogs", icon: BookOpen },
+  { name: "নিউজলেটার", href: "/admin/newsletter", icon: Mail },
+  { name: "কুপন", href: "/admin/coupons", icon: Tag },
   { name: "সেটিংস", href: "/admin/settings", icon: Settings },
 ];
 
