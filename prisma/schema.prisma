@@ -227,9 +227,7 @@ model Shipment {
   shippedAt      DateTime?
   expectedDate   DateTime?
   deliveredAt    DateTime?
-
   order Order @relation(fields: [orderId], references: [id])
-
   createdAt DateTime @default(now())
   updatedAt DateTime @updatedAt
 }

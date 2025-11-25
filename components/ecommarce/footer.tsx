@@ -1,6 +1,8 @@
 "use client";
 
 import Link from "next/link";
+import { useState } from "react";
+import { useSession } from "next-auth/react";
 import {
   Facebook,
   Instagram,
@@ -18,9 +20,60 @@ import {
 } from "lucide-react";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
+import { toast } from "sonner";
 
 export default function Footer() {
   const currentYear = new Date().getFullYear();
+  const { data: session, status } = useSession();
+  const [email, setEmail] = useState("");
+  const [isSubscribing, setIsSubscribing] = useState(false);
+  const isAuthenticated = status === "authenticated";
+
+  const handleSubscribe = async (e: React.FormEvent) => {
+    e.preventDefault();
+    
+    if (!email.trim()) {
+      toast.error("অনুগ্রহ করে আপনার ইমেইল ঠিকানা দিন");
+      return;
+    }
+
+    // Basic email validation
+    const emailRegex = /^[^\s@]+@[^\s@]+\.[^\s@]+$/;
+    if (!emailRegex.test(email)) {
+      toast.error("অনুগ্রহ করে একটি বৈধ ইমেইল ঠিকানা দিন");
+      return;
+    }
+
+    setIsSubscribing(true);
+
+    try {
+      const response = await fetch("/api/newsletter/subscribe", {
+        method: "POST",
+        headers: {
+          "Content-Type": "application/json",
+        },
+        body: JSON.stringify({ email: email.trim() }),
+      });
+
+      const data = await response.json();
+
+      if (response.ok) {
+        toast.success("সফলভাবে সাবস্ক্রাইব হয়েছে! ধন্যবাদ");
+        setEmail("");
+      } else {
+        if (data.error?.includes("Unique constraint")) {
+          toast.error("এই ইমেইল দিয়ে ইতিমধ্যে সাবস্ক্রাইব করা হয়েছে");
+        } else {
+          toast.error(data.error || "সাবস্ক্রিপশনে সমস্যা হয়েছে");
+        }
+      }
+    } catch (error) {
+      console.error("Newsletter subscription error:", error);
+      toast.error("সাবস্ক্রিপশনে সমস্যা হয়েছে, আবার চেষ্টা করুন");
+    } finally {
+      setIsSubscribing(false);
+    }
+  };
 
   return (
     <footer className="bg-gradient-to-b from-[#0E4B4B] to-[#086666] text-[#F4F8F7] relative overflow-hidden">
@@ -204,23 +257,45 @@ export default function Footer() {
               </h3>
               <div className="space-y-4">
                 <p className="text-white text-sm leading-relaxed">
-                  নতুন বই ও অফার সম্পর্কে জানতে আমাদের নিউজলেটার সাবস্ক্রাইব করুন।
+                  নতুন বই ও অফার সম্পর্কে জানতে আমাদের নিউজলেটার সাবস্ক্রিপ করুন।
                 </p>
-                <div className="space-y-3">
-                  <div className="relative">
-                    <Input
-                      type="email"
-                      placeholder="আপনার ইমেইল দিন"
-                      className="rounded-xl bg-white/10 border-2 border-[#5FA3A3]/30 focus:border-[#C0704D] text-[#e4fdf7] placeholder-[#5FA3A3] pl-4 pr-12 py-6 backdrop-blur-sm"
-                    />
-                    <Send className="absolute right-3 top-1/2 transform -translate-y-1/2 h-4 w-4 text-white" />
+                
+                {isAuthenticated ? (
+                  <form onSubmit={handleSubscribe} className="space-y-3">
+                    <div className="relative">
+                      <Input
+                        type="email"
+                        placeholder="আপনার ইমেইল দিন"
+                        value={email}
+                        onChange={(e) => setEmail(e.target.value)}
+                        className="rounded-xl bg-white/10 border-2 border-[#5FA3A3]/30 focus:border-[#C0704D] text-[#e4fdf7] placeholder-[#5FA3A3] pl-4 pr-12 py-6 backdrop-blur-sm"
+                      />
+                      <Send className="absolute right-3 top-1/2 transform -translate-y-1/2 h-4 w-4 text-white" />
+                    </div>
+                    <Button
+                      type="submit"
+                      disabled={isSubscribing}
+                      className="w-full rounded-xl bg-gradient-to-r from-[#C0704D] to-[#A85D3F] hover:from-[#A85D3F] hover:to-[#C0704D] text-[#F4F8F7] font-semibold py-6 border-0 shadow-lg hover:shadow-xl transition-all duration-300 hover:scale-105 disabled:opacity-50 disabled:cursor-not-allowed disabled:scale-100"
+                    >
+                      {isSubscribing ? "সাবস্ক্রাইব হচ্ছে..." : "সাবস্ক্রাইব করুন"}
+                    </Button>
+                  </form>
+                ) : (
+                  <div className="space-y-3">
+                    <div className="bg-white/10 border-2 border-[#5FA3A3]/30 rounded-xl p-4 text-center">
+                      <p className="text-white text-sm mb-3">
+                        নিউজলেটার সাবস্ক্রিপশনের জন্য লগইন করুন
+                      </p>
+                      <Link href="/signin">
+                        <Button
+                          className="w-full rounded-xl bg-gradient-to-r from-[#C0704D] to-[#A85D3F] hover:from-[#A85D3F] hover:to-[#C0704D] text-[#F4F8F7] font-semibold py-3 border-0 shadow-lg hover:shadow-xl transition-all duration-300 hover:scale-105"
+                        >
+                          লগইন করুন
+                        </Button>
+                      </Link>
+                    </div>
                   </div>
-                  <Button
-                    className="w-full rounded-xl bg-gradient-to-r from-[#C0704D] to-[#A85D3F] hover:from-[#A85D3F] hover:to-[#C0704D] text-[#F4F8F7] font-semibold py-6 border-0 shadow-lg hover:shadow-xl transition-all duration-300 hover:scale-105"
-                  >
-                    সাবস্ক্রাইব করুন
-                  </Button>
-                </div>
+                )}
               </div>
             </div>
           </div>
