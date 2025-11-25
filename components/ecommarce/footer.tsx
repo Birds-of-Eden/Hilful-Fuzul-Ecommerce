@@ -260,7 +260,7 @@ export default function Footer() {
                   নতুন বই ও অফার সম্পর্কে জানতে আমাদের নিউজলেটার সাবস্ক্রিপ করুন।
                 </p>
                 
-                {isAuthenticated ? (
+            
                   <form onSubmit={handleSubscribe} className="space-y-3">
                     <div className="relative">
                       <Input
@@ -280,22 +280,6 @@ export default function Footer() {
                       {isSubscribing ? "সাবস্ক্রাইব হচ্ছে..." : "সাবস্ক্রাইব করুন"}
                     </Button>
                   </form>
-                ) : (
-                  <div className="space-y-3">
-                    <div className="bg-white/10 border-2 border-[#5FA3A3]/30 rounded-xl p-4 text-center">
-                      <p className="text-white text-sm mb-3">
-                        নিউজলেটার সাবস্ক্রিপশনের জন্য লগইন করুন
-                      </p>
-                      <Link href="/signin">
-                        <Button
-                          className="w-full rounded-xl bg-gradient-to-r from-[#C0704D] to-[#A85D3F] hover:from-[#A85D3F] hover:to-[#C0704D] text-[#F4F8F7] font-semibold py-3 border-0 shadow-lg hover:shadow-xl transition-all duration-300 hover:scale-105"
-                        >
-                          লগইন করুন
-                        </Button>
-                      </Link>
-                    </div>
-                  </div>
-                )}
               </div>
             </div>
           </div>
