@@ -83,13 +83,16 @@ interface Category {
 interface Product {
   id: string | number;
   name: string;
-  category: { id: string | number };
+  category: { id: string | number } | null;
   price: number;
-  original_price: number;
+  original_price: number | null;
   discount: number;
-  writer: { name: string };
+  writer: { id: string | number; name: string } | null;
+  publisher: { id: string | number; name: string } | null;
   image: string;
   stock?: number;
+  available?: boolean;
+  deleted?: boolean;
 }
 
 interface RatingInfo {
@@ -165,7 +168,12 @@ export default function CategoryBooks({
           discount: Number(p.discount ?? 0),
           stock: Number(p.stock ?? 0),
           writer: {
+            id: Number(p.writer?.id ?? 0),
             name: p.writer?.name ?? "অজ্ঞাত লেখক",
+          },
+          publisher: {
+            id: Number(p.publisher?.id ?? 0),
+            name: p.publisher?.name ?? "অজ্ঞাত প্রকাশক",
           },
           image: p.image ?? "/placeholder.svg",
         }));
@@ -195,7 +203,7 @@ export default function CategoryBooks({
             ? products
             : products.filter(
                 (product: Product) =>
-                  String(product.category.id) === String(category.id)
+                  product.category && String(product.category.id) === String(category.id)
               );
 
         const displayBooks = categoryBooks.slice(0, 8);
@@ -254,14 +262,26 @@ export default function CategoryBooks({
     fetchRatings();
   }, [products, category.id, ratings]);
 
-  // 🔹 ক্যাটাগরি অনুযায়ি প্রোডাক্ট ফিল্টার
-  const categoryBooks =
-    category.id === "all"
-      ? products
-      : products.filter(
-          (product: Product) =>
-            String(product.category.id) === String(category.id)
-        );
+  // 🔹 Filter products based on category and ensure all required relations exist
+  const categoryBooks = products.filter((product: Product) => {
+    // Skip products that are marked as deleted or not available
+    if (product.deleted || product.available === false) {
+      return false;
+    }
+    
+    // If we're not filtering by a specific category, just check for required relations
+    if (category.id === "all") {
+      return product.category !== null && 
+             product.writer !== null && 
+             product.publisher !== null;
+    }
+    
+    // If filtering by a specific category, check category match and required relations
+    return product.category !== null && 
+           String(product.category.id) === String(category.id) &&
+           product.writer !== null && 
+           product.publisher !== null;
+  });
 
   const displayBooks = categoryBooks.slice(0, 8);
 
@@ -529,7 +549,7 @@ export default function CategoryBooks({
                 {/* Author */}
                 <p className="text-sm text-[#5FA3A3] mb-3 flex items-center">
                   <span className="w-1 h-1 bg-[#0E4B4B] rounded-full mr-2"></span>
-                  {book.writer.name}
+                  {book.writer?.name || 'Unknown Author'}
                 </p>
 
                 {/* Price */}

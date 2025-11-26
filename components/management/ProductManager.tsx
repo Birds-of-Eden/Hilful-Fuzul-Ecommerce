@@ -45,9 +45,12 @@ export default function ProductManager({
   const [isDeleting, setIsDeleting] = useState(false);
   const [editing, setEditing] = useState(null);
 
-  const filtered = products?.filter((p: any) =>
-    p.name.toLowerCase().includes(search.toLowerCase())
-  );
+  const filtered = products
+    ?.filter((p: any) => p.name.toLowerCase().includes(search.toLowerCase()))
+    .filter(
+      (p: any) =>
+        p.category !== null && p.writer !== null && p.publisher !== null
+    );
 
   const openAdd = () => {
     setEditing(null);
@@ -78,7 +81,7 @@ export default function ProductManager({
       await deleteProductFiles(deletingProduct);
       // Then delete the product
       await onDelete(deletingProduct.id);
-      toast.success("Product and all associated files deleted successfully");
+      toast.success("Product deleted successfully");
     } catch (error) {
       console.error("Error deleting product:", error);
       toast.error("Failed to delete product");
@@ -172,17 +175,27 @@ export default function ProductManager({
             <div className="w-2 h-10 bg-gradient-to-b from-[#819A91] to-[#2C4A3B] rounded-full"></div>
           </div>
           <p className="text-gray-600 text-lg max-w-2xl mx-auto">
-            সম্পূর্ণ নিয়ন্ত্রণের সাথে সমস্ত বই, লেখক, প্রকাশক এবং বিভাগ পরিচালনা করুন
+            সম্পূর্ণ নিয়ন্ত্রণের সাথে সমস্ত বই, লেখক, প্রকাশক এবং বিভাগ
+            পরিচালনা করুন
           </p>
         </div>
 
-        {/* STATS */}
         <div className="grid grid-cols-1 md:grid-cols-4 gap-6 mb-8">
+          {/* TOTAL PRODUCTS */}
           <Card className="bg-white/80 shadow-lg rounded-2xl">
             <CardContent className="p-6 flex justify-between items-center">
               <div>
                 <p className="text-sm text-gray-600">Total Products</p>
-                <h3 className="text-2xl font-bold">{products?.length || 0}</h3>
+                <h3 className="text-2xl font-bold">
+                  {
+                    products.filter(
+                      (p: any) =>
+                        p.category !== null &&
+                        p.writer !== null &&
+                        p.publisher !== null
+                    ).length
+                  }
+                </h3>
               </div>
               <div className="p-3 bg-gradient-to-r from-[#819A91] to-[#A7C1A8] rounded-full">
                 <Layers className="h-6 w-6 text-white" />
@@ -190,11 +203,14 @@ export default function ProductManager({
             </CardContent>
           </Card>
 
+          {/* TOTAL AUTHORS */}
           <Card className="bg-white/80 shadow-lg rounded-2xl">
             <CardContent className="p-6 flex justify-between items-center">
               <div>
                 <p className="text-sm text-gray-600">Total Authors</p>
-                <h3 className="text-2xl font-bold">{writers.length}</h3>
+                <h3 className="text-2xl font-bold">
+                  {writers.filter((w: any) => w.deleted === false).length}
+                </h3>
               </div>
               <div className="p-3 bg-gradient-to-r from-[#2C4A3B] to-[#819A91] rounded-full">
                 <BookOpen className="h-6 w-6 text-white" />
@@ -202,11 +218,14 @@ export default function ProductManager({
             </CardContent>
           </Card>
 
+          {/* TOTAL PUBLISHERS */}
           <Card className="bg-white/80 shadow-lg rounded-2xl">
             <CardContent className="p-6 flex justify-between items-center">
               <div>
                 <p className="text-sm text-gray-600">Total Publishers</p>
-                <h3 className="text-2xl font-bold">{publishers.length}</h3>
+                <h3 className="text-2xl font-bold">
+                  {publishers.filter((p: any) => p.deleted === false).length}
+                </h3>
               </div>
               <div className="p-3 bg-gradient-to-r from-[#819A91] to-[#A7C1A8] rounded-full">
                 <FileText className="h-6 w-6 text-white" />
@@ -214,11 +233,14 @@ export default function ProductManager({
             </CardContent>
           </Card>
 
+          {/* TOTAL CATEGORIES */}
           <Card className="bg-white/80 shadow-lg rounded-2xl">
             <CardContent className="p-6 flex justify-between items-center">
               <div>
                 <p className="text-sm text-gray-600">Categories</p>
-                <h3 className="text-2xl font-bold">{categories.length}</h3>
+                <h3 className="text-2xl font-bold">
+                  {categories.filter((c: any) => c.deleted === false).length}
+                </h3>
               </div>
               <div className="p-3 bg-gradient-to-r from-[#2C4A3B] to-[#819A91] rounded-full">
                 <Layers className="h-6 w-6 text-white" />

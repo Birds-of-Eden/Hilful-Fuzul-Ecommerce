@@ -84,10 +84,14 @@ export default function WritersManager({
     }
   };
 
-  const handleDeleteLocal = (id: number) => {
-    if (confirm("আপনি কি নিশ্চিত যে আপনি এই লেখকটি মুছে ফেলতে চান?")) {
-      onDelete(id);
+  const handleDeleteLocal = async (id: number) => {
+    if (!confirm("আপনি কি নিশ্চিত যে আপনি এই লেখকটি মুছে ফেলতে চান?")) return;
+
+    try {
+      await onDelete(id); // this now calls DELETE API and then re-fetches writers
       toast.success("লেখক সফলভাবে মুছে ফেলা হয়েছে");
+    } catch (err) {
+      toast.error("লেখক মুছতে সমস্যা হয়েছে");
     }
   };
 
@@ -287,7 +291,9 @@ export default function WritersManager({
                     formData.append("file", file);
 
                     try {
-                      toast.loading("ছবি আপলোড হচ্ছে...", { id: "upload-writer" });
+                      toast.loading("ছবি আপলোড হচ্ছে...", {
+                        id: "upload-writer",
+                      });
 
                       const res = await fetch(`/api/upload/${folder}`, {
                         method: "POST",
@@ -324,7 +330,9 @@ export default function WritersManager({
                       }
 
                       setForm((prev) => ({ ...prev, image: finalUrl }));
-                      toast.success("ছবি আপলোড সম্পন্ন!", { id: "upload-writer" });
+                      toast.success("ছবি আপলোড সম্পন্ন!", {
+                        id: "upload-writer",
+                      });
                     } catch (err) {
                       console.error("Writer image upload error:", err);
                       toast.error("ছবি আপলোড ব্যর্থ!", { id: "upload-writer" });

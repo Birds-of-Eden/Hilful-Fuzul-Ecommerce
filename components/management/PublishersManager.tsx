@@ -86,10 +86,15 @@ export default function PublishersManager({
     setDeleteModalOpen(true);
   };
 
-  const confirmDelete = () => {
-    if (deletingId) {
-      onDelete(deletingId);
-      toast.success("ডিলিট করা হয়েছে");
+  const confirmDelete = async () => {
+    if (!deletingId) return;
+
+    try {
+      await onDelete(deletingId); // wait for soft delete API
+      toast.success("প্রকাশকটি সফলভাবে ডিলিট করা হয়েছে");
+    } catch (err) {
+      toast.error("ডিলিট করতে সমস্যা হয়েছে");
+    } finally {
       setDeleteModalOpen(false);
       setDeletingId(null);
     }

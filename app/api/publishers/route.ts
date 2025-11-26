@@ -6,23 +6,41 @@ import { prisma } from "@/lib/prisma";
 export async function GET() {
   try {
     const publishers = await prisma.publisher.findMany({
+      where: { deleted: false },
       orderBy: { id: "desc" },
-      include: {
+      select: {
+        id: true,
+        name: true,
+        image: true,
+        createdAt: true,
+        updatedAt: true,
         _count: {
-          select: { products: true },
+          select: {
+            products: {
+              where: {
+                deleted: false,
+                available: true,
+                publisher: { deleted: false },
+                writer: { deleted: false },
+                category: { deleted: false },
+              },
+            },
+          },
         },
       },
     });
-    
-    // Transform the data to include the product count in a more accessible way
-    const publishersWithProductCount = publishers.map(publisher => ({
-      ...publisher,
-      products: Array(publisher._count.products).fill({}), // Create an array with length equal to product count
+
+    const formatted = publishers.map((p) => ({
+      ...p,
+      productCount: p._count.products,
     }));
-    
-    return NextResponse.json(publishersWithProductCount);
+
+    return NextResponse.json(formatted);
   } catch (err) {
-    return NextResponse.json({ error: "Failed to load publishers" }, { status: 500 });
+    return NextResponse.json(
+      { error: "Failed to load publishers" },
+      { status: 500 }
+    );
   }
 }
 
@@ -39,6 +57,9 @@ export async function POST(req: Request) {
 
     return NextResponse.json(publisher);
   } catch (err) {
-    return NextResponse.json({ error: "Failed to create publisher" }, { status: 500 });
+    return NextResponse.json(
+      { error: "Failed to create publisher" },
+      { status: 500 }
+    );
   }
 }

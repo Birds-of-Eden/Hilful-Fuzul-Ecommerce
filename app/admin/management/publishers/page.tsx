@@ -46,7 +46,7 @@ export default function PublishersPage() {
 
   const onDelete = async (id: number) => {
     await fetch(`/api/publishers/${id}`, { method: "DELETE" });
-    setPublishers((prev) => prev.filter((p) => p.id !== id));
+    fetchPublishers(); // refresh list instead of manually filtering
   };
 
   return (

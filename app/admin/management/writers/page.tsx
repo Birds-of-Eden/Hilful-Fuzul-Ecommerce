@@ -55,9 +55,10 @@ export default function WritersPage() {
       method: "DELETE",
     });
 
-    setWriters((prev) => prev.filter((w) => w.id !== id));
+    // Refresh the list from backend so we only show deleted: false writers
+    fetchWriters();
   };
-
+    
   return (
     <WritersManager
       writers={writers}

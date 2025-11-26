@@ -57,37 +57,37 @@ export default function ProductsPage() {
   };
 
   // UPDATE
-const updateProduct = async (id: number, data: any) => {
-  try {
-    const res = await fetch(`/api/products/${id}`, {
-      method: "PUT",
-      headers: {
-        "Content-Type": "application/json"
-      },
-      body: JSON.stringify(data),
-    });
+  const updateProduct = async (id: number, data: any) => {
+    try {
+      const res = await fetch(`/api/products/${id}`, {
+        method: "PUT",
+        headers: {
+          "Content-Type": "application/json",
+        },
+        body: JSON.stringify(data),
+      });
 
-    if (!res.ok) {
-      const errorData = await res.json();
-      throw new Error(errorData.error || 'Failed to update product');
+      if (!res.ok) {
+        const errorData = await res.json();
+        throw new Error(errorData.error || "Failed to update product");
+      }
+
+      const updated = await res.json();
+
+      // Update UI state
+      setProducts((prev) => prev.map((p) => (p.id === id ? updated : p)));
+
+      return updated;
+    } catch (error) {
+      console.error("Update product error:", error);
+      throw error;
     }
-
-    const updated = await res.json();
-    
-    // Update UI state
-    setProducts((prev) => prev.map((p) => (p.id === id ? updated : p)));
-    
-    return updated;
-  } catch (error) {
-    console.error("Update product error:", error);
-    throw error;
-  }
-};
+  };
 
   // DELETE
   const deleteProduct = async (id: number) => {
     await fetch(`/api/products/${id}`, { method: "DELETE" });
-    setProducts(products.filter((p) => p.id !== id));
+    await loadAll(); // 🔥 Refresh full product list from backend
   };
 
   return (

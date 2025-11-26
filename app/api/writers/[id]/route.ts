@@ -80,17 +80,22 @@ export async function PUT(req: Request, context: ParamsType) {
   }
 }
 
-// DELETE writer
+// DELETE writer (soft delete)
 export async function DELETE(req: Request, context: ParamsType) {
   const { id } = await context.params;
 
   try {
-    await prisma.writer.delete({
+    await prisma.writer.update({
       where: { id: Number(id) },
+      data: { deleted: true }, // ✅ soft delete flag
     });
 
-    return NextResponse.json({ message: "Writer deleted successfully" });
+    return NextResponse.json({
+      message: "Writer deleted successfully",
+      softDeleted: true,
+    });
   } catch (err) {
+    console.error("Writer soft delete error:", err);
     return NextResponse.json(
       { error: "Failed to delete writer" },
       { status: 500 }

@@ -45,6 +45,7 @@ model Writer {
   products  Product[]
   createdAt DateTime  @default(now())
   updatedAt DateTime  @updatedAt
+  deleted   Boolean  @default(false)
 }
 
 model Publisher {
@@ -54,6 +55,7 @@ model Publisher {
   products  Product[]
   createdAt DateTime  @default(now())
   updatedAt DateTime  @updatedAt
+  deleted   Boolean  @default(false)
 }
 
 model Category {
@@ -62,6 +64,7 @@ model Category {
   products  Product[]
   createdAt DateTime  @default(now())
   updatedAt DateTime  @updatedAt
+  deleted   Boolean  @default(false)
 }
 
 model Product {
@@ -93,6 +96,7 @@ model Product {
   wishlist   Wishlist[]
   reviews    Review[]
   cartItems  CartItem[]
+  deleted    Boolean  @default(false)
 
   createdAt DateTime @default(now())
   updatedAt DateTime @updatedAt

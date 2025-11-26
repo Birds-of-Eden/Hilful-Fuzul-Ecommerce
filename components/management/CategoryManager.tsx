@@ -70,10 +70,14 @@ export default function CategoryManager({
     }
   };
 
-  const handleDeleteLocal = (id: number) => {
-    if (confirm("Are you sure?")) {
-      onDelete(id);
+  const handleDeleteLocal = async (id: number) => {
+    if (!confirm("Are you sure?")) return;
+
+    try {
+      await onDelete(id);
       toast.success("Category deleted");
+    } catch {
+      toast.error("Delete failed");
     }
   };
 

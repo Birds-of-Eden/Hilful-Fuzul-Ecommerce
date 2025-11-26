@@ -11,8 +11,8 @@ export async function GET(
     const resolvedParams = await params;
     const id = Number(resolvedParams.id);
 
-    const category = await prisma.category.findUnique({
-      where: { id },
+    const category = await prisma.category.findFirst({
+       where: { id, deleted: false },
       include: {
         products: {
           include: {
@@ -45,10 +45,10 @@ export async function GET(
   }
 }
 
-
-
-
-export async function PUT(req: Request, { params }: { params: Promise<{ id: string }> }) {
+export async function PUT(
+  req: Request,
+  { params }: { params: Promise<{ id: string }> }
+) {
   try {
     const resolvedParams = await params;
     const { name } = await req.json();
@@ -68,15 +68,22 @@ export async function PUT(req: Request, { params }: { params: Promise<{ id: stri
   }
 }
 
-export async function DELETE(req: Request, { params }: { params: Promise<{ id: string }> }) {
+// DELETE category (soft delete)
+export async function DELETE(
+  req: Request,
+  { params }: { params: Promise<{ id: string }> }
+) {
   try {
-    const resolvedParams = await params;
-    const id = Number(resolvedParams.id);
+    const { id } = await params;
 
-    await prisma.category.delete({ where: { id } });
+    await prisma.category.update({
+      where: { id: Number(id) },
+      data: { deleted: true }, // ✔ soft delete
+    });
 
-    return NextResponse.json({ message: "Category deleted" });
+    return NextResponse.json({ message: "Category soft deleted" });
   } catch (error) {
+    console.error("Soft delete category error:", error);
     return NextResponse.json(
       { error: "Failed to delete category" },
       { status: 500 }

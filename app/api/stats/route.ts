@@ -5,17 +5,25 @@ const prisma = new PrismaClient();
 
 export async function GET() {
   try {
-    // Total Books
-    const totalBooks = await prisma.product.count();
-
-    // Total Writers
-    const totalWriters = await prisma.writer.count();
-
-    // Total Delivered Orders
-    const totalDelivered = await prisma.order.count({
+    // ✅ Total Books (only active + not deleted)
+    const totalBooks = await prisma.product.count({
       where: {
-        status: "DELIVERED",
-      },
+        deleted: false,
+        available: true,
+        writer: { deleted: false },
+        publisher: { deleted: false },
+        category: { deleted: false }
+      }
+    });
+
+    // ✅ Total Writers (only active)
+    const totalWriters = await prisma.writer.count({
+      where: { deleted: false }
+    });
+
+    // ✅ Total Delivered Orders
+    const totalDelivered = await prisma.order.count({
+      where: { status: "DELIVERED" }
     });
 
     return NextResponse.json({

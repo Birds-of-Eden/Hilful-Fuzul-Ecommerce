@@ -2,31 +2,42 @@
 import { prisma } from "@/lib/prisma";
 import { NextResponse } from "next/server";
 
-// GET
 export async function GET(
   req: Request,
   { params }: { params: { id: string } }
 ) {
   try {
-    const { id: idStr } = await params;
+    const { id: idStr } = params;
     const id = Number(idStr);
+
     const product = await prisma.product.findUnique({
-      where: { id },
+      where: { id, deleted: false }, // 🔥 don't return soft deleted product
       include: {
         writer: true,
         publisher: true,
         category: true,
       },
     });
-    
+
     if (!product) {
       return NextResponse.json({ error: "Not found" }, { status: 404 });
     }
-    
-    return NextResponse.json(product);
+
+    // 🔥 Remove soft-deleted relations
+    const cleaned = {
+      ...product,
+      writer: product.writer?.deleted ? null : product.writer,
+      publisher: product.publisher?.deleted ? null : product.publisher,
+      category: product.category?.deleted ? null : product.category,
+    };
+
+    return NextResponse.json(cleaned);
   } catch (err) {
     console.error("GET ERROR:", err);
-    return NextResponse.json({ error: "Failed to fetch product" }, { status: 500 });
+    return NextResponse.json(
+      { error: "Failed to fetch product" },
+      { status: 500 }
+    );
   }
 }
 
@@ -38,7 +49,7 @@ export async function PUT(
   try {
     const { id: idStr } = await params;
     const id = Number(idStr);
-    
+
     // Check if ID is valid
     if (isNaN(id)) {
       return NextResponse.json(
@@ -56,17 +67,14 @@ export async function PUT(
     }
 
     const body = JSON.parse(text);
-    
+
     // Check if product exists before updating
     const existingProduct = await prisma.product.findUnique({
       where: { id },
     });
-    
+
     if (!existingProduct) {
-      return NextResponse.json(
-        { error: "Product not found" },
-        { status: 404 }
-      );
+      return NextResponse.json({ error: "Product not found" }, { status: 404 });
     }
 
     const updated = await prisma.product.update({
@@ -76,7 +84,9 @@ export async function PUT(
         slug: body.slug,
         description: body.description,
         price: Number(body.price),
-        original_price: body.original_price ? Number(body.original_price) : null,
+        original_price: body.original_price
+          ? Number(body.original_price)
+          : null,
         discount: body.discount ? Number(body.discount) : 0,
         stock: Number(body.stock),
         available: body.available,
@@ -99,7 +109,6 @@ export async function PUT(
   }
 }
 
-// Soft-DELETE
 export async function DELETE(
   _req: Request,
   { params }: { params: { id: string } }
@@ -120,23 +129,21 @@ export async function DELETE(
     });
 
     if (!existingProduct) {
-      return NextResponse.json(
-        { error: "Product not found" },
-        { status: 404 }
-      );
+      return NextResponse.json({ error: "Product not found" }, { status: 404 });
     }
 
-    // ❗ আসল ডিলিট না করে শুধু inactive/soft-delete করলাম
+    // 🔥 Soft delete (consistent with other modules)
     const updated = await prisma.product.update({
       where: { id },
       data: {
-        available: false,  // 🔴 এই ফ্ল্যাগ দিয়েই আমরা hide করব
-        stock: 0,          // optional: স্টক ০ করে দিচ্ছি যেন আর buy না হয়
+        deleted: true, // IMPORTANT
+        available: false,
+        stock: 0,
       },
     });
 
     return NextResponse.json({
-      message: "Product marked as inactive successfully",
+      message: "Product soft deleted successfully",
       product: updated,
     });
   } catch (err) {

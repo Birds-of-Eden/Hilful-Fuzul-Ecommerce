@@ -37,14 +37,12 @@ export default function CategoriesPage() {
     });
     const updated = await res.json();
 
-    setCategories((prev) =>
-      prev.map((cat) => (cat.id === id ? updated : cat))
-    );
+    setCategories((prev) => prev.map((cat) => (cat.id === id ? updated : cat)));
   };
 
   const handleDelete = async (id: number) => {
     await fetch(`/api/categories/${id}`, { method: "DELETE" });
-    setCategories((prev) => prev.filter((c) => c.id !== id));
+    fetchCategories(); // refresh list after soft delete
   };
 
   return (

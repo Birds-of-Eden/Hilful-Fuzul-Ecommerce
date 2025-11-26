@@ -3,10 +3,10 @@
 import { NextResponse } from "next/server";
 import { prisma } from "@/lib/prisma";
 
-// GET all writers (only count of products)
 export async function GET() {
   try {
     const writers = await prisma.writer.findMany({
+      where: { deleted: false },
       orderBy: { createdAt: "desc" },
       select: {
         id: true,
@@ -15,7 +15,17 @@ export async function GET() {
         createdAt: true,
         updatedAt: true,
         _count: {
-          select: { products: true }, // only product count
+          select: {
+            products: {
+              where: {
+                deleted: false,
+                available: true,
+                writer: { deleted: false },
+                publisher: { deleted: false },
+                category: { deleted: false },
+              },
+            },
+          },
         },
       },
     });

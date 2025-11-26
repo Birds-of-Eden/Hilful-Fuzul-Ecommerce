@@ -1,3 +1,4 @@
+// api/products/route.ts
 import { prisma } from "@/lib/prisma";
 import { NextResponse } from "next/server";
 
@@ -5,7 +6,8 @@ export async function GET() {
   try {
     const products = await prisma.product.findMany({
       where: {
-        available: true,     // only active products
+        deleted: false,
+        available: true,
       },
       orderBy: { id: "desc" },
       include: {
@@ -15,7 +17,21 @@ export async function GET() {
       },
     });
 
-    return NextResponse.json(products);
+    const cleaned = products
+      .map((p) => ({
+        ...p,
+        writer: p.writer?.deleted ? null : p.writer,
+        publisher: p.publisher?.deleted ? null : p.publisher,
+        category: p.category?.deleted ? null : p.category,
+      }))
+      .filter(
+        (p) =>
+          p.writer !== null &&
+          p.publisher !== null &&
+          p.category !== null
+      ); // <-- FILTER HERE
+
+    return NextResponse.json(cleaned);
   } catch (err) {
     return NextResponse.json(
       { error: "Failed to load products" },
@@ -23,6 +39,7 @@ export async function GET() {
     );
   }
 }
+
 
 export async function POST(req: Request) {
   try {

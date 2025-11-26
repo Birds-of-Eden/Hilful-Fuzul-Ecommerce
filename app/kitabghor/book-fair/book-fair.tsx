@@ -336,7 +336,7 @@ const BookFairPage = memo(function BookFairPage() {
                     </div>
                     <div className="flex items-center gap-3 p-3 bg-white/50 rounded-xl">
                       <Sparkles className="h-5 w-5 text-emerald-600 flex-shrink-0" />
-                      <span className="text-sm font-medium text-gray-700">বিনামূল্যে হোম ডেলিভারি</span>
+                      <span className="text-sm font-medium text-gray-700">হোম ডেলিভারি</span>
                     </div>
                     <div className="flex items-center gap-3 p-3 bg-white/50 rounded-xl">
                       <Zap className="h-5 w-5 text-emerald-600 flex-shrink-0" />
@@ -363,7 +363,7 @@ const BookFairPage = memo(function BookFairPage() {
                   <span className="text-red-500">{error}</span>
                 ) : (
                   <>
-                    <span className="font-semibold text-emerald-600">
+                    <span className="font-semibold text-emerald-600 mr-1">
                       {filteredBooks.length}
                     </span>
                     টি বই পাওয়া গেছে

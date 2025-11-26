@@ -9,8 +9,8 @@ export async function GET(req: Request, context: ParamsType) {
   const { id } = await context.params;
 
   try {
-    const publisher = await prisma.publisher.findUnique({
-      where: { id: Number(id) },
+    const publisher = await prisma.publisher.findFirst({
+        where: { id: Number(id), deleted: false },
     });
 
     if (!publisher)
@@ -49,12 +49,17 @@ export async function DELETE(req: Request, context: ParamsType) {
   const { id } = await context.params;
 
   try {
-    await prisma.publisher.delete({
+    await prisma.publisher.update({
       where: { id: Number(id) },
+      data: { deleted: true }, // ✔ SOFT DELETE
     });
 
-    return NextResponse.json({ message: "Deleted" });
+    return NextResponse.json({ message: "Publisher soft deleted" });
   } catch (err) {
-    return NextResponse.json({ error: "Failed to delete" }, { status: 500 });
+    return NextResponse.json(
+      { error: "Failed to delete publisher" },
+      { status: 500 }
+    );
   }
 }
+
