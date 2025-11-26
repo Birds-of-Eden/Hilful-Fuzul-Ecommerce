@@ -269,7 +269,7 @@ export default function GlassmorphismAdminDashboard() {
   return (
     <div className="min-h-screen bg-gradient-to-br from-[#f8fff2f5] to-[#d9f3c1]/30 p-4 lg:p-6">
       <div>
-        <div className="flex justify-between">
+        <div className="flex flex-col md:flex-row justify-between ">
           {/* Header */}
           <div className="text-center mb-12">
             <div className="flex items-center justify-center gap-3 mb-4">
@@ -285,8 +285,8 @@ export default function GlassmorphismAdminDashboard() {
           </div>
 
           {/* Controls */}
-          <div className="flex flex-col lg:flex-row lg:items-center lg:justify-center gap-6 mb-8">
-            <div className="flex bg-white/80 rounded-2xl p-1 shadow-lg">
+          <div className="flex items-center justify-center gap-6 mb-8">
+            <div className="flex items-center justify-center bg-white/80 rounded-2xl p-1 shadow-lg">
               {["today", "week", "month", "year"].map((range) => (
                 <button
                   key={range}
@@ -496,40 +496,6 @@ export default function GlassmorphismAdminDashboard() {
               ))}
             </div>
           </div>
-
-          {/* Category Distribution */}
-          {/* <div className="bg-white/80 rounded-2xl p-6 shadow-lg">
-            <h2 className="text-xl font-bold text-gray-800 mb-6">
-              বিভাগ অনুযায়ী বিক্রয়
-            </h2>
-            <div className="space-y-4">
-              {categoryData.map((category, index) => (
-                <div key={index} className="flex items-center justify-between">
-                  <div className="flex items-center space-x-3">
-                    <div
-                      className={`w-4 h-4 rounded-full bg-gradient-to-r ${category.color}`}
-                    ></div>
-                    <span className="text-sm font-semibold text-gray-700">
-                      {category.name}
-                    </span>
-                  </div>
-                  <div className="flex items-center space-x-2">
-                    <div className="w-24 h-2 bg-gray-200 rounded-full overflow-hidden">
-                      <div
-                        className={`h-full rounded-full bg-gradient-to-r ${category.color}`}
-                        style={{
-                          width: `${category.value}%`,
-                        }}
-                      ></div>
-                    </div>
-                    <span className="text-sm font-bold text-gray-800">
-                      {category.value}%
-                    </span>
-                  </div>
-                </div>
-              ))}
-            </div>
-          </div> */}
         </div>
 
         {/* Additional Analytics Cards */}

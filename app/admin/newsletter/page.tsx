@@ -172,191 +172,230 @@ export default function NewsletterManagement() {
 
   if (loading) {
     return (
-      <div className="flex justify-center items-center min-h-screen p-4">
+      <div className="flex justify-center items-center min-h-screen p-4 bg-gradient-to-br from-[#F4F8F7] to-[#EEEFE0]">
         <div className="text-center">
-          <div className="animate-spin rounded-full h-8 w-8 border-b-2 border-blue-600 mx-auto mb-4"></div>
-          <p className="text-gray-600">Loading newsletters...</p>
+          <div className="animate-spin rounded-full h-8 w-8 border-b-2 border-[#0E4B4B] mx-auto mb-4"></div>
+          <p className="text-[#0D1414]">Loading newsletters...</p>
         </div>
       </div>
     );
   }
 
   return (
-    <div className="container mx-auto px-4 py-6">
-      <div className="flex flex-col sm:flex-row justify-between items-start sm:items-center gap-4 mb-6">
-        <h1 className="text-2xl sm:text-3xl font-bold text-gray-900">
-          Newsletter Management
-        </h1>
-
-        <Dialog open={isCreateDialogOpen} onOpenChange={setIsCreateDialogOpen}>
-          <DialogTrigger asChild>
-            <Button className="bg-blue-600 hover:bg-blue-700 text-white">
-              <Plus className="mr-2 h-4 w-4" /> Create Newsletter
-            </Button>
-          </DialogTrigger>
-
-          <DialogContent className="max-w-2xl mx-4 max-h-[90vh] overflow-y-auto">
-            <DialogHeader>
-              <DialogTitle className="text-xl font-semibold">
-                Create New Newsletter
-              </DialogTitle>
-            </DialogHeader>
-
-            <form onSubmit={handleSubmit} className="space-y-6">
-              <div>
-                <Label htmlFor="title">Title</Label>
-                <Input
-                  id="title"
-                  value={formData.title}
-                  onChange={(e) =>
-                    setFormData({ ...formData, title: e.target.value })
-                  }
-                  required
-                />
-              </div>
-
-              <div>
-                <Label htmlFor="subject">Subject</Label>
-                <Input
-                  id="subject"
-                  value={formData.subject}
-                  onChange={(e) =>
-                    setFormData({ ...formData, subject: e.target.value })
-                  }
-                  required
-                />
-              </div>
-
-              <div>
-                <Label htmlFor="content">Content</Label>
-                <Textarea
-                  id="content"
-                  value={formData.content}
-                  onChange={(e) =>
-                    setFormData({ ...formData, content: e.target.value })
-                  }
-                  rows={8}
-                  required
-                />
-              </div>
-
-              <Button
-                type="submit"
-                className="w-full bg-blue-600 hover:bg-blue-700 text-white"
-              >
-                Create Newsletter
-              </Button>
-            </form>
-          </DialogContent>
-        </Dialog>
-      </div>
-
-      <div className="grid gap-4 md:grid-cols-2 lg:grid-cols-3">
-        {newsletters.map((newsletter) => (
-          <Card
-            key={newsletter.id}
-            className="hover:shadow-lg transition border-gray-200"
-          >
-            <CardHeader>
-              <div className="flex justify-between items-start gap-3">
-                <div className="flex-1 min-w-0">
-                  <CardTitle className="text-lg font-semibold truncate">
-                    {newsletter.title}
-                  </CardTitle>
-                  <p className="text-sm text-gray-600 mt-1 line-clamp-2">
-                    {newsletter.subject}
-                  </p>
-                </div>
-
-                <div
-                  className={`px-2 py-1 rounded-full text-xs ${
-                    newsletter.status === "sent"
-                      ? "bg-green-100 text-green-800"
-                      : "bg-yellow-100 text-yellow-800"
-                  }`}
-                >
-                  {newsletter.status}
-                </div>
-              </div>
-            </CardHeader>
-
-            <CardContent>
-              <p className="text-gray-700 text-sm mb-4 line-clamp-3">
-                {newsletter.content}
+    <div className="min-h-screen bg-gradient-to-br from-[#F4F8F7] to-[#EEEFE0] p-4 sm:p-6">
+      <div>
+        {/* Page Header */}
+        <div className="bg-gradient-to-r from-[#0E4B4B] to-[#086666] rounded-2xl shadow-lg p-6 mb-8 border border-[#F4F8F7]/10">
+          <div className="flex flex-col lg:flex-row justify-between items-start lg:items-center gap-4">
+            <div>
+              <h1 className="text-2xl sm:text-3xl font-bold text-[#F4F8F7] mb-2">
+                Newsletter Management
+              </h1>
+              <p className="text-[#F4F8F7]/70 text-sm">
+                Create and manage your email newsletters
               </p>
+            </div>
 
-              <div className="text-xs text-gray-500 border-t pt-3">
-                <div>
-                  Created: {new Date(newsletter.createdAt).toLocaleDateString()}
+            <Dialog open={isCreateDialogOpen} onOpenChange={setIsCreateDialogOpen}>
+              <DialogTrigger asChild>
+                <Button className="bg-[#C0704D] hover:bg-[#A85D3F] text-white font-semibold px-6 rounded-full transition-all duration-300 hover:shadow-lg hover:scale-105 border border-[#C0704D] hover:border-[#A85D3F]">
+                  <Plus className="mr-2 h-4 w-4" /> Create Newsletter
+                </Button>
+              </DialogTrigger>
+
+              <DialogContent className="max-w-2xl mx-4 max-h-[90vh] overflow-y-auto bg-white/95 backdrop-blur-sm border border-[#D1D8BE] rounded-2xl shadow-2xl">
+                <DialogHeader className="border-b border-[#D1D8BE] pb-4">
+                  <DialogTitle className="text-xl font-semibold text-[#0D1414]">
+                    Create New Newsletter
+                  </DialogTitle>
+                </DialogHeader>
+
+                <form onSubmit={handleSubmit} className="space-y-6 pt-4">
+                  <div>
+                    <Label htmlFor="title" className="text-[#0D1414] font-medium">Title</Label>
+                    <Input
+                      id="title"
+                      value={formData.title}
+                      onChange={(e) =>
+                        setFormData({ ...formData, title: e.target.value })
+                      }
+                      className="bg-[#EEEFE0] border-[#D1D8BE] focus:border-[#819A91] text-[#0D1414] placeholder-[#2D4A3C]/50 transition-colors duration-300"
+                      required
+                    />
+                  </div>
+
+                  <div>
+                    <Label htmlFor="subject" className="text-[#0D1414] font-medium">Subject</Label>
+                    <Input
+                      id="subject"
+                      value={formData.subject}
+                      onChange={(e) =>
+                        setFormData({ ...formData, subject: e.target.value })
+                      }
+                      className="bg-[#EEEFE0] border-[#D1D8BE] focus:border-[#819A91] text-[#0D1414] placeholder-[#2D4A3C]/50 transition-colors duration-300"
+                      required
+                    />
+                  </div>
+
+                  <div>
+                    <Label htmlFor="content" className="text-[#0D1414] font-medium">Content</Label>
+                    <Textarea
+                      id="content"
+                      value={formData.content}
+                      onChange={(e) =>
+                        setFormData({ ...formData, content: e.target.value })
+                      }
+                      rows={8}
+                      className="bg-[#EEEFE0] border-[#D1D8BE] focus:border-[#819A91] text-[#0D1414] placeholder-[#2D4A3C]/50 transition-colors duration-300 resize-none"
+                      required
+                    />
+                  </div>
+
+                  <Button
+                    type="submit"
+                    className="w-full bg-gradient-to-r from-[#0E4B4B] to-[#086666] hover:from-[#0A3A3A] hover:to-[#065252] text-white font-semibold rounded-xl transition-all duration-300 hover:shadow-lg hover:scale-105 border border-[#0E4B4B]"
+                  >
+                    Create Newsletter
+                  </Button>
+                </form>
+              </DialogContent>
+            </Dialog>
+          </div>
+        </div>
+
+        {/* Newsletter Grid */}
+        <div className="grid gap-6 md:grid-cols-2 lg:grid-cols-3">
+          {newsletters.map((newsletter) => (
+            <Card
+              key={newsletter.id}
+              className="bg-white/90 backdrop-blur-sm border border-[#D1D8BE] rounded-2xl shadow-lg hover:shadow-xl transition-all duration-300 hover:scale-105 overflow-hidden"
+            >
+              <CardHeader className="bg-gradient-to-r from-[#0E4B4B]/5 to-[#086666]/5 border-b border-[#D1D8BE]">
+                <div className="flex justify-between items-start gap-3">
+                  <div className="flex-1 min-w-0">
+                    <CardTitle className="text-lg font-semibold text-[#0D1414] truncate">
+                      {newsletter.title}
+                    </CardTitle>
+                    <p className="text-sm text-[#2D4A3C]/70 mt-1 line-clamp-2">
+                      {newsletter.subject}
+                    </p>
+                  </div>
+
+                  <div
+                    className={`px-3 py-1 rounded-full text-xs font-semibold border ${
+                      newsletter.status === "sent"
+                        ? "bg-[#A7C1A8]/20 text-[#0E4B4B] border-[#A7C1A8]/30"
+                        : "bg-[#C0704D]/20 text-[#C0704D] border-[#C0704D]/30"
+                    }`}
+                  >
+                    {newsletter.status === "sent" ? "পাঠানো হয়েছে" : "খসড়া"}
+                  </div>
                 </div>
-                {newsletter.sentAt && (
-                  <div>Sent: {new Date(newsletter.sentAt).toLocaleDateString()}</div>
-                )}
-              </div>
+              </CardHeader>
 
-              <div className="flex flex-wrap gap-2 mt-4">
-                {/* Preview */}
-                <Button
-                  variant="outline"
-                  size="sm"
-                  onClick={() => openPreviewDialog(newsletter)}
-                >
-                  <Eye className="h-4 w-4 mr-1" />
-                  Preview
-                </Button>
+              <CardContent className="p-4">
+                <p className="text-[#2D4A3C] text-sm mb-4 line-clamp-3 leading-relaxed">
+                  {newsletter.content}
+                </p>
 
-                {/* Edit */}
-                <Button
-                  variant="outline"
-                  size="sm"
-                  onClick={() => openEditDialog(newsletter)}
-                >
-                  <Edit className="h-4 w-4 mr-1" />
-                  Edit
-                </Button>
+                <div className="text-xs text-[#2D4A3C]/50 border-t border-[#D1D8BE] pt-3 space-y-1">
+                  <div className="flex items-center gap-2">
+                    <span className="font-medium">তৈরি:</span>
+                    <span>{new Date(newsletter.createdAt).toLocaleDateString("bn-BD")}</span>
+                  </div>
+                  {newsletter.sentAt && (
+                    <div className="flex items-center gap-2 text-[#1e9191]">
+                      <span className="font-bold">পাঠানো:</span>
+                      <span>{new Date(newsletter.sentAt).toLocaleDateString("bn-BD")}</span>
+                    </div>
+                  )}
+                </div>
 
-                {/* Send */}
-                {newsletter.status !== "sent" && (
+                <div className="flex flex-wrap gap-2 mt-4">
+                  {/* Preview */}
                   <Button
                     variant="outline"
                     size="sm"
-                    disabled={sendingId === newsletter.id}
-                    onClick={() => handleSend(newsletter.id)}
-                    className="border-green-300 text-green-700 hover:bg-green-50"
+                    onClick={() => openPreviewDialog(newsletter)}
+                    className="border-[#D1D8BE] text-[#0D1414] hover:bg-[#EEEFE0] hover:border-[#819A91] rounded-lg transition-all duration-300"
                   >
-                    <Send className="h-4 w-4 mr-1" />
-                    {sendingId === newsletter.id ? "Sending..." : "Send"}
+                    <Eye className="h-4 w-4 mr-1" />
+                    Preview
                   </Button>
-                )}
 
-                {/* Delete */}
-                <Button
-                  variant="destructive"
-                  size="sm"
-                  onClick={() => handleDelete(newsletter.id)}
-                >
-                  <Trash2 className="h-4 w-4 mr-1" />
-                  Delete
+                  {/* Edit */}
+                  <Button
+                    variant="outline"
+                    size="sm"
+                    onClick={() => openEditDialog(newsletter)}
+                    className="border-[#D1D8BE] text-[#0D1414] hover:bg-[#EEEFE0] hover:border-[#819A91] rounded-lg transition-all duration-300"
+                  >
+                    <Edit className="h-4 w-4 mr-1" />
+                    Edit
+                  </Button>
+
+                  {/* Send */}
+                  {newsletter.status !== "sent" && (
+                    <Button
+                      variant="outline"
+                      size="sm"
+                      disabled={sendingId === newsletter.id}
+                      onClick={() => handleSend(newsletter.id)}
+                      className="border-[#A7C1A8] text-[#0E4B4B] hover:bg-[#A7C1A8]/10 hover:border-[#819A91] rounded-lg transition-all duration-300"
+                    >
+                      <Send className="h-4 w-4 mr-1" />
+                      {sendingId === newsletter.id ? "Sending..." : "Send"}
+                    </Button>
+                  )}
+
+                  {/* Delete */}
+                  <Button
+                    variant="destructive"
+                    size="sm"
+                    onClick={() => handleDelete(newsletter.id)}
+                    className="bg-[#C0704D] hover:bg-[#A85D3F] text-white border-[#C0704D] hover:border-[#A85D3F] rounded-lg transition-all duration-300"
+                  >
+                    <Trash2 className="h-4 w-4 mr-1" />
+                    Delete
+                  </Button>
+                </div>
+              </CardContent>
+            </Card>
+          ))}
+        </div>
+
+        {newsletters.length === 0 && (
+          <div className="text-center py-12">
+            <div className="w-20 h-20 bg-[#EEEFE0] rounded-2xl flex items-center justify-center mx-auto mb-4">
+              <Send className="w-10 h-10 text-[#819A91]" />
+            </div>
+            <h3 className="text-xl font-semibold text-[#0D1414] mb-2">No newsletters yet</h3>
+            <p className="text-[#2D4A3C]/70 mb-6">Create your first newsletter to get started</p>
+            <Dialog open={isCreateDialogOpen} onOpenChange={setIsCreateDialogOpen}>
+              <DialogTrigger asChild>
+                <Button className="bg-[#C0704D] hover:bg-[#A85D3F] text-white font-semibold px-6 rounded-full transition-all duration-300 hover:shadow-lg hover:scale-105 border border-[#C0704D] hover:border-[#A85D3F]">
+                  <Plus className="mr-2 h-4 w-4" /> Create Newsletter
                 </Button>
-              </div>
-            </CardContent>
-          </Card>
-        ))}
-      </div>
+              </DialogTrigger>
+            </Dialog>
+          </div>
+        )}
 
       {/* Preview Dialog */}
       <Dialog open={isPreviewOpen} onOpenChange={setIsPreviewOpen}>
-        <DialogContent className="max-w-2xl mx-4 max-h-[90vh] overflow-y-auto">
-          <DialogHeader>
-            <DialogTitle>Preview Newsletter</DialogTitle>
+        <DialogContent className="max-w-2xl mx-4 max-h-[90vh] overflow-y-auto bg-white/95 backdrop-blur-sm border border-[#D1D8BE] rounded-2xl shadow-2xl">
+          <DialogHeader className="border-b border-[#D1D8BE] pb-4">
+            <DialogTitle className="text-xl font-semibold text-[#0D1414]">Preview Newsletter</DialogTitle>
           </DialogHeader>
 
           {previewNewsletter && (
-            <div className="space-y-4">
-              <h2 className="text-xl font-bold">{previewNewsletter.title}</h2>
-              <p className="text-gray-600">{previewNewsletter.subject}</p>
+            <div className="space-y-4 pt-4">
+              <div className="bg-gradient-to-r from-[#0E4B4B]/5 to-[#086666]/5 rounded-xl p-4 border border-[#D1D8BE]">
+                <h2 className="text-xl font-bold text-[#0D1414] mb-2">{previewNewsletter.title}</h2>
+                <p className="text-[#2D4A3C]/70 font-medium">{previewNewsletter.subject}</p>
+              </div>
 
-              <div className="bg-gray-100 rounded p-4 whitespace-pre-line">
+              <div className="bg-[#EEEFE0] rounded-xl p-6 border border-[#D1D8BE] whitespace-pre-line text-[#0D1414] leading-relaxed">
                 {previewNewsletter.content}
               </div>
             </div>
@@ -366,40 +405,42 @@ export default function NewsletterManagement() {
 
       {/* Edit Dialog */}
       <Dialog open={isEditDialogOpen} onOpenChange={setIsEditDialogOpen}>
-        <DialogContent className="max-w-2xl mx-4 max-h-[90vh] overflow-y-auto">
-          <DialogHeader>
-            <DialogTitle className="text-xl font-semibold">
+        <DialogContent className="max-w-2xl mx-4 max-h-[90vh] overflow-y-auto bg-white/95 backdrop-blur-sm border border-[#D1D8BE] rounded-2xl shadow-2xl">
+          <DialogHeader className="border-b border-[#D1D8BE] pb-4">
+            <DialogTitle className="text-xl font-semibold text-[#0D1414]">
               Edit Newsletter
             </DialogTitle>
           </DialogHeader>
 
-          <form onSubmit={handleSubmit} className="space-y-6">
+          <form onSubmit={handleSubmit} className="space-y-6 pt-4">
             <div>
-              <Label htmlFor="edit-title">Title</Label>
+              <Label htmlFor="edit-title" className="text-[#0D1414] font-medium">Title</Label>
               <Input
                 id="edit-title"
                 value={formData.title}
                 onChange={(e) =>
                   setFormData({ ...formData, title: e.target.value })
                 }
+                className="bg-[#EEEFE0] border-[#D1D8BE] focus:border-[#819A91] text-[#0D1414] placeholder-[#2D4A3C]/50 transition-colors duration-300"
                 required
               />
             </div>
 
             <div>
-              <Label htmlFor="edit-subject">Subject</Label>
+              <Label htmlFor="edit-subject" className="text-[#0D1414] font-medium">Subject</Label>
               <Input
                 id="edit-subject"
                 value={formData.subject}
                 onChange={(e) =>
                   setFormData({ ...formData, subject: e.target.value })
                 }
+                className="bg-[#EEEFE0] border-[#D1D8BE] focus:border-[#819A91] text-[#0D1414] placeholder-[#2D4A3C]/50 transition-colors duration-300"
                 required
               />
             </div>
 
             <div>
-              <Label htmlFor="edit-content">Content</Label>
+              <Label htmlFor="edit-content" className="text-[#0D1414] font-medium">Content</Label>
               <Textarea
                 id="edit-content"
                 value={formData.content}
@@ -407,19 +448,21 @@ export default function NewsletterManagement() {
                   setFormData({ ...formData, content: e.target.value })
                 }
                 rows={8}
+                className="bg-[#EEEFE0] border-[#D1D8BE] focus:border-[#819A91] text-[#0D1414] placeholder-[#2D4A3C]/50 transition-colors duration-300 resize-none"
                 required
               />
             </div>
 
             <Button
               type="submit"
-              className="w-full bg-blue-600 hover:bg-blue-700 text-white"
+              className="w-full bg-gradient-to-r from-[#0E4B4B] to-[#086666] hover:from-[#0A3A3A] hover:to-[#065252] text-white font-semibold rounded-xl transition-all duration-300 hover:shadow-lg hover:scale-105 border border-[#0E4B4B]"
             >
               Update Newsletter
             </Button>
           </form>
         </DialogContent>
       </Dialog>
+      </div>
     </div>
   );
 }

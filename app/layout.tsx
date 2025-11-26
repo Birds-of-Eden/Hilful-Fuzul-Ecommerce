@@ -8,6 +8,8 @@ import TreeProvider from "@/providers/treeProvider";
 import { CartProvider } from "@/components/ecommarce/CartContext";
 import { WishlistProvider } from "@/components/ecommarce/WishlistContext";
 import { Providers } from "./providers";
+import Header from "@/components/ecommarce/header";
+import Footer from "@/components/ecommarce/footer";
 
 const geistSans = Geist({
   variable: "--font-geist-sans",
@@ -43,7 +45,11 @@ export default function RootLayout({
             <TreeProvider>
               <CartProvider>
                 <WishlistProvider>
-                  <main className="min-h-screen">{children}</main>
+                  <div className="min-h-screen flex flex-col">
+                    <Header />
+                    <main className="flex-1">{children}</main>
+                    <Footer />
+                  </div>
                 </WishlistProvider>
               </CartProvider>
             </TreeProvider>

@@ -166,29 +166,276 @@ export default function CouponManagement() {
   };
 
   if (loading) {
-    return <div className="flex justify-center p-8">Loading...</div>;
+    return (
+      <div className="flex justify-center items-center h-64 bg-gradient-to-br from-[#F4F8F7] to-[#EEEFE0]">
+        <div className="text-center">
+          <div className="animate-spin rounded-full h-12 w-12 border-b-2 border-[#0E4B4B] mx-auto mb-4"></div>
+          <p className="text-[#0D1414]">Loading coupons...</p>
+        </div>
+      </div>
+    );
   }
 
   return (
-    <div className="container mx-auto py-6">
-      <div className="flex justify-between items-center mb-6">
-        <h1 className="text-3xl font-bold">Coupon Management</h1>
-        <Dialog open={isCreateDialogOpen} onOpenChange={setIsCreateDialogOpen}>
-          <DialogTrigger asChild>
-            <Button>
-              <Plus className="mr-2 h-4 w-4" />
-              Create Coupon
-            </Button>
-          </DialogTrigger>
-          <DialogContent className="max-w-md">
-            <DialogHeader>
-              <DialogTitle>Create New Coupon</DialogTitle>
+    <div className="min-h-screen bg-gradient-to-br from-[#F4F8F7] to-[#EEEFE0] p-4 sm:p-6">
+      <div>
+        {/* Header Section */}
+        <div className="bg-gradient-to-r from-[#0E4B4B] to-[#086666] rounded-2xl shadow-lg p-6 mb-8 border border-[#F4F8F7]/10">
+          <div className="flex flex-col lg:flex-row lg:items-center lg:justify-between gap-4">
+            <div>
+              <h1 className="text-2xl sm:text-3xl font-bold text-[#F4F8F7] mb-2">Coupon Management</h1>
+              <p className="text-[#F4F8F7]/70 text-sm">Create and manage discount coupons for your customers</p>
+            </div>
+            <Dialog open={isCreateDialogOpen} onOpenChange={setIsCreateDialogOpen}>
+              <DialogTrigger asChild>
+                <Button className="bg-[#C0704D] hover:bg-[#A85D3F] text-white font-semibold px-6 py-3 rounded-full transition-all duration-300 hover:shadow-lg hover:scale-105 border border-[#C0704D] hover:border-[#A85D3F]">
+                  <Plus className="mr-2 h-4 w-4" />
+                  Create Coupon
+                </Button>
+              </DialogTrigger>
+              <DialogContent className="max-w-md bg-white/95 backdrop-blur-sm border border-[#D1D8BE] rounded-2xl shadow-2xl">
+                <DialogHeader className="border-b border-[#D1D8BE] pb-4">
+                  <DialogTitle className="text-xl font-semibold text-[#0D1414]">Create New Coupon</DialogTitle>
+                </DialogHeader>
+                <form onSubmit={handleSubmit} className="space-y-4 pt-4">
+                  <div>
+                    <Label htmlFor="code" className="text-[#0D1414] font-medium">Coupon Code</Label>
+                    <Input
+                      id="code"
+                      value={formData.code}
+                      onChange={(e) =>
+                        setFormData({
+                          ...formData,
+                          code: e.target.value.toUpperCase(),
+                        })
+                      }
+                      placeholder="SAVE20"
+                      className="bg-[#EEEFE0] border-[#D1D8BE] focus:border-[#819A91] text-[#0D1414] placeholder-[#2D4A3C]/50 transition-colors duration-300"
+                      required
+                    />
+                  </div>
+                  <div>
+                    <Label htmlFor="discountType" className="text-[#0D1414] font-medium">Discount Type</Label>
+                    <Select
+                      value={formData.discountType}
+                      onValueChange={(value) =>
+                        setFormData({ ...formData, discountType: value })
+                      }
+                    >
+                      <SelectTrigger className="bg-[#EEEFE0] border-[#D1D8BE] focus:border-[#819A91] text-[#0D1414]">
+                        <SelectValue placeholder="Select discount type" />
+                      </SelectTrigger>
+                      <SelectContent className="bg-white border-[#D1D8BE]">
+                        <SelectItem value="percentage">Percentage</SelectItem>
+                        <SelectItem value="fixed">Fixed Amount</SelectItem>
+                      </SelectContent>
+                    </Select>
+                  </div>
+                  <div>
+                    <Label htmlFor="discountValue" className="text-[#0D1414] font-medium">Discount Value</Label>
+                    <Input
+                      id="discountValue"
+                      type="number"
+                      step="0.01"
+                      value={formData.discountValue}
+                      onChange={(e) =>
+                        setFormData({ ...formData, discountValue: e.target.value })
+                      }
+                      placeholder={
+                        formData.discountType === "percentage" ? "10" : "100"
+                      }
+                      className="bg-[#EEEFE0] border-[#D1D8BE] focus:border-[#819A91] text-[#0D1414] placeholder-[#2D4A3C]/50 transition-colors duration-300"
+                      required
+                    />
+                  </div>
+                  <div>
+                    <Label htmlFor="minOrderValue" className="text-[#0D1414] font-medium">
+                      Minimum Order Value (Optional)
+                    </Label>
+                    <Input
+                      id="minOrderValue"
+                      type="number"
+                      step="0.01"
+                      value={formData.minOrderValue}
+                      onChange={(e) =>
+                        setFormData({ ...formData, minOrderValue: e.target.value })
+                      }
+                      placeholder="500"
+                      className="bg-[#EEEFE0] border-[#D1D8BE] focus:border-[#819A91] text-[#0D1414] placeholder-[#2D4A3C]/50 transition-colors duration-300"
+                    />
+                  </div>
+                  <div>
+                    <Label htmlFor="maxDiscount" className="text-[#0D1414] font-medium">Maximum Discount (Optional)</Label>
+                    <Input
+                      id="maxDiscount"
+                      type="number"
+                      step="0.01"
+                      value={formData.maxDiscount}
+                      onChange={(e) =>
+                        setFormData({ ...formData, maxDiscount: e.target.value })
+                      }
+                      placeholder="100"
+                      className="bg-[#EEEFE0] border-[#D1D8BE] focus:border-[#819A91] text-[#0D1414] placeholder-[#2D4A3C]/50 transition-colors duration-300"
+                    />
+                  </div>
+                  <div>
+                    <Label htmlFor="usageLimit" className="text-[#0D1414] font-medium">Usage Limit (Optional)</Label>
+                    <Input
+                      id="usageLimit"
+                      type="number"
+                      value={formData.usageLimit}
+                      onChange={(e) =>
+                        setFormData({ ...formData, usageLimit: e.target.value })
+                      }
+                      placeholder="100"
+                      className="bg-[#EEEFE0] border-[#D1D8BE] focus:border-[#819A91] text-[#0D1414] placeholder-[#2D4A3C]/50 transition-colors duration-300"
+                    />
+                  </div>
+                  <div>
+                    <Label htmlFor="expiresAt" className="text-[#0D1414] font-medium">Expiry Date (Optional)</Label>
+                    <Input
+                      id="expiresAt"
+                      type="date"
+                      value={formData.expiresAt}
+                      onChange={(e) =>
+                        setFormData({ ...formData, expiresAt: e.target.value })
+                      }
+                      className="bg-[#EEEFE0] border-[#D1D8BE] focus:border-[#819A91] text-[#0D1414] transition-colors duration-300"
+                    />
+                  </div>
+                  <Button type="submit" className="w-full bg-gradient-to-r from-[#0E4B4B] to-[#086666] hover:from-[#0A3A3A] hover:to-[#065252] text-white font-semibold rounded-xl transition-all duration-300 hover:shadow-lg hover:scale-105 border border-[#0E4B4B]">
+                    Create Coupon
+                  </Button>
+                </form>
+              </DialogContent>
+            </Dialog>
+          </div>
+        </div>
+
+        {/* Coupon Grid */}
+        <div className="grid gap-6 md:grid-cols-2 lg:grid-cols-3">
+          {coupons.map((coupon) => (
+            <Card
+              key={coupon.id}
+              className="bg-white/90 backdrop-blur-sm border border-[#D1D8BE] rounded-2xl shadow-lg hover:shadow-xl transition-all duration-300 hover:scale-105 overflow-hidden"
+            >
+              <CardHeader className="bg-gradient-to-r from-[#0E4B4B]/5 to-[#086666]/5 border-b border-[#D1D8BE]">
+                <div className="flex justify-between items-start">
+                  <div className="flex-1">
+                    <CardTitle className="text-lg font-semibold text-[#0D1414] flex items-center gap-2">
+                      <Tag className="h-5 w-5 text-[#0E4B4B]" />
+                      {coupon.code}
+                    </CardTitle>
+                    <p className="text-[#2D4A3C]/70 text-sm mt-1">
+                      {coupon.discountType === "percentage"
+                        ? `${coupon.discountValue}% off`
+                        : `৳${coupon.discountValue} off`}
+                    </p>
+                  </div>
+                  <div className="flex gap-2">
+                    <div
+                      className={`px-3 py-1 rounded-full text-xs font-semibold border ${
+                        coupon.isValid
+                          ? "bg-[#A7C1A8]/20 text-[#0E4B4B] border-[#A7C1A8]/30"
+                          : "bg-[#C0704D]/20 text-[#C0704D] border-[#C0704D]/30"
+                      }`}
+                    >
+                      {coupon.isValid ? "সক্রিয়" : "নিষ্ক্রিয়"}
+                    </div>
+                    {isExpired(coupon.expiresAt) && (
+                      <div className="px-3 py-1 rounded-full text-xs font-semibold bg-[#C0704D]/20 text-[#C0704D] border border-[#C0704D]/30">
+                        মেয়াদোত্তীর্ণ
+                      </div>
+                    )}
+                  </div>
+                </div>
+              </CardHeader>
+              <CardContent className="p-4">
+                <div className="grid grid-cols-2 gap-4 text-sm mb-4">
+                  <div>
+                    <span className="text-[#2D4A3C]/50">ব্যবহৃত:</span>
+                    <p className="font-medium text-[#0D1414]">
+                      {coupon.usedCount} / {coupon.usageLimit || "∞"}
+                    </p>
+                  </div>
+                  {coupon.minOrderValue && (
+                    <div>
+                      <span className="text-[#2D4A3C]/50">সর্বনিম্ন:</span>
+                      <p className="font-medium text-[#0D1414]">৳{coupon.minOrderValue}</p>
+                    </div>
+                  )}
+                  {coupon.maxDiscount && (
+                    <div>
+                      <span className="text-[#2D4A3C]/50">সর্বোচ্চ:</span>
+                      <p className="font-medium text-[#0D1414]">৳{coupon.maxDiscount}</p>
+                    </div>
+                  )}
+                  {coupon.expiresAt && (
+                    <div>
+                      <span className="text-[#2D4A3C]/50">মেয়াদ:</span>
+                      <p className="font-medium text-[#0D1414]">
+                        {new Date(coupon.expiresAt).toLocaleDateString("bn-BD")}
+                      </p>
+                    </div>
+                  )}
+                </div>
+                <div className="flex justify-between items-center pt-4 border-t border-[#D1D8BE]">
+                  <div className="text-xs text-[#2D4A3C]/50">
+                    তৈরি: {new Date(coupon.createdAt).toLocaleDateString("bn-BD")}
+                  </div>
+                  <div className="flex gap-2">
+                    <Button
+                      variant="outline"
+                      size="sm"
+                      onClick={() => openEditDialog(coupon)}
+                      className="border-[#D1D8BE] text-[#0D1414] hover:bg-[#EEEFE0] hover:border-[#819A91] rounded-lg transition-all duration-300"
+                    >
+                      <Edit className="h-4 w-4" />
+                    </Button>
+                    <Button
+                      variant="destructive"
+                      size="sm"
+                      onClick={() => handleDelete(coupon.id)}
+                      className="bg-[#C0704D] hover:bg-[#A85D3F] text-white border-[#C0704D] hover:border-[#A85D3F] rounded-lg transition-all duration-300"
+                    >
+                      <Trash2 className="h-4 w-4" />
+                    </Button>
+                  </div>
+                </div>
+              </CardContent>
+            </Card>
+          ))}
+        </div>
+
+        {coupons.length === 0 && (
+          <div className="bg-white/90 backdrop-blur-sm border border-[#D1D8BE] rounded-2xl shadow-lg p-12 text-center">
+            <div className="w-20 h-20 bg-[#EEEFE0] rounded-2xl flex items-center justify-center mx-auto mb-4">
+              <Tag className="w-10 h-10 text-[#819A91]" />
+            </div>
+            <h3 className="text-xl font-semibold text-[#0D1414] mb-2">No coupons yet</h3>
+            <p className="text-[#2D4A3C]/70 mb-6">Create your first discount coupon to get started</p>
+            <Dialog open={isCreateDialogOpen} onOpenChange={setIsCreateDialogOpen}>
+              <DialogTrigger asChild>
+                <Button className="bg-[#C0704D] hover:bg-[#A85D3F] text-white font-semibold px-6 py-3 rounded-full transition-all duration-300 hover:shadow-lg hover:scale-105 border border-[#C0704D] hover:border-[#A85D3F]">
+                  <Plus className="mr-2 h-4 w-4" />
+                  Create Coupon
+                </Button>
+              </DialogTrigger>
+            </Dialog>
+          </div>
+        )}
+
+        {/* Edit Dialog */}
+        <Dialog open={isEditDialogOpen} onOpenChange={setIsEditDialogOpen}>
+          <DialogContent className="max-w-md bg-white/95 backdrop-blur-sm border border-[#D1D8BE] rounded-2xl shadow-2xl">
+            <DialogHeader className="border-b border-[#D1D8BE] pb-4">
+              <DialogTitle className="text-xl font-semibold text-[#0D1414]">Edit Coupon</DialogTitle>
             </DialogHeader>
-            <form onSubmit={handleSubmit} className="space-y-4">
+            <form onSubmit={handleSubmit} className="space-y-4 pt-4">
               <div>
-                <Label htmlFor="code">Coupon Code</Label>
+                <Label htmlFor="edit-code" className="text-[#0D1414] font-medium">Coupon Code</Label>
                 <Input
-                  id="code"
+                  id="edit-code"
                   value={formData.code}
                   onChange={(e) =>
                     setFormData({
@@ -196,295 +443,109 @@ export default function CouponManagement() {
                       code: e.target.value.toUpperCase(),
                     })
                   }
-                  placeholder="SAVE20"
+                  className="bg-[#EEEFE0] border-[#D1D8BE] focus:border-[#819A91] text-[#0D1414] transition-colors duration-300"
                   required
                 />
               </div>
               <div>
-                <Label htmlFor="discountType">Discount Type</Label>
+                <Label htmlFor="edit-discountType" className="text-[#0D1414] font-medium">Discount Type</Label>
                 <Select
                   value={formData.discountType}
                   onValueChange={(value) =>
                     setFormData({ ...formData, discountType: value })
                   }
                 >
-                  <SelectTrigger>
+                  <SelectTrigger className="bg-[#EEEFE0] border-[#D1D8BE] focus:border-[#819A91] text-[#0D1414]">
                     <SelectValue placeholder="Select discount type" />
                   </SelectTrigger>
-                  <SelectContent>
+                  <SelectContent className="bg-white border-[#D1D8BE]">
                     <SelectItem value="percentage">Percentage</SelectItem>
                     <SelectItem value="fixed">Fixed Amount</SelectItem>
                   </SelectContent>
                 </Select>
               </div>
               <div>
-                <Label htmlFor="discountValue">Discount Value</Label>
+                <Label htmlFor="edit-discountValue" className="text-[#0D1414] font-medium">Discount Value</Label>
                 <Input
-                  id="discountValue"
+                  id="edit-discountValue"
                   type="number"
                   step="0.01"
                   value={formData.discountValue}
                   onChange={(e) =>
                     setFormData({ ...formData, discountValue: e.target.value })
                   }
-                  placeholder={
-                    formData.discountType === "percentage" ? "10" : "100"
-                  }
+                  className="bg-[#EEEFE0] border-[#D1D8BE] focus:border-[#819A91] text-[#0D1414] transition-colors duration-300"
                   required
                 />
               </div>
               <div>
-                <Label htmlFor="minOrderValue">
-                  Minimum Order Value (Optional)
-                </Label>
+                <Label htmlFor="edit-minOrderValue" className="text-[#0D1414] font-medium">Minimum Order Value</Label>
                 <Input
-                  id="minOrderValue"
+                  id="edit-minOrderValue"
                   type="number"
                   step="0.01"
                   value={formData.minOrderValue}
                   onChange={(e) =>
                     setFormData({ ...formData, minOrderValue: e.target.value })
                   }
-                  placeholder="500"
+                  className="bg-[#EEEFE0] border-[#D1D8BE] focus:border-[#819A91] text-[#0D1414] transition-colors duration-300"
                 />
               </div>
               <div>
-                <Label htmlFor="maxDiscount">Maximum Discount (Optional)</Label>
+                <Label htmlFor="edit-maxDiscount" className="text-[#0D1414] font-medium">Maximum Discount</Label>
                 <Input
-                  id="maxDiscount"
+                  id="edit-maxDiscount"
                   type="number"
                   step="0.01"
                   value={formData.maxDiscount}
                   onChange={(e) =>
                     setFormData({ ...formData, maxDiscount: e.target.value })
                   }
-                  placeholder="100"
+                  className="bg-[#EEEFE0] border-[#D1D8BE] focus:border-[#819A91] text-[#0D1414] transition-colors duration-300"
                 />
               </div>
               <div>
-                <Label htmlFor="usageLimit">Usage Limit (Optional)</Label>
+                <Label htmlFor="edit-usageLimit" className="text-[#0D1414] font-medium">Usage Limit</Label>
                 <Input
-                  id="usageLimit"
+                  id="edit-usageLimit"
                   type="number"
                   value={formData.usageLimit}
                   onChange={(e) =>
                     setFormData({ ...formData, usageLimit: e.target.value })
                   }
-                  placeholder="100"
+                  className="bg-[#EEEFE0] border-[#D1D8BE] focus:border-[#819A91] text-[#0D1414] transition-colors duration-300"
                 />
               </div>
               <div>
-                <Label htmlFor="expiresAt">Expiry Date (Optional)</Label>
+                <Label htmlFor="edit-expiresAt" className="text-[#0D1414] font-medium">Expiry Date</Label>
                 <Input
-                  id="expiresAt"
+                  id="edit-expiresAt"
                   type="date"
                   value={formData.expiresAt}
                   onChange={(e) =>
                     setFormData({ ...formData, expiresAt: e.target.value })
                   }
+                  className="bg-[#EEEFE0] border-[#D1D8BE] focus:border-[#819A91] text-[#0D1414] transition-colors duration-300"
                 />
               </div>
-              <Button type="submit" className="w-full">
-                Create Coupon
+              <div className="flex items-center space-x-2">
+                <Checkbox
+                  id="edit-isValid"
+                  checked={formData.isValid}
+                  onCheckedChange={(checked) =>
+                    setFormData({ ...formData, isValid: checked as boolean })
+                  }
+                  className="border-[#D1D8BE] data-[state=checked]:bg-[#0E4B4B] data-[state=checked]:border-[#0E4B4B]"
+                />
+                <Label htmlFor="edit-isValid" className="text-[#0D1414] font-medium">Active</Label>
+              </div>
+              <Button type="submit" className="w-full bg-gradient-to-r from-[#0E4B4B] to-[#086666] hover:from-[#0A3A3A] hover:to-[#065252] text-white font-semibold rounded-xl transition-all duration-300 hover:shadow-lg hover:scale-105 border border-[#0E4B4B]">
+                Update Coupon
               </Button>
             </form>
           </DialogContent>
         </Dialog>
       </div>
-
-      <div className="grid gap-4">
-        {coupons.map((coupon) => (
-          <Card key={coupon.id}>
-            <CardHeader>
-              <div className="flex justify-between items-start">
-                <div>
-                  <CardTitle className="text-lg flex items-center gap-2">
-                    <Tag className="h-5 w-5" />
-                    {coupon.code}
-                  </CardTitle>
-                  <p className="text-sm text-gray-600 mt-1">
-                    {coupon.discountType === "percentage"
-                      ? `${coupon.discountValue}% off`
-                      : `৳${coupon.discountValue} off`}
-                  </p>
-                </div>
-                <div className="flex gap-2">
-                  <div className={coupon.isValid ? "default" : "secondary"}>
-                    {coupon.isValid ? "Active" : "Inactive"}
-                  </div>
-                  {isExpired(coupon.expiresAt) && (
-                    <div className="destructive">Expired</div>
-                  )}
-                </div>
-              </div>
-            </CardHeader>
-            <CardContent>
-              <div className="grid grid-cols-2 md:grid-cols-4 gap-4 text-sm">
-                <div>
-                  <span className="text-gray-500">Used:</span>
-                  <p className="font-medium">
-                    {coupon.usedCount} / {coupon.usageLimit || "∞"}
-                  </p>
-                </div>
-                {coupon.minOrderValue && (
-                  <div>
-                    <span className="text-gray-500">Min Order:</span>
-                    <p className="font-medium">৳{coupon.minOrderValue}</p>
-                  </div>
-                )}
-                {coupon.maxDiscount && (
-                  <div>
-                    <span className="text-gray-500">Max Discount:</span>
-                    <p className="font-medium">৳{coupon.maxDiscount}</p>
-                  </div>
-                )}
-                {coupon.expiresAt && (
-                  <div>
-                    <span className="text-gray-500">Expires:</span>
-                    <p className="font-medium">
-                      {new Date(coupon.expiresAt).toLocaleDateString()}
-                    </p>
-                  </div>
-                )}
-              </div>
-              <div className="flex justify-between items-center mt-4">
-                <div className="text-sm text-gray-500">
-                  Created: {new Date(coupon.createdAt).toLocaleDateString()}
-                </div>
-                <div className="flex gap-2">
-                  <Button
-                    variant="outline"
-                    size="sm"
-                    onClick={() => openEditDialog(coupon)}
-                  >
-                    <Edit className="h-4 w-4" />
-                  </Button>
-                  <Button
-                    variant="destructive"
-                    size="sm"
-                    onClick={() => handleDelete(coupon.id)}
-                  >
-                    <Trash2 className="h-4 w-4" />
-                  </Button>
-                </div>
-              </div>
-            </CardContent>
-          </Card>
-        ))}
-      </div>
-
-      <Dialog open={isEditDialogOpen} onOpenChange={setIsEditDialogOpen}>
-        <DialogContent className="max-w-md">
-          <DialogHeader>
-            <DialogTitle>Edit Coupon</DialogTitle>
-          </DialogHeader>
-          <form onSubmit={handleSubmit} className="space-y-4">
-            <div>
-              <Label htmlFor="edit-code">Coupon Code</Label>
-              <Input
-                id="edit-code"
-                value={formData.code}
-                onChange={(e) =>
-                  setFormData({
-                    ...formData,
-                    code: e.target.value.toUpperCase(),
-                  })
-                }
-                required
-              />
-            </div>
-            <div>
-              <Label htmlFor="edit-discountType">Discount Type</Label>
-              <Select
-                value={formData.discountType}
-                onValueChange={(value) =>
-                  setFormData({ ...formData, discountType: value })
-                }
-              >
-                <SelectTrigger>
-                  <SelectValue placeholder="Select discount type" />
-                </SelectTrigger>
-                <SelectContent>
-                  <SelectItem value="percentage">Percentage</SelectItem>
-                  <SelectItem value="fixed">Fixed Amount</SelectItem>
-                </SelectContent>
-              </Select>
-            </div>
-            <div>
-              <Label htmlFor="edit-discountValue">Discount Value</Label>
-              <Input
-                id="edit-discountValue"
-                type="number"
-                step="0.01"
-                value={formData.discountValue}
-                onChange={(e) =>
-                  setFormData({ ...formData, discountValue: e.target.value })
-                }
-                required
-              />
-            </div>
-            <div>
-              <Label htmlFor="edit-minOrderValue">Minimum Order Value</Label>
-              <Input
-                id="edit-minOrderValue"
-                type="number"
-                step="0.01"
-                value={formData.minOrderValue}
-                onChange={(e) =>
-                  setFormData({ ...formData, minOrderValue: e.target.value })
-                }
-              />
-            </div>
-            <div>
-              <Label htmlFor="edit-maxDiscount">Maximum Discount</Label>
-              <Input
-                id="edit-maxDiscount"
-                type="number"
-                step="0.01"
-                value={formData.maxDiscount}
-                onChange={(e) =>
-                  setFormData({ ...formData, maxDiscount: e.target.value })
-                }
-              />
-            </div>
-            <div>
-              <Label htmlFor="edit-usageLimit">Usage Limit</Label>
-              <Input
-                id="edit-usageLimit"
-                type="number"
-                value={formData.usageLimit}
-                onChange={(e) =>
-                  setFormData({ ...formData, usageLimit: e.target.value })
-                }
-              />
-            </div>
-            <div>
-              <Label htmlFor="edit-expiresAt">Expiry Date</Label>
-              <Input
-                id="edit-expiresAt"
-                type="date"
-                value={formData.expiresAt}
-                onChange={(e) =>
-                  setFormData({ ...formData, expiresAt: e.target.value })
-                }
-              />
-            </div>
-            <div className="flex items-center space-x-2">
-              <Checkbox
-                id="edit-isValid"
-                checked={formData.isValid}
-                onCheckedChange={(checked) =>
-                  setFormData({ ...formData, isValid: checked as boolean })
-                }
-              />
-              <Label htmlFor="edit-isValid">Active</Label>
-            </div>
-            <Button type="submit" className="w-full">
-              Update Coupon
-            </Button>
-          </form>
-        </DialogContent>
-      </Dialog>
     </div>
   );
 }

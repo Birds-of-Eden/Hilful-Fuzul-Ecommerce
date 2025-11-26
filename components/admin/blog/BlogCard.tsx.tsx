@@ -74,8 +74,11 @@ export default function BlogCard() {
 
   if (loading) {
     return (
-      <div className="flex justify-center items-center h-64">
-        <div className="animate-spin rounded-full h-12 w-12 border-b-2 border-blue-600"></div>
+      <div className="flex justify-center items-center h-64 bg-gradient-to-br from-[#F4F8F7] to-[#EEEFE0]">
+        <div className="text-center">
+          <div className="animate-spin rounded-full h-12 w-12 border-b-2 border-[#0E4B4B] mx-auto mb-4"></div>
+          <p className="text-[#0D1414]">Loading blogs...</p>
+        </div>
       </div>
     );
   }
@@ -83,15 +86,15 @@ export default function BlogCard() {
   return (
     <div className="space-y-6">
       {/* Header Section */}
-      <div className="bg-white rounded-2xl shadow-sm border border-gray-100 p-6">
+      <div className="bg-gradient-to-r from-[#0E4B4B] to-[#086666] rounded-2xl shadow-lg p-6 border border-[#F4F8F7]/10">
         <div className="flex flex-col lg:flex-row lg:items-center lg:justify-between gap-4">
           <div>
-            <h1 className="text-2xl font-bold text-gray-900">Blog Management</h1>
-            <p className="text-gray-600 mt-1">Create and manage your blog posts</p>
+            <h1 className="text-2xl sm:text-3xl font-bold text-[#F4F8F7] mb-2">Blog Management</h1>
+            <p className="text-[#F4F8F7]/70 text-sm">Create and manage your blog posts</p>
           </div>
           <button
             onClick={() => setIsModalOpen(true)}
-            className="bg-gradient-to-r from-blue-600 to-blue-700 text-white px-6 py-3 rounded-xl hover:from-blue-700 hover:to-blue-800 transition-all duration-200 shadow-lg hover:shadow-xl flex items-center space-x-2 font-medium"
+            className="bg-[#C0704D] hover:bg-[#A85D3F] text-white font-semibold px-6 py-3 rounded-full transition-all duration-300 hover:shadow-lg hover:scale-105 border border-[#C0704D] hover:border-[#A85D3F] flex items-center space-x-2"
           >
             <svg className="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
               <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M12 4v16m8-8H4" />
@@ -103,7 +106,7 @@ export default function BlogCard() {
         {/* Search Bar */}
         <div className="mt-6">
           <div className="relative max-w-md">
-            <svg className="absolute left-3 top-1/2 transform -translate-y-1/2 text-gray-400 w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+            <svg className="absolute left-3 top-1/2 transform -translate-y-1/2 text-[#819A91] w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
               <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M21 21l-6-6m2-5a7 7 0 11-14 0 7 7 0 0114 0z" />
             </svg>
             <input
@@ -114,7 +117,7 @@ export default function BlogCard() {
                 setSearchTerm(e.target.value);
                 setPage(1);
               }}
-              className="w-full pl-10 pr-4 py-3 border border-gray-200 rounded-xl focus:ring-2 focus:ring-blue-500 focus:border-blue-500 bg-gray-50 transition-all duration-200"
+              className="w-full pl-10 pr-4 py-3 bg-[#EEEFE0] border border-[#D1D8BE] rounded-xl focus:ring-2 focus:ring-[#819A91] focus:border-[#819A91] text-[#0D1414] placeholder-[#2D4A3C]/50 transition-all duration-300"
             />
           </div>
         </div>
@@ -124,7 +127,7 @@ export default function BlogCard() {
       {blogs.length > 0 ? (
         <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 xl:grid-cols-4 gap-6">
           {blogs.map((blog) => (
-            <div key={blog.id} className="bg-white rounded-2xl shadow-sm border border-gray-100 hover:shadow-lg transition-all duration-300 overflow-hidden group relative">
+            <div key={blog.id} className="bg-white/90 backdrop-blur-sm border border-[#D1D8BE] rounded-2xl shadow-lg hover:shadow-xl transition-all duration-300 hover:scale-105 overflow-hidden group relative">
               {/* Clickable overlay that doesn't interfere with buttons */}
               <Link 
                 href={`/admin/blogs/edit/${blog.id}`}
@@ -141,26 +144,26 @@ export default function BlogCard() {
                     className="w-full h-full object-cover group-hover:scale-105 transition-transform duration-300"
                   />
                 ) : (
-                  <div className="w-full h-full bg-gradient-to-br from-gray-100 to-gray-200 flex items-center justify-center">
-                    <svg className="w-12 h-12 text-gray-400" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                  <div className="w-full h-full bg-gradient-to-br from-[#EEEFE0] to-[#D1D8BE] flex items-center justify-center">
+                    <svg className="w-12 h-12 text-[#819A91]" fill="none" stroke="currentColor" viewBox="0 0 24 24">
                       <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M4 16l4.586-4.586a2 2 0 012.828 0L16 16m-2-2l1.586-1.586a2 2 0 012.828 0L20 14m-6-6h.01M6 20h12a2 2 0 002-2V6a2 2 0 00-2-2H6a2 2 0 00-2 2v12a2 2 0 002 2z" />
                     </svg>
                   </div>
                 )}
-                <div className="absolute inset-0 bg-black bg-opacity-0 group-hover:bg-opacity-10 transition-all duration-300" />
+                <div className="absolute inset-0 bg-gradient-to-br from-[#0E4B4B]/10 to-[#086666]/10 opacity-0 group-hover:opacity-100 transition-all duration-300" />
               </div>
 
               {/* Content */}
               <div className="p-5">
-                <h3 className="font-semibold text-gray-900 line-clamp-2 mb-2 group-hover:text-blue-600 transition-colors duration-200">
+                <h3 className="font-semibold text-[#0D1414] line-clamp-2 mb-2 group-hover:text-[#0E4B4B] transition-colors duration-300">
                   {blog.title}
                 </h3>
-                <p className="text-gray-600 text-sm line-clamp-2 mb-4">
+                <p className="text-[#2D4A3C]/70 text-sm line-clamp-2 mb-4 leading-relaxed">
                   {blog.summary}
                 </p>
                 
                 {/* Meta Information */}
-                <div className="flex items-center justify-between text-sm text-gray-500 mb-4">
+                <div className="flex items-center justify-between text-sm text-[#2D4A3C]/50 mb-4">
                   <span className="flex items-center space-x-1">
                     <svg className="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
                       <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M16 7a4 4 0 11-8 0 4 4 0 018 0zM12 14a7 7 0 00-7 7h14a7 7 0 00-7-7z" />
@@ -171,15 +174,15 @@ export default function BlogCard() {
                     <svg className="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
                       <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M8 7V3m8 4V3m-9 8h10M5 21h14a2 2 0 002-2V7a2 2 0 00-2-2H5a2 2 0 00-2 2v12a2 2 0 002 2z" />
                     </svg>
-                    <span>{new Date(blog.date).toLocaleDateString()}</span>
+                    <span>{new Date(blog.date).toLocaleDateString("bn-BD")}</span>
                   </span>
                 </div>
 
                 {/* Actions - Wrapped in a div with higher z-index to stay above the clickable overlay */}
-                <div className="relative z-10 flex items-center justify-between pt-4 border-t border-gray-100">
+                <div className="relative z-10 flex items-center justify-between pt-4 border-t border-[#D1D8BE]">
                   <Link
                     href={`/admin/blogs/edit/${blog.id}`}
-                    className="flex items-center space-x-2 text-blue-600 hover:text-blue-700 font-medium text-sm transition-colors duration-200"
+                    className="flex items-center space-x-2 text-[#0E4B4B] hover:text-[#086666] font-medium text-sm transition-colors duration-300"
                     onClick={(e) => e.stopPropagation()}
                   >
                     <svg className="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
@@ -193,7 +196,7 @@ export default function BlogCard() {
                       e.stopPropagation();
                       handleDelete(blog.id);
                     }}
-                    className="flex items-center space-x-2 text-red-600 hover:text-red-700 font-medium text-sm transition-colors duration-200"
+                    className="flex items-center space-x-2 text-[#C0704D] hover:text-[#A85D3F] font-medium text-sm transition-colors duration-300"
                   >
                     <svg className="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
                       <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M19 7l-.867 12.142A2 2 0 0116.138 21H7.862a2 2 0 01-1.995-1.858L5 7m5 4v6m4-6v6m1-10V4a1 1 0 00-1-1h-4a1 1 0 00-1 1v3M4 7h16" />
@@ -206,15 +209,17 @@ export default function BlogCard() {
           ))}
         </div>
       ) : (
-        <div className="bg-white rounded-2xl shadow-sm border border-gray-100 p-12 text-center">
-          <svg className="w-16 h-16 text-gray-400 mx-auto mb-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-            <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M9 12h6m-6 4h6m2 5H7a2 2 0 01-2-2V5a2 2 0 012-2h5.586a1 1 0 01.707.293l5.414 5.414a1 1 0 01.293.707V19a2 2 0 01-2 2z" />
-          </svg>
-          <h3 className="text-lg font-medium text-gray-900 mb-2">No blogs found</h3>
-          <p className="text-gray-600 mb-6">Get started by creating your first blog post</p>
+        <div className="bg-white/90 backdrop-blur-sm border border-[#D1D8BE] rounded-2xl shadow-lg p-12 text-center">
+          <div className="w-20 h-20 bg-[#EEEFE0] rounded-2xl flex items-center justify-center mx-auto mb-4">
+            <svg className="w-10 h-10 text-[#819A91]" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+              <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M9 12h6m-6 4h6m2 5H7a2 2 0 01-2-2V5a2 2 0 012-2h5.586a1 1 0 01.707.293l5.414 5.414a1 1 0 01.293.707V19a2 2 0 01-2 2z" />
+            </svg>
+          </div>
+          <h3 className="text-xl font-semibold text-[#0D1414] mb-2">No blogs found</h3>
+          <p className="text-[#2D4A3C]/70 mb-6">Get started by creating your first blog post</p>
           <button
             onClick={() => setIsModalOpen(true)}
-            className="bg-blue-600 text-white px-6 py-3 rounded-xl hover:bg-blue-700 transition-colors duration-200 font-medium"
+            className="bg-[#C0704D] hover:bg-[#A85D3F] text-white font-semibold px-6 py-3 rounded-full transition-all duration-300 hover:shadow-lg hover:scale-105 border border-[#C0704D] hover:border-[#A85D3F]"
           >
             Create Blog Post
           </button>
@@ -223,12 +228,12 @@ export default function BlogCard() {
 
       {/* Pagination */}
       {totalPages > 1 && (
-        <div className="bg-white rounded-2xl shadow-sm border border-gray-100 p-6">
+        <div className="bg-white/90 backdrop-blur-sm border border-[#D1D8BE] rounded-2xl shadow-lg p-6">
           <div className="flex items-center justify-between">
             <button
               onClick={() => setPage(page - 1)}
               disabled={page === 1}
-              className="flex items-center space-x-2 px-4 py-2 border border-gray-300 rounded-xl text-gray-700 hover:bg-gray-50 disabled:opacity-50 disabled:cursor-not-allowed transition-colors duration-200"
+              className="flex items-center space-x-2 px-4 py-2 border border-[#D1D8BE] rounded-xl text-[#0D1414] hover:bg-[#EEEFE0] disabled:opacity-50 disabled:cursor-not-allowed transition-all duration-300"
             >
               <svg className="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
                 <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M15 19l-7-7 7-7" />
@@ -241,10 +246,10 @@ export default function BlogCard() {
                 <button
                   key={pageNum}
                   onClick={() => setPage(pageNum)}
-                  className={`w-10 h-10 rounded-xl font-medium transition-all duration-200 ${
+                  className={`w-10 h-10 rounded-xl font-medium transition-all duration-300 ${
                     page === pageNum
-                      ? 'bg-blue-600 text-white shadow-lg'
-                      : 'text-gray-600 hover:bg-gray-100'
+                      ? 'bg-gradient-to-r from-[#0E4B4B] to-[#086666] text-white shadow-lg'
+                      : 'text-[#2D4A3C] hover:bg-[#EEEFE0]'
                   }`}
                 >
                   {pageNum}
@@ -255,7 +260,7 @@ export default function BlogCard() {
             <button
               onClick={() => setPage(page + 1)}
               disabled={page === totalPages}
-              className="flex items-center space-x-2 px-4 py-2 border border-gray-300 rounded-xl text-gray-700 hover:bg-gray-50 disabled:opacity-50 disabled:cursor-not-allowed transition-colors duration-200"
+              className="flex items-center space-x-2 px-4 py-2 border border-[#D1D8BE] rounded-xl text-[#0D1414] hover:bg-[#EEEFE0] disabled:opacity-50 disabled:cursor-not-allowed transition-all duration-300"
             >
               <span>Next</span>
               <svg className="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
@@ -268,13 +273,13 @@ export default function BlogCard() {
 
       {/* Blog Form Modal */}
       {isModalOpen && (
-        <div className="fixed inset-0 bg-black bg-opacity-50 flex items-center justify-center z-50 p-4">
-          <div className="bg-white rounded-2xl w-full max-w-4xl max-h-[90vh] overflow-hidden flex flex-col">
-            <div className="flex justify-between items-center p-6 border-b border-gray-200">
-              <h3 className="text-xl font-semibold text-gray-900">Create New Blog</h3>
+        <div className="fixed inset-0 bg-black/50 backdrop-blur-sm flex items-center justify-center z-50 p-4">
+          <div className="bg-white/95 backdrop-blur-sm border border-[#D1D8BE] rounded-2xl shadow-2xl w-full max-w-4xl max-h-[90vh] overflow-hidden flex flex-col">
+            <div className="flex justify-between items-center p-6 border-b border-[#D1D8BE] bg-gradient-to-r from-[#0E4B4B]/5 to-[#086666]/5">
+              <h3 className="text-xl font-semibold text-[#0D1414]">Create New Blog</h3>
               <button
                 onClick={() => setIsModalOpen(false)}
-                className="text-gray-400 hover:text-gray-600 transition-colors duration-200 p-2 rounded-lg hover:bg-gray-100"
+                className="text-[#2D4A3C]/50 hover:text-[#0D1414] transition-all duration-300 p-2 rounded-lg hover:bg-[#EEEFE0]"
               >
                 <svg className="w-6 h-6" fill="none" stroke="currentColor" viewBox="0 0 24 24">
                   <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M6 18L18 6M6 6l12 12" />

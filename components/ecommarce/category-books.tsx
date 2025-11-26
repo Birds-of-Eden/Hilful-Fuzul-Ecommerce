@@ -10,6 +10,71 @@ import { useWishlist } from "@/components/ecommarce/WishlistContext";
 import { toast } from "sonner";
 import { useSession } from "next-auth/react";
 
+// Skeleton Loader Component
+const BookCardSkeleton = () => (
+  <div className="border-0 shadow-sm bg-gradient-to-br from-white to-[#F4F8F7] rounded-2xl overflow-hidden">
+    {/* Skeleton Image */}
+    <div className="relative h-72 w-full bg-gray-200 animate-pulse">
+      <div className="absolute inset-0 bg-gradient-to-t from-gray-300/20 to-transparent"></div>
+    </div>
+    
+    {/* Skeleton Content */}
+    <div className="p-5">
+      {/* Skeleton Rating */}
+      <div className="flex items-center gap-1 mb-3">
+        <div className="flex gap-1">
+          {[1, 2, 3, 4, 5].map((star) => (
+            <div
+              key={star}
+              className="h-3 w-3 bg-gray-200 rounded animate-pulse"
+            />
+          ))}
+        </div>
+        <div className="h-3 w-16 bg-gray-200 rounded animate-pulse ml-1" />
+      </div>
+
+      {/* Skeleton Title */}
+      <div className="space-y-2 mb-3">
+        <div className="h-6 bg-gray-200 rounded animate-pulse" />
+        <div className="h-6 bg-gray-200 rounded w-3/4 animate-pulse" />
+      </div>
+
+      {/* Skeleton Author */}
+      <div className="flex items-center mb-3">
+        <div className="w-1 h-1 bg-gray-300 rounded-full mr-2"></div>
+        <div className="h-4 w-24 bg-gray-200 rounded animate-pulse" />
+      </div>
+
+      {/* Skeleton Price */}
+      <div className="flex items-center justify-between mb-3">
+        <div className="flex items-baseline gap-2">
+          <div className="h-6 w-12 bg-gray-200 rounded animate-pulse" />
+          <div className="h-4 w-16 bg-gray-200 rounded animate-pulse" />
+        </div>
+        <div className="h-5 w-16 bg-gray-200 rounded-full animate-pulse" />
+      </div>
+    </div>
+
+    {/* Skeleton Button */}
+    <div className="p-5 pt-0">
+      <div className="w-full h-12 bg-gray-200 rounded-xl animate-pulse" />
+    </div>
+  </div>
+);
+
+const CategoryHeaderSkeleton = () => (
+  <div className="flex justify-between items-center mb-8">
+    <div className="flex items-center gap-4">
+      <div className="w-1 h-8 bg-gray-200 rounded-full animate-pulse"></div>
+      <div>
+        <div className="h-8 w-32 bg-gray-200 rounded animate-pulse mb-2"></div>
+        <div className="h-4 w-24 bg-gray-200 rounded animate-pulse"></div>
+      </div>
+    </div>
+    <div className="h-10 w-24 bg-gray-200 rounded-full animate-pulse"></div>
+  </div>
+);
+
 interface Category {
   id: string | number;
   name: string;
@@ -300,9 +365,21 @@ export default function CategoryBooks({
     return null;
   }
 
-  // চাইলে loading অবস্থায়ও কিছু দেখাতে পারো, না চাইলে null-ই থাক
-  if (loadingProducts && category.id !== "all") {
-    return null;
+  // Show skeleton loader when loading
+  if (loadingProducts) {
+    return (
+      <div className="mb-16">
+        {/* Skeleton Header */}
+        <CategoryHeaderSkeleton />
+        
+        {/* Skeleton Books Grid */}
+        <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-8">
+          {[1, 2, 3, 4, 5, 6, 7, 8].map((index) => (
+            <BookCardSkeleton key={index} />
+          ))}
+        </div>
+      </div>
+    );
   }
 
   return (
