@@ -5,6 +5,63 @@ import Image from "next/image";
 import Link from "next/link";
 import { Button } from "@/components/ui/button";
 
+// Skeleton Loader Components
+const HeroSkeleton = () => (
+  <div className="relative w-full h-[70vh] md:h-[80vh] overflow-hidden">
+    {/* Background skeleton */}
+    <div className="absolute inset-0 bg-gradient-to-br from-gray-200 to-gray-300 animate-pulse"></div>
+    
+    {/* Content skeleton */}
+    <div className="relative z-10 h-full flex items-center">
+      <div className="container mx-auto px-6 md:px-12">
+        <div className="max-w-2xl space-y-6">
+          {/* Badge skeleton */}
+          <div className="h-8 w-24 bg-gray-300 rounded-full animate-pulse"></div>
+          
+          {/* Title skeleton */}
+          <div className="space-y-2">
+            <div className="h-12 w-3/4 bg-gray-300 rounded animate-pulse"></div>
+            <div className="h-4 w-32 bg-gray-300 rounded animate-pulse"></div>
+          </div>
+          
+          {/* Description skeleton */}
+          <div className="space-y-2">
+            <div className="h-6 w-full bg-gray-300 rounded animate-pulse"></div>
+            <div className="h-6 w-2/3 bg-gray-300 rounded animate-pulse"></div>
+          </div>
+          
+          {/* Buttons skeleton */}
+          <div className="flex gap-4">
+            <div className="h-12 w-32 bg-gray-300 rounded-xl animate-pulse"></div>
+            <div className="h-12 w-32 bg-gray-300 rounded-xl animate-pulse"></div>
+          </div>
+          
+          {/* Stats skeleton */}
+          <div className="flex gap-8">
+            {[1, 2, 3].map((i) => (
+              <div key={i} className="text-center space-y-2">
+                <div className="h-8 w-12 bg-gray-300 rounded animate-pulse mx-auto"></div>
+                <div className="h-4 w-16 bg-gray-300 rounded animate-pulse mx-auto"></div>
+              </div>
+            ))}
+          </div>
+        </div>
+      </div>
+    </div>
+  </div>
+);
+
+const StatsSkeleton = () => (
+  <div className="flex gap-8">
+    {[1, 2, 3].map((i) => (
+      <div key={i} className="text-center">
+        <div className="h-8 w-12 bg-gray-300 rounded animate-pulse mx-auto mb-2"></div>
+        <div className="h-4 w-16 bg-gray-300 rounded animate-pulse mx-auto"></div>
+      </div>
+    ))}
+  </div>
+);
+
 // --- Slides ------------------------------------------------------------------
 const heroData = [
   {
@@ -38,6 +95,7 @@ export default function Hero({ interval = 6000 }) {
   const [hovered, setHovered] = useState(false);
   const [paused, setPaused] = useState(false);
   const [isVisible, setIsVisible] = useState(false);
+  const [statsLoading, setStatsLoading] = useState(true);
 
   const timerRef = useRef<NodeJS.Timeout | null>(null);
   const startX = useRef<number | null>(null);
@@ -51,9 +109,26 @@ export default function Hero({ interval = 6000 }) {
   });
 
   useEffect(() => {
-    fetch("/api/stats")
-      .then((res) => res.json())
-      .then((data) => setStats(data));
+    const fetchStats = async () => {
+      try {
+        setStatsLoading(true);
+        const res = await fetch("/api/stats");
+        const data = await res.json();
+        setStats(data);
+      } catch (error) {
+        console.error("Failed to fetch stats:", error);
+        // Set default values on error
+        setStats({
+          totalBooks: 1000,
+          totalWriters: 500,
+          totalDelivered: 5000,
+        });
+      } finally {
+        setStatsLoading(false);
+      }
+    };
+
+    fetchStats();
   }, []);
 
   // Animation on mount
@@ -212,26 +287,32 @@ export default function Hero({ interval = 6000 }) {
                 </div>
 
                 <div className="mt-12 flex gap-8 text-[#F4F8F7]">
-                  <div className="text-center">
-                    <div className="text-2xl font-bold">
-                      {stats.totalBooks}+
-                    </div>
-                    <div className="text-sm opacity-90">বইয়ের সংগ্রহ</div>
-                  </div>
+                  {statsLoading ? (
+                    <StatsSkeleton />
+                  ) : (
+                    <>
+                      <div className="text-center">
+                        <div className="text-2xl font-bold">
+                          {stats.totalBooks}+
+                        </div>
+                        <div className="text-sm opacity-90">বইয়ের সংগ্রহ</div>
+                      </div>
 
-                  <div className="text-center">
-                    <div className="text-2xl font-bold">
-                      {stats.totalWriters}+
-                    </div>
-                    <div className="text-sm opacity-90">লেখক</div>
-                  </div>
+                      <div className="text-center">
+                        <div className="text-2xl font-bold">
+                          {stats.totalWriters}+
+                        </div>
+                        <div className="text-sm opacity-90">লেখক</div>
+                      </div>
 
-                  <div className="text-center">
-                    <div className="text-2xl font-bold">
-                      {stats.totalDelivered}+
-                    </div>
-                    <div className="text-sm opacity-90">সর্বমোট ডেলিভারি</div>
-                  </div>
+                      <div className="text-center">
+                        <div className="text-2xl font-bold">
+                          {stats.totalDelivered}+
+                        </div>
+                        <div className="text-sm opacity-90">সর্বমোট ডেলিভারি</div>
+                      </div>
+                    </>
+                  )}
                 </div>
               </div>
             </div>
