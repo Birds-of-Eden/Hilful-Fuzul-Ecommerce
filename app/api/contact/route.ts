@@ -5,11 +5,20 @@ const RESEND_API_KEY = process.env.RESEND_API_KEY;
 const RESEND_FROM_EMAIL =
   process.env.RESEND_FROM_EMAIL || "onboarding@resend.dev";
 
-// Recipient emails
-const RECIPIENT_EMAILS = [
-  "islamidawainstitute@gmail.com",
-  "service@birdsofeden.me",
-];
+// Recipient emails - in testing mode, only send to the verified email
+const getRecipientEmails = () => {
+  const isProductionMode = process.env.NODE_ENV === "production" && process.env.RESEND_DOMAIN_VERIFIED === "true";
+  
+  if (isProductionMode) {
+    return [
+      "islamidawainstitute@gmail.com",
+      "service@birdsofeden.me",
+    ];
+  } else {
+    // Testing mode - only send to verified email
+    return ["islamidawainstitute@gmail.com"];
+  }
+};
 
 export async function POST(request: NextRequest) {
   try {
@@ -84,12 +93,17 @@ ${message}
 সময়: ${new Date().toLocaleString("bn-BD", { timeZone: "Asia/Dhaka" })}
       `,
     };
-    const emailResult = await sendEmailWithResend(emailContent, email);
+    const emailResult = await sendEmailWithResend(emailContent, email, getRecipientEmails());
 
     if (emailResult.success) {
+      const isProductionMode = process.env.NODE_ENV === "production" && process.env.RESEND_DOMAIN_VERIFIED === "true";
+      const message = isProductionMode 
+        ? "মেসেজ সফলভাবে পাঠানো হয়েছে!"
+        : "মেসেজ সফলভাবে পাঠানো হয়েছে! (টেস্টিং মোড)";
+      
       return NextResponse.json({
         success: true,
-        message: "মেসেজ সফলভাবে পাঠানো হয়েছে!",
+        message,
       });
     } else {
       throw new Error(emailResult.error || "মেসেজ পাঠাতে সমস্যা হয়েছে");
@@ -109,7 +123,7 @@ ${message}
 }
 
 // Resend email service
-async function sendEmailWithResend(emailContent: any, replyTo: string) {
+async function sendEmailWithResend(emailContent: any, replyTo: string, recipients: string[]) {
   try {
     const response = await fetch("https://api.resend.com/emails", {
       method: "POST",
@@ -119,7 +133,7 @@ async function sendEmailWithResend(emailContent: any, replyTo: string) {
       },
       body: JSON.stringify({
         from: process.env.RESEND_FROM_EMAIL,
-        to: RECIPIENT_EMAILS,
+        to: recipients,
         subject: emailContent.subject,
         html: emailContent.html,
         reply_to: replyTo,
