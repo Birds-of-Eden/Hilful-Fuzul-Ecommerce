@@ -16,38 +16,40 @@ export async function POST(req: Request) {
       );
     }
 
-    if (!process.env.RESEND_API_KEY || !process.env.RESEND_AUDIENCE_ID) {
-      console.error("Resend Configuration missing.");
-      return NextResponse.json(
-        { error: "ইমেইল পরিষেবা কনফিগার করা নেই" },
-        { status: 500 }
-      );
-    }
-
     const resendEmail = email.trim().toLowerCase(); // ইমেইল কেস-ইনসেনসিটিভ করার জন্য
 
     let resendContact;
     let isAlreadyInResend = false;
+    let resendError = null;
 
-    try {
-      // Resend SDK ব্যবহার করে কন্টাক্ট তৈরি
-      const { data, error } = await resend.contacts.create({
-        audienceId: process.env.RESEND_AUDIENCE_ID!,
-        email: resendEmail,
-        unsubscribed: false, // নিশ্চিত করা হলো যে সাবস্ক্রাইবড অবস্থায় আছে
-      });
+    // Only try Resend if configured
+    if (process.env.RESEND_API_KEY && process.env.RESEND_AUDIENCE_ID) {
+      try {
+        // Resend SDK ব্যবহার করে কন্টাক্ট তৈরি
+        const { data, error } = await resend.contacts.create({
+          audienceId: process.env.RESEND_AUDIENCE_ID!,
+          email: resendEmail,
+          unsubscribed: false, // নিশ্চিত করা হলো যে সাবস্ক্রাইবড অবস্থায় আছে
+        });
 
-      if (error) {
-        if (error.message?.includes("The contact already exists")) {
-          console.warn("Resend Warning: Contact already exists in audience.");
-          isAlreadyInResend = true;
+        if (error) {
+          if (error.message?.includes("The contact already exists")) {
+            console.warn("Resend Warning: Contact already exists in audience.");
+            isAlreadyInResend = true;
+          } else {
+            resendError = error.message;
+            console.error("Resend Error:", resendError);
+          }
         } else {
-          throw new Error(error.message);
+          resendContact = data;
         }
-      } else {
-        resendContact = data;
+      } catch (e) {
+        console.error("Resend Exception:", e);
+        resendError = e instanceof Error ? e.message : "Unknown Resend error";
       }
-    } catch (e) {}
+    } else {
+      console.warn("Resend not configured - only storing in local database");
+    }
     try {
       const subscriber = await prisma.newsletterSubscriber.upsert({
         where: { email: resendEmail },
@@ -62,12 +64,20 @@ export async function POST(req: Request) {
       });
 
       // 4. সাফল্য রেসপন্স
+      const message = resendError 
+        ? "সফলভাবে নিউজলেটারের জন্য সাবস্ক্রাইব করা হয়েছে! (Resend সমস্যা সত্ত্বেও)"
+        : "সফলভাবে নিউজলেটারের জন্য সাবস্রাইব করা হয়েছে!";
+
       return NextResponse.json({
-        message: "সফলভাবে নিউজলেটারের জন্য সাবস্ক্রাইব করা হয়েছে!",
+        message,
         subscriber: subscriber,
         resendStatus: isAlreadyInResend
           ? "Already in Resend"
-          : "Added to Resend",
+          : resendError
+          ? "Resend Error"
+          : process.env.RESEND_API_KEY && process.env.RESEND_AUDIENCE_ID
+          ? "Added to Resend"
+          : "Resend not configured",
       });
     } catch (dbError) {
       // Unique constraint error (যদি কোনো কারণে Resend-এর আগে DB error হয়)

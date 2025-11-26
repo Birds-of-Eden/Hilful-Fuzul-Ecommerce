@@ -8,35 +8,37 @@ const resend = new Resend(process.env.RESEND_API_KEY);
 async function handleUnsubscribe(email: string) {
     const resendEmail = email.trim().toLowerCase();
 
-    if (!process.env.RESEND_AUDIENCE_ID) {
-        throw new Error("RESEND_AUDIENCE_ID not configured");
-    }
-
     let isResendUpdated = false;
+    let resendError = null;
 
-    // 1. Update contact in Resend Audience
-    try {
-        // Use contacts.update to set unsubscribed: true
-        const { error } = await resend.contacts.update({
-            audienceId: process.env.RESEND_AUDIENCE_ID,
-            email: resendEmail,
-            unsubscribed: true,
-        });
+    // Only try Resend if configured
+    if (process.env.RESEND_API_KEY && process.env.RESEND_AUDIENCE_ID) {
+        // 1. Update contact in Resend Audience
+        try {
+            // Use contacts.update to set unsubscribed: true
+            const { error } = await resend.contacts.update({
+                audienceId: process.env.RESEND_AUDIENCE_ID,
+                email: resendEmail,
+                unsubscribed: true,
+            });
 
-        if (error) {
-            // Handle Resend specific errors (e.g., email not found)
-            if (error.message?.includes('not found')) {
-                // We'll proceed to check the local DB, but log the Resend error
-                console.warn(`Resend Warning: Contact ${resendEmail} not found in audience.`);
-            } else {
-                throw new Error(error.message);
+            if (error) {
+                // Handle Resend specific errors (e.g., email not found)
+                if (error.message?.includes('not found')) {
+                    // We'll proceed to check the local DB, but log the Resend error
+                    console.warn(`Resend Warning: Contact ${resendEmail} not found in audience.`);
+                } else {
+                    resendError = error.message;
+                    console.error("Resend Error:", resendError);
+                }
             }
+            isResendUpdated = true;
+        } catch (e) {
+            console.error("Resend unsubscribe error:", e);
+            resendError = e instanceof Error ? e.message : "Unknown Resend error";
         }
-        isResendUpdated = true;
-    } catch (e) {
-        console.error("Resend unsubscribe error:", e);
-        // Do not throw here, proceed to local DB update as Resend status is not critical
-        // unless the error is severe.
+    } else {
+        console.warn("Resend not configured - only updating local database");
     }
 
     // 2. Update local Prisma Database
@@ -48,7 +50,7 @@ async function handleUnsubscribe(email: string) {
                 unsubscribedAt: new Date(),
             },
         });
-        return { success: true, subscriber };
+        return { success: true, subscriber, resendError };
     } catch (dbError) {
         // P2025: Record to update not found (email was not in local DB)
         if (dbError instanceof Error && dbError.message.includes("Record to update not found")) {

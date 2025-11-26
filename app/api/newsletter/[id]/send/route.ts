@@ -18,6 +18,21 @@ export async function POST(
   try {
     const { id } = await params;
 
+    // Validate API key exists
+    if (!process.env.RESEND_API_KEY) {
+      return NextResponse.json(
+        { error: "Resend API key not configured" },
+        { status: 500 }
+      );
+    }
+
+    if (!process.env.RESEND_FROM_EMAIL) {
+      return NextResponse.json(
+        { error: "Resend from email not configured" },
+        { status: 500 }
+      );
+    }
+
     const newsletter = await prisma.newsletter.findUnique({
       where: { id },
     });
@@ -33,7 +48,6 @@ export async function POST(
       );
     }
 
-    // GET ALL SUBSCRIBERS
     const subscribers = await prisma.newsletterSubscriber.findMany({
       where: { status: "subscribed" },
       select: { email: true },
@@ -46,7 +60,6 @@ export async function POST(
       );
     }
 
-    // Prepare static email content
     const baseHTML = `
       <div style="font-family: Arial, sans-serif; max-width: 600px; margin: 0 auto; padding: 20px;">
         <div style="background: linear-gradient(135deg, #0E4B4B, #086666); color: #F4F8F7; padding: 20px; border-radius: 10px;">
@@ -71,56 +84,68 @@ export async function POST(
       </div>
     `;
 
-    // ========= SEND INDIVIDUAL EMAILS =========
-    const BATCH_SIZE = 10;
-    const BATCH_DELAY = 800; // milliseconds
+    const RATE_LIMIT_DELAY = 600;
     let successCount = 0;
     let failureCount = 0;
+    const errors: Array<{ email: string; error: string }> = [];
 
-    for (let i = 0; i < subscribers.length; i += BATCH_SIZE) {
-      const batch = subscribers.slice(i, i + BATCH_SIZE);
-
-      const batchResults = await Promise.allSettled(
-        batch.map(async ({ email }) => {
-          const personalizedHtml = baseHTML.replace(
-            "SUBSCRIBER_EMAIL",
-            encodeURIComponent(email)
-          );
-
-          try {
-            await resend.emails.send({
-              from: `${process.env.RESEND_FROM_EMAIL}`,
-              to: email,
-              subject: newsletter.subject,
-              html: personalizedHtml,
-              text: newsletter.content,
-            });
-
-            successCount++;
-          } catch (error) {
-            console.error("Failed:", email, error);
-            failureCount++;
-          }
-        })
+    for (let i = 0; i < subscribers.length; i++) {
+      const { email } = subscribers[i];
+      const personalizedHtml = baseHTML.replace(
+        "SUBSCRIBER_EMAIL",
+        encodeURIComponent(email)
       );
 
-      if (i + BATCH_SIZE < subscribers.length) {
-        await new Promise((resolve) => setTimeout(resolve, BATCH_DELAY));
+      try {
+        // Fix: Format the from email correctly (Resend requires proper format)
+        const fromEmail = process.env.RESEND_FROM_EMAIL;
+        
+        const response = await resend.emails.send({
+          from: fromEmail,
+          to: email,
+          subject: newsletter.subject,
+          html: personalizedHtml,
+          text: newsletter.content,
+        });
+
+        // Check if Resend returned an error
+        if (response.error) {
+          console.error(`Resend error for ${email}:`, response.error);
+          errors.push({ email, error: response.error.message || "Unknown error" });
+          failureCount++;
+        } else {
+          successCount++;
+          console.log(`Successfully sent to: ${email}`);
+        }
+      } catch (error) {
+        const errorMessage = error instanceof Error ? error.message : String(error);
+        console.error(`Failed to send to ${email}:`, errorMessage);
+        errors.push({ email, error: errorMessage });
+        failureCount++;
+      }
+
+      // Add delay between each email
+      if (i < subscribers.length - 1) {
+        await new Promise((resolve) => setTimeout(resolve, RATE_LIMIT_DELAY));
       }
     }
 
-    // Mark Sent
+    // Mark as sent
     await prisma.newsletter.update({
       where: { id },
       data: { status: "sent", sentAt: new Date() },
     });
 
     return NextResponse.json({
-      success: true,
-      message: "Newsletter sent successfully!",
+      success: successCount > 0,
+      message: 
+        successCount === subscribers.length
+          ? "Newsletter sent successfully!"
+          : `Partially sent: ${successCount}/${subscribers.length} succeeded`,
       totalSubscribers: subscribers.length,
       successCount,
       failureCount,
+      errors: failureCount > 0 ? errors : undefined,
     });
   } catch (error) {
     console.error("Newsletter sending error:", error);
