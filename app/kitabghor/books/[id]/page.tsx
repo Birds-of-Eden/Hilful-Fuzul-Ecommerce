@@ -107,7 +107,7 @@ export default function BookDetail() {
 
         const data = await res.json();
         setBook(data);
-        
+
         // 2) fetch related books separately if needed
         if (data.category) {
           const resAll = await fetch("/api/products");
@@ -169,12 +169,15 @@ export default function BookDetail() {
     }
   }, [bookId]);
 
-  const handleQuantityChange = useCallback((value: number) => {
-    if (!book) return;
-    if (value >= 1 && value <= book.stock) {
-      setQuantity(value);
-    }
-  }, [book]);
+  const handleQuantityChange = useCallback(
+    (value: number) => {
+      if (!book) return;
+      if (value >= 1 && value <= book.stock) {
+        setQuantity(value);
+      }
+    },
+    [book]
+  );
 
   const toggleWishlist = useCallback(() => {
     if (!book) return;
@@ -268,27 +271,36 @@ export default function BookDetail() {
             href="/kitabghor/books"
             className="flex items-center gap-2 text-[#0E4B4B] hover:text-[#5FA3A3] transition-colors	duration-300 group"
           >
-            <ArrowLeft className="h-5 w-5 group-hover:-translate-x-1 transition-transform" aria-hidden="true" />
+            <ArrowLeft
+              className="h-5 w-5 group-hover:-translate-x-1 transition-transform"
+              aria-hidden="true"
+            />
             <span>সকল বই</span>
           </Link>
-          <div className="w-1 h-8 bg-gradient-to-b from-[#0E4B4B] to-[#5FA3A3] rounded-full" aria-hidden="true"></div>
+          <div
+            className="w-1 h-8 bg-gradient-to-b from-[#0E4B4B] to-[#5FA3A3] rounded-full"
+            aria-hidden="true"
+          ></div>
         </nav>
 
         <main className="grid grid-cols-1 lg:grid-cols-2 gap-8 lg:gap-12 mb-12">
           {/* Book Image Section */}
           <section className="relative">
             <div className="bg-white rounded-2xl shadow-lg p-6 border-0">
-              <div className="relative h-[400px] lg:h-[500px] w-full rounded-xl overflow-hidden group">
+              <div className="relative w-full aspect-[3/4] sm:aspect-[4/5] lg:aspect-[3/4] max-w-[500px] mx-auto rounded-xl overflow-hidden bg-gray-50 group">
                 <Image
                   src={book.image}
                   alt={book.name}
                   fill
-                  className="object-cover transition-transform	duration-700 group-hover:scale-105"
-                  sizes="(max-width: 768px) 100vw, (max-width: 1200px) 50vw, 33vw"
+                  className="object-contain transition-transform duration-700 group-hover:scale-105"
+                  sizes="(max-width: 640px) 100vw, (max-width: 1024px) 50vw, 33vw"
                   priority
                 />
                 {/* Overlay */}
-                <div className="absolute inset-0 bg-gradient-to-t from-black/20 via-transparent to-transparent opacity-0 group-hover:opacity-100 transition-opacity duration-300" aria-hidden="true" />
+                <div
+                  className="absolute inset-0 bg-gradient-to-t from-black/20 via-transparent to-transparent opacity-0 group-hover:opacity-100 transition-opacity duration-300"
+                  aria-hidden="true"
+                />
 
                 {/* Discount Badge */}
                 {book.discount > 0 && (
@@ -310,7 +322,10 @@ export default function BookDetail() {
                   className="rounded-xl bg-gradient-to-r from-[#0E4B4B] to-[#5FA3A3] hover:from-[#5FA3A3] hover:to-[#0E4B4B] text-white font-semibold py-3 border-0 shadow-md hover:shadow-lg transition-all duration-300 group/model"
                   aria-label="View 3D model"
                 >
-                  <Cube className="mr-2 h-4 w-4 group-hover/model:scale-110 transition-transform" aria-hidden="true" />
+                  <Cube
+                    className="mr-2 h-4 w-4 group-hover/model:scale-110 transition-transform"
+                    aria-hidden="true"
+                  />
                   3D মডেল
                 </Button>
                 <Button
@@ -318,7 +333,10 @@ export default function BookDetail() {
                   className="rounded-xl bg-gradient-to-r from-[#F4F8F7] to-[#5FA3A3]/30 hover:from-[#5FA3A3]/30 hover:to-[#F4F8F7] text-[#0E4B4B] font-semibold py-3 border border-[#5FA3A3]/30 shadow-md hover:shadow-lg transition-all duration-300 group/pdf"
                   aria-label="View PDF preview"
                 >
-                  <BookOpen className="mr-2 h-4 w-4 group-hover/pdf:scale-110 transition-transform" aria-hidden="true" />
+                  <BookOpen
+                    className="mr-2 h-4 w-4 group-hover/pdf:scale-110 transition-transform"
+                    aria-hidden="true"
+                  />
                   PDF প্রিভিউ
                 </Button>
               </div>
@@ -333,7 +351,10 @@ export default function BookDetail() {
                 href={`/kitabghor/categories/${book.category.id}`}
                 className="inline-flex items-center gap-2 text-[#0E4B4B] hover:text-[#5FA3A3] transition-colors duration-300 text-sm font-medium mb-4 group"
               >
-                <Tag className="h-4 w-4 group-hover:scale-110 transition-transform" aria-hidden="true" />
+                <Tag
+                  className="h-4 w-4 group-hover:scale-110 transition-transform"
+                  aria-hidden="true"
+                />
                 {book.category.name}
               </Link>
 
@@ -345,7 +366,11 @@ export default function BookDetail() {
 
             {/* Rating (dynamic) */}
             <div className="flex items-center gap-3 mb-4">
-              <div className="flex" role="img" aria-label={`Rating ${ratingData.avgRating} out of 5 stars`}>
+              <div
+                className="flex"
+                role="img"
+                aria-label={`Rating ${ratingData.avgRating} out of 5 stars`}
+              >
                 {[1, 2, 3, 4, 5].map((star) => (
                   <Star
                     key={star}
@@ -362,10 +387,13 @@ export default function BookDetail() {
                 {reviewLoading
                   ? "রিভিউ লোড হচ্ছে..."
                   : ratingData.totalReviews > 0
-                  ? `(${ratingData.totalReviews} রিভিউ, গড় ${ratingData.avgRating.toFixed(1)})`
-                  : "(এখনও কোন রিভিউ নেই)"}
+                    ? `(${ratingData.totalReviews} রিভিউ, গড় ${ratingData.avgRating.toFixed(1)})`
+                    : "(এখনও কোন রিভিউ নেই)"}
               </span>
-              <div className="w-1 h-1 bg-[#5FA3A3] rounded-full" aria-hidden="true"></div>
+              <div
+                className="w-1 h-1 bg-[#5FA3A3] rounded-full"
+                aria-hidden="true"
+              ></div>
               {book.stock > 0 ? (
                 <span className="text-sm text-[#5FA3A3]">{`${book.stock} পিস স্টকে`}</span>
               ) : (
@@ -410,7 +438,10 @@ export default function BookDetail() {
               </div>
 
               <div className="flex items-center gap-3 p-3 bg-[#F4F8F7] rounded-xl border border-[#5FA3A3]/30">
-                <Building className="h-5 w-5 text-[#0E4B4B]" aria-hidden="true" />
+                <Building
+                  className="h-5 w-5 text-[#0E4B4B]"
+                  aria-hidden="true"
+                />
                 <div>
                   <span className="text-sm text-[#5FA3A3]">প্রকাশক:</span>
                   <Link
@@ -430,12 +461,20 @@ export default function BookDetail() {
               </p>
             </div>
 
-            <form onSubmit={(e) => { e.preventDefault(); handleAddToCart(); }}>
+            <form
+              onSubmit={(e) => {
+                e.preventDefault();
+                handleAddToCart();
+              }}
+            >
               {/* Quantity & Actions */}
               <div className="space-y-4">
                 {/* Quantity Selector */}
                 <div className="flex items-center justify-between p-4 bg-[#F4F8F7] rounded-xl border border-[#5FA3A3]/30">
-                  <label htmlFor="quantity" className="font-medium text-[#0D1414]">
+                  <label
+                    htmlFor="quantity"
+                    className="font-medium text-[#0D1414]"
+                  >
                     পরিমাণ:
                   </label>
                   <div className="flex items-center border border-[#5FA3A3]/30 rounded-lg overflow-hidden">
@@ -479,7 +518,10 @@ export default function BookDetail() {
                     className="rounded-xl py-3 bg-gradient-to-r from-[#187a7a] to-[#5b9b9b] hover:from-[#0E4B4B] hover:to-[#42a8a8] text-white font-semibold border-0 shadow-lg hover:shadow-xl transition-all duration-300 hover:scale-105 group/cart"
                     disabled={book.stock === 0}
                   >
-                    <ShoppingCart className="mr-2 h-5 w-5 group-hover/cart:scale-110 transition-transform" aria-hidden="true" />
+                    <ShoppingCart
+                      className="mr-2 h-5 w-5 group-hover/cart:scale-110 transition-transform"
+                      aria-hidden="true"
+                    />
                     কার্টে যোগ করুন
                   </Button>
                   <div className="flex gap-2">
@@ -492,7 +534,11 @@ export default function BookDetail() {
                           ? "border-red-300 bg-red-50 text-red-500"
                           : "border-[#5FA3A3]/30 text-[#5FA3A3] hover:border-[#0E4B4B] hover:text-[#0E4B4B]"
                       } transition-all duration-300 group/wishlist`}
-                      aria-label={isInWishlist(book.id) ? "Remove from wishlist" : "Add to wishlist"}
+                      aria-label={
+                        isInWishlist(book.id)
+                          ? "Remove from wishlist"
+                          : "Add to wishlist"
+                      }
                     >
                       <Heart
                         className={`h-5 w-5 ${
@@ -509,7 +555,10 @@ export default function BookDetail() {
                       className="rounded-xl border-[#5FA3A3]/30 text-[#5FA3A3] hover:border-[#0E4B4B] hover:text-[#0E4B4B] transition-all duration-300 group/share"
                       aria-label="Share book"
                     >
-                      <Share2 className="h-5 w-5 group-hover/share:scale-110 transition-transform" aria-hidden="true" />
+                      <Share2
+                        className="h-5 w-5 group-hover/share:scale-110 transition-transform"
+                        aria-hidden="true"
+                      />
                     </Button>
                   </div>
                 </div>
@@ -520,11 +569,17 @@ export default function BookDetail() {
             <div className="mt-6 pt-6 border-t border-[#5FA3A3]/30">
               <div className="grid grid-cols-2 gap-4 text-xs">
                 <div className="flex items-center gap-2 text-[#5FA3A3]">
-                  <Truck className="h-4 w-4 text-[#0E4B4B]" aria-hidden="true" />
+                  <Truck
+                    className="h-4 w-4 text-[#0E4B4B]"
+                    aria-hidden="true"
+                  />
                   <span>দ্রুত ডেলিভারি</span>
                 </div>
                 <div className="flex items-center gap-2 text-[#5FA3A3]">
-                  <Shield className="h-4 w-4 text-[#0E4B4B]" aria-hidden="true" />
+                  <Shield
+                    className="h-4 w-4 text-[#0E4B4B]"
+                    aria-hidden="true"
+                  />
                   <span>সুরক্ষিত কেনাকাটা</span>
                 </div>
               </div>
@@ -535,7 +590,10 @@ export default function BookDetail() {
         {/* Enhanced Tabs Section */}
         <section className="bg-white rounded-2xl shadow-lg border-0 overflow-hidden">
           <Tabs defaultValue="description" className="w-full">
-            <TabsList className="grid w-full grid-cols-3 bg-[#F4F8F7] p-2 border border-[#5FA3A3]/30" role="tablist">
+            <TabsList
+              className="grid w-full grid-cols-3 bg-[#F4F8F7] p-2 border border-[#5FA3A3]/30"
+              role="tablist"
+            >
               <TabsTrigger
                 value="description"
                 className="rounded-lg data-[state=active]:bg-gradient-to-r data-[state=active]:from-[#0E4B4B] data-[state=active]:to-[#5FA3A3] data-[state=active]:text-white transition-all duration-300"
@@ -559,7 +617,11 @@ export default function BookDetail() {
               </TabsTrigger>
             </TabsList>
 
-            <TabsContent value="description" className="p-6 lg:p-8" role="tabpanel">
+            <TabsContent
+              value="description"
+              className="p-6 lg:p-8"
+              role="tabpanel"
+            >
               <div className="prose max-w-none">
                 <h3 className="text-xl font-bold text-[#0D1414] mb-4">
                   বই সম্পর্কে
@@ -588,7 +650,7 @@ export default function BookDetail() {
 
         {/* Modal Overlays */}
         {showModel && (
-          <div 
+          <div
             className="fixed inset-0 bg-black/50 z-50 flex items-center justify-center p-4"
             role="dialog"
             aria-modal="true"
@@ -596,14 +658,17 @@ export default function BookDetail() {
           >
             <div className="rounded-2xl w-full max-w-4xl h:[80vh] overflow-hidden shadow-2xl bg-white">
               <div className="flex justify-between bg-gradient-to-r from-[#0E4B4B] to-[#5FA3A3] items-center p-6 border-b border-[#5FA3A3]/30">
-                <h3 id="model-title" className="font-bold text-xl text-white flex items-center gap-2">
+                <h3
+                  id="model-title"
+                  className="font-bold text-xl text-white flex items-center gap-2"
+                >
                   <Cube className="h-5 w-5 text-[#ffffff]" aria-hidden="true" />
                   3D মডেল ( Demo ) - {book.name}
                 </h3>
                 <Button
                   variant="ghost"
                   size="icon"
-                  onClick={() => setShowModel(false)} 
+                  onClick={() => setShowModel(false)}
                   className="rounded-xl hover:bg-red-50 hover:text-red-500 transition-colors"
                   aria-label="Close 3D model"
                 >
@@ -618,7 +683,7 @@ export default function BookDetail() {
         )}
 
         {showPdf && (
-          <div 
+          <div
             className="fixed inset-0 bg-black/50 z-50 flex items-center justify-center p-4"
             role="dialog"
             aria-modal="true"
@@ -626,8 +691,14 @@ export default function BookDetail() {
           >
             <div className="bg:white rounded-2xl w-full max-w-4xl h-[80vh] overflow-hidden shadow-2xl">
               <div className="flex justify-between items-center p-6 border-b border-[#5FA3A3]/30">
-                <h3 id="pdf-title" className="font-bold text-xl text-[#0D1414] flex items-center gap-2">
-                  <BookOpen className="h-5 w-5 text-[#0E4B4B]" aria-hidden="true" />
+                <h3
+                  id="pdf-title"
+                  className="font-bold text-xl text-[#0D1414] flex items-center gap-2"
+                >
+                  <BookOpen
+                    className="h-5 w-5 text-[#0E4B4B]"
+                    aria-hidden="true"
+                  />
                   PDF প্রিভিউ - {book.name}
                 </h3>
               </div>
