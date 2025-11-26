@@ -330,11 +330,11 @@ const folder = "paymentScreenshot";
       | undefined) || [];
 
   const renderStepIndicator = () => (
-    <div className="flex items-center justify-center gap-8 mb-12">
+    <div className="flex items-center justify-center gap-2 sm:gap-4 mb-6 sm:mb-8 overflow-x-auto pb-2">
       {["details", "payment", "confirm"].map((s, i) => (
-        <div key={s} className="flex items-center gap-3">
+        <div key={s} className="flex items-center gap-1 sm:gap-2 min-w-fit">
           <div
-            className={`flex items-center justify-center w-10 h-10 rounded-full border-2 transition-all duration-300 ${
+            className={`flex items-center justify-center w-6 h-6 sm:w-8 sm:h-8 lg:w-10 lg:h-10 rounded-full border-2 transition-all duration-300 ${
               step === s
                 ? "bg-[#819A91] border-[#819A91] text-white shadow-lg shadow-[#819A91]/30"
                 : i < ["details", "payment", "confirm"].indexOf(step) ||
@@ -344,16 +344,16 @@ const folder = "paymentScreenshot";
             }`}
           >
             {step === s ? (
-              <div className="w-2 h-2 bg-white rounded-full" />
+              <div className="w-1.5 h-1.5 sm:w-2 sm:h-2 bg-white rounded-full" />
             ) : i < ["details", "payment", "confirm"].indexOf(step) ||
               (s === "confirm" && orderConfirmed) ? (
-              <Check className="w-5 h-5" />
+              <Check className="w-3 h-3 sm:w-4 sm:h-5" />
             ) : (
-              <span className="text-sm font-medium">{i + 1}</span>
+              <span className="text-xs sm:text-sm font-medium">{i + 1}</span>
             )}
           </div>
           <span
-            className={`text-sm font-medium capitalize transition-colors duration-300 ${
+            className={`text-xs sm:text-sm font-medium capitalize transition-colors duration-300 hidden lg:block ${
               step === s
                 ? "text-[#2D4A3C]"
                 : i < ["details", "payment", "confirm"].indexOf(step) ||
@@ -370,7 +370,7 @@ const folder = "paymentScreenshot";
           </span>
           {i < 2 && (
             <div
-              className={`w-12 h-0.5 ml-3 transition-colors duration-300 ${
+              className={`w-4 sm:w-6 lg:w-12 h-0.5 ml-0.5 sm:ml-1 lg:ml-3 transition-colors duration-300 ${
                 i < ["details", "payment", "confirm"].indexOf(step)
                   ? "bg-[#A7C1A8]"
                   : "bg-[#D1D8BE]"
@@ -531,25 +531,25 @@ const folder = "paymentScreenshot";
   if (!isMounted || (isAuthenticated && loadingServerCart)) return null;
 
   return (
-    <div className="min-h-screen bg-gradient-to-br from-[#EEEFE0] to-[#D1D8BE] py-12">
+    <div className="min-h-screen bg-gradient-to-br from-[#EEEFE0] to-[#D1D8BE] py-6 sm:py-8 lg:py-12">
       <div className="container mx-auto px-4">
         {/* Header */}
-        <div className="text-center mb-8">
-          <div className="flex items-center justify-center gap-3 mb-4">
-            <div className="w-10 h-10 bg-[#819A91] rounded-full flex items-center justify-center">
-              <BookOpen className="w-5 h-5 text-white" />
+        <div className="text-center mb-6 sm:mb-8">
+          <div className="flex items-center justify-center gap-2 sm:gap-3 mb-3 sm:mb-4">
+            <div className="w-8 h-8 sm:w-10 sm:h-10 bg-[#819A91] rounded-full flex items-center justify-center">
+              <BookOpen className="w-4 h-4 sm:w-5 sm:h-5 text-white" />
             </div>
-            <h1 className="text-4xl font-bold text-[#2D4A3C] mb-4">চেকআউট</h1>
+            <h1 className="text-2xl sm:text-3xl lg:text-4xl font-bold text-[#2D4A3C]">চেকআউট</h1>
           </div>
-          <p className="text-lg text-[#2D4A3C] max-w-2xl mx-auto">
+          <p className="text-sm sm:text-base lg:text-lg text-[#2D4A3C] max-w-2xl mx-auto px-4">
             আপনার বইয়ের অর্ডার সম্পূর্ণ করতে নিচের ধাপগুলো অনুসরণ করুন
           </p>
         </div>
 
-        <div className="max-w-6xl mx-auto grid lg:grid-cols-3 gap-8">
+        <div className="max-w-6xl mx-auto grid lg:grid-cols-3 gap-6 lg:gap-8">
           {/* Left Column - Checkout Steps */}
           <div className="lg:col-span-2">
-            <div className="bg-white rounded-2xl shadow-lg border border-[#D1D8BE] p-8">
+            <div className="bg-white rounded-xl sm:rounded-2xl shadow-lg border border-[#D1D8BE] p-4 sm:p-6 lg:p-8">
               {renderStepIndicator()}
 
               {/* Step 1: Personal Details */}
@@ -562,7 +562,7 @@ const folder = "paymentScreenshot";
                     </h2>
                   </div>
 
-                  <div className="grid md:grid-cols-2 gap-6">
+                  <div className="grid grid-cols-1 sm:grid-cols-2 gap-4 sm:gap-6">
                     <LabeledInput
                       id="name"
                       label="আপনার নাম *"
@@ -591,7 +591,7 @@ const folder = "paymentScreenshot";
                       onChange={(e: React.ChangeEvent<HTMLInputElement>) =>
                         setEmail(e.target.value)
                       }
-                      className="bg-[#EEEFE0] border-[#D1D8BE] focus:border-[#819A91] text-[#2D4A3C] placeholder-[#2D4A3C]/50 transition-colors duration-300 md:col-span-2"
+                      className="bg-[#EEEFE0] border-[#D1D8BE] focus:border-[#819A91] text-[#2D4A3C] placeholder-[#2D4A3C]/50 transition-colors duration-300 sm:col-span-2"
                     />
                     <LabeledInput
                       id="location"
@@ -601,9 +601,9 @@ const folder = "paymentScreenshot";
                       onChange={(e: React.ChangeEvent<HTMLInputElement>) =>
                         setLocation(e.target.value)
                       }
-                      className="bg-[#EEEFE0] border-[#D1D8BE] focus:border-[#819A91] text-[#2D4A3C] placeholder-[#2D4A3C]/50 transition-colors duration-300 md:col-span-2"
+                      className="bg-[#EEEFE0] border-[#D1D8BE] focus:border-[#819A91] text-[#2D4A3C] placeholder-[#2D4A3C]/50 transition-colors duration-300 sm:col-span-2"
                     />
-                    <div className="space-y-2 md:col-span-2">
+                    <div className="space-y-2 sm:col-span-2">
                       <label
                         htmlFor="deliveryAddress"
                         className="text-sm font-medium text-[#2D4A3C]"
@@ -612,7 +612,7 @@ const folder = "paymentScreenshot";
                       </label>
                       <textarea
                         id="deliveryAddress"
-                        className="w-full h-32 p-4 border border-[#D1D8BE] rounded-xl bg-[#EEEFE0] focus:border-[#819A91] focus:ring-2 focus:ring-[#819A91]/20 text-[#2D4A3C] placeholder-[#2D4A3C]/50 transition-all duration-300 resize-none"
+                        className="w-full h-24 sm:h-32 p-3 sm:p-4 border border-[#D1D8BE] rounded-lg sm:rounded-xl bg-[#EEEFE0] focus:border-[#819A91] focus:ring-2 focus:ring-[#819A91]/20 text-[#2D4A3C] placeholder-[#2D4A3C]/50 transition-all duration-300 resize-none text-sm"
                         placeholder="যদি প্রাথমিক ঠিকানা থেকে ভিন্ন হয়"
                         value={deliveryAddress}
                         onChange={(
@@ -623,7 +623,7 @@ const folder = "paymentScreenshot";
                   </div>
 
                   <Button
-                    className="w-full bg-[#819A91] hover:bg-[#819A91]/90 text-white py-3 text-lg font-semibold rounded-xl shadow-lg hover:shadow-xl transition-all duration-300 transform hover:-translate-y-0.5 mt-6"
+                    className="w-full bg-[#819A91] hover:bg-[#819A91]/90 text-white py-2 sm:py-3 text-base sm:text-lg font-semibold rounded-lg sm:rounded-xl shadow-lg hover:shadow-xl transition-all duration-300 transform hover:-translate-y-0.5 mt-4 sm:mt-6"
                     onClick={handleGoToPaymentStep}
                   >
                     পরবর্তী ধাপ
@@ -634,20 +634,21 @@ const folder = "paymentScreenshot";
               {/* Step 2: Payment Method */}
               {step === "payment" && (
                 <div className="space-y-6">
-                  <div className="flex items-center justify-between mb-6">
-                    <div className="flex items-center gap-3">
-                      <div className="w-2 h-8 bg-[#819A91] rounded-full"></div>
-                      <h2 className="text-2xl font-bold text-[#2D4A3C]">
+                  <div className="flex items-center justify-between mb-4 sm:mb-6">
+                    <div className="flex items-center gap-2 sm:gap-3">
+                      <div className="w-2 h-6 sm:h-8 bg-[#819A91] rounded-full"></div>
+                      <h2 className="text-xl sm:text-2xl font-bold text-[#2D4A3C]">
                         পেমেন্ট পদ্ধতি
                       </h2>
                     </div>
                     <Button
                       variant="ghost"
                       onClick={() => setStep("details")}
-                      className="text-[#EEEFE0] hover:text-[#2D4A3C]/80 hover:bg-[#EEEFE0]"
+                      className="text-[#2D4A3C]/80 hover:text-[#2D4A3C] hover:bg-[#EEEFE0] text-sm sm:text-base p-2 sm:p-auto"
                     >
-                      <ArrowLeft className="w-4 h-4 mr-2" />
-                      পূর্ববর্তী
+                      <ArrowLeft className="w-3 h-3 sm:w-4 sm:h-4 mr-1 sm:mr-2" />
+                      <span className="hidden sm:inline">পূর্ববর্তী</span>
+                      <span className="sm:hidden">←</span>
                     </Button>
                   </div>
 
@@ -680,7 +681,7 @@ const folder = "paymentScreenshot";
                     ].map((method: any) => (
                       <div
                         key={method.id}
-                        className={`border-2 rounded-xl p-4 cursor-pointer transition-all duration-300 ${
+                        className={`border-2 rounded-lg sm:rounded-xl p-3 sm:p-4 cursor-pointer transition-all duration-300 ${
                           paymentMethod === method.id
                             ? "border-[#819A91] bg-[#819A91]/5 shadow-md"
                             : "border-[#D1D8BE] hover:border-[#A7C1A8] hover:bg-[#EEEFE0]"
@@ -688,27 +689,27 @@ const folder = "paymentScreenshot";
                         onClick={() => setPaymentMethod(method.id)}
                       >
                         <div className="flex justify-between items-center">
-                          <div className="flex items-center gap-4">
+                          <div className="flex items-center gap-2 sm:gap-4">
                             <div
-                              className={`w-12 h-12 rounded-lg ${method.color} flex items-center justify-center shadow-md`}
+                              className={`w-10 h-10 sm:w-12 sm:h-12 rounded-lg ${method.color} flex items-center justify-center shadow-md`}
                             >
-                              <span className="text-white font-bold text-lg">
+                              <span className="text-white font-bold text-sm sm:text-lg">
                                 {method.id === "CashOnDelivery" ? "COD" : getChannelInitials(method.name)}
                               </span>
                             </div>
-                            <div>
-                              <span className="font-semibold text-[#2D4A3C]">
+                            <div className="flex-1 min-w-0">
+                              <span className="font-semibold text-[#2D4A3C] text-sm sm:text-base block truncate">
                                 {method.name}
                               </span>
                               {method.id === "CashOnDelivery" && (
-                                <p className="text-sm text-[#2D4A3C]/70 mt-1">
+                                <p className="text-xs sm:text-sm text-[#2D4A3C]/70 mt-1">
                                   ডেলিভারির সময় পেমেন্ট করুন
                                 </p>
                               )}
                             </div>
                           </div>
                           <div
-                            className={`w-6 h-6 rounded-full border-2 flex items-center justify-center transition-all duration-300 ${
+                            className={`w-5 h-5 sm:w-6 sm:h-6 rounded-full border-2 flex items-center justify-center transition-all duration-300 flex-shrink-0 ${
                               paymentMethod === method.id
                                 ? "border-[#819A91] bg-[#819A91]"
                                 : "border-[#D1D8BE]"
@@ -724,7 +725,7 @@ const folder = "paymentScreenshot";
                   </div>
 
                   {paymentMethod && paymentMethod !== "CashOnDelivery" && (
-                    <div className="bg-[#EEEFE0] rounded-xl p-6 mt-6 border border-[#D1D8BE]">
+                    <div className="bg-[#EEEFE0] rounded-lg sm:rounded-xl p-4 sm:p-6 mt-4 sm:mt-6 border border-[#D1D8BE]">
                       <div className="flex items-center gap-3 mb-4">
                         <CreditCard className="w-5 h-5 text-[#819A91]" />
                         <h3 className="font-semibold text-[#2D4A3C]">
@@ -756,7 +757,7 @@ const folder = "paymentScreenshot";
                         onChange={(
                           e: React.ChangeEvent<HTMLInputElement>
                         ) => setTransactionId(e.target.value)}
-                        className="bg-white border-[#D1D8BE] focus:border-[#819A91] text-[#2D4A3C] placeholder-[#2D4A3C]/50 mt-4"
+                        className="bg-white border-[#D1D8BE] focus:border-[#819A91] text-[#2D4A3C] placeholder-[#2D4A3C]/50 mt-4 text-sm"
                       />
 
                       <div className="mt-4 space-y-2">
@@ -767,7 +768,7 @@ const folder = "paymentScreenshot";
                           type="file"
                           accept="image/*"
                           onChange={handleScreenshotChange}
-                          className="w-full text-sm text-[#2D4A3C] file:mr-4 file:py-2 file:px-4 file:rounded-lg file:border-0 file:text-sm file:font-semibold file:bg-[#819A91] file:text-white hover:file:bg-[#819A91]/90 cursor-pointer"
+                          className="w-full text-sm text-[#2D4A3C] file:mr-2 file:py-1 file:px-2 sm:file:mr-4 sm:file:py-2 sm:file:px-4 file:rounded-lg file:border-0 file:text-xs sm:file:text-sm file:font-semibold file:bg-[#819A91] file:text-white hover:file:bg-[#819A91]/90 cursor-pointer"
                         />
                         {(paymentScreenshotUrl ||
                           paymentScreenshotPreview) && (
@@ -775,7 +776,7 @@ const folder = "paymentScreenshot";
                             <p className="text-xs text-[#2D4A3C]/70 mb-2">
                               প্রিভিউ:
                             </p>
-                            <div className="relative w-40 h-40 border border-[#D1D8BE] rounded-xl overflow-hidden bg-white">
+                            <div className="relative w-32 h-32 sm:w-40 sm:h-40 border border-[#D1D8BE] rounded-lg sm:rounded-xl overflow-hidden bg-white">
                               <Image
                                 src={
                                   paymentScreenshotUrl ||
@@ -799,7 +800,7 @@ const folder = "paymentScreenshot";
 
                   {paymentMethod && (
                     <Button
-                      className="w-full bg-[#819A91] hover:bg-[#819A91]/90 text-white py-3 text-lg font-semibold rounded-xl shadow-lg hover:shadow-xl transition-all duration-300 transform hover:-translate-y-0.5 mt-6"
+                      className="w-full bg-[#819A91] hover:bg-[#819A91]/90 text-white py-2 sm:py-3 text-base sm:text-lg font-semibold rounded-lg sm:rounded-xl shadow-lg hover:shadow-xl transition-all duration-300 transform hover:-translate-y-0.5 mt-4 sm:mt-6"
                       onClick={handlePlaceOrder}
                       disabled={isUploadingScreenshot}
                     >
@@ -814,24 +815,25 @@ const folder = "paymentScreenshot";
               {/* Step 3: Order Confirmation */}
               {step === "confirm" && placedOrder && (
                 <div className="space-y-6">
-                  <div className="flex items-center justify-between mb-6">
-                    <div className="flex items-center gap-3">
-                      <div className="w-2 h-8 bg-[#819A91] rounded-full"></div>
-                      <h2 className="text-2xl font-bold text-[#2D4A3C]">
+                  <div className="flex items-center justify-between mb-4 sm:mb-6">
+                    <div className="flex items-center gap-2 sm:gap-3">
+                      <div className="w-2 h-6 sm:h-8 bg-[#819A91] rounded-full"></div>
+                      <h2 className="text-xl sm:text-2xl font-bold text-[#2D4A3C]">
                         অর্ডার নিশ্চিতকরণ
                       </h2>
                     </div>
                     <Button
                       variant="ghost"
                       onClick={() => setStep("payment")}
-                      className="text-[#EEEFE0] hover:text-[#2D4A3C]/80 hover:bg-[#EEEFE0]"
+                      className="text-[#2D4A3C]/80 hover:text-[#2D4A3C] hover:bg-[#EEEFE0] text-sm sm:text-base p-2 sm:p-auto"
                     >
-                      <ArrowLeft className="w-4 h-4 mr-2" />
-                      পূর্ববর্তী
+                      <ArrowLeft className="w-3 h-3 sm:w-4 sm:h-4 mr-1 sm:mr-2" />
+                      <span className="hidden sm:inline">পূর্ববর্তী</span>
+                      <span className="sm:hidden">←</span>
                     </Button>
                   </div>
 
-                  <div className="bg-[#A7C1A8]/20 border border-[#A7C1A8] rounded-xl p-6 mb-6">
+                  <div className="bg-[#A7C1A8]/20 border border-[#A7C1A8] rounded-lg sm:rounded-xl p-4 sm:p-6 mb-4 sm:mb-6">
                     <div className="flex items-center gap-3 mb-3">
                       <div className="w-8 h-8 bg-[#A7C1A8] rounded-full flex items-center justify-center">
                         <Check className="w-5 h-5 text-white" />
@@ -854,7 +856,7 @@ const folder = "paymentScreenshot";
                     )}
                   </div>
 
-                  <div className="grid md:grid-cols-2 gap-6">
+                  <div className="grid grid-cols-1 sm:grid-cols-2 gap-4 sm:gap-6">
                     <div className="space-y-4">
                       <h4 className="font-semibold text-[#2D4A3C]">
                         গ্রাহক তথ্য
@@ -959,7 +961,7 @@ const folder = "paymentScreenshot";
                   )}
 
                   <Button
-                    className="w-full bg-[#A7C1A8] hover:bg-[#A7C1A8]/90 text-white py-3 text-lg font-semibold rounded-xl shadow-lg hover:shadow-xl transition-all duration-300 transform hover:-translate-y-0.5 mt-6"
+                    className="w-full bg-[#A7C1A8] hover:bg-[#A7C1A8]/90 text-white py-2 sm:py-3 text-base sm:text-lg font-semibold rounded-lg sm:rounded-xl shadow-lg hover:shadow-xl transition-all duration-300 transform hover:-translate-y-0.5 mt-4 sm:mt-6"
                     onClick={handleConfirmOrder}
                     disabled={orderConfirmed}
                   >
@@ -974,34 +976,34 @@ const folder = "paymentScreenshot";
 
           {/* Right Column - Order Summary */}
           <div className="lg:col-span-1">
-            <div className="bg-white rounded-2xl shadow-lg border border-[#D1D8BE] p-6 sticky top-6">
-              <h2 className="text-xl font-bold text-[#2D4A3C] mb-6 pb-4 border-b border-[#D1D8BE]">
+            <div className="bg-white rounded-xl sm:rounded-2xl shadow-lg border border-[#D1D8BE] p-4 sm:p-6 lg:sticky lg:top-6">
+              <h2 className="text-lg sm:text-xl font-bold text-[#2D4A3C] mb-4 sm:mb-6 pb-3 sm:pb-4 border-b border-[#D1D8BE]">
                 অর্ডার সারাংশ
               </h2>
 
               {/* Cart Items */}
-              <div className="space-y-4 mb-6 max-h-96 overflow-y-auto">
+              <div className="space-y-3 sm:space-y-4 mb-4 sm:mb-6 max-h-64 sm:max-h-96 overflow-y-auto">
                 {itemsToRender.map((item) => (
                   <div
                     key={item.id}
-                    className="flex items-center gap-4 p-3 rounded-lg bg-[#EEEFE0] border border-[#D1D8BE]"
+                    className="flex items-center gap-2 sm:gap-4 p-2 sm:p-3 rounded-lg bg-[#EEEFE0] border border-[#D1D8BE]"
                   >
-                    <div className="relative w-16 h-20 flex-shrink-0">
+                    <div className="relative w-12 h-16 sm:w-16 sm:h-20 flex-shrink-0">
                       <Image
                         src={item.image || "/placeholder.svg"}
                         alt={item.name}
                         fill
                         className="rounded-lg object-cover shadow-sm"
                       />
-                      <div className="absolute -top-2 -right-2 w-6 h-6 bg-[#819A91] text-white rounded-full text-xs flex items-center justify-center">
+                      <div className="absolute -top-1 -right-1 sm:-top-2 sm:-right-2 w-4 h-4 sm:w-6 sm:h-6 bg-[#819A91] text-white rounded-full text-xs flex items-center justify-center">
                         {item.quantity}
                       </div>
                     </div>
                     <div className="flex-1 min-w-0">
-                      <p className="font-medium text-[#2D4A3C] line-clamp-2 text-sm leading-tight">
+                      <p className="font-medium text-[#2D4A3C] line-clamp-2 text-xs sm:text-sm leading-tight">
                         {item.name}
                       </p>
-                      <p className="text-[#2D4A3C] font-semibold text-sm mt-1">
+                      <p className="text-[#2D4A3C] font-semibold text-xs sm:text-sm mt-1">
                         ৳{(item.price * item.quantity).toFixed(2)}
                       </p>
                     </div>
@@ -1010,7 +1012,7 @@ const folder = "paymentScreenshot";
               </div>
 
               {/* Price Breakdown */}
-              <div className="space-y-3 border-t border-[#D1D8BE] pt-4">
+              <div className="space-y-2 sm:space-y-3 border-t border-[#D1D8BE] pt-3 sm:pt-4">
                 <div className="flex justify-between text-[#2D4A3C]">
                   <span>সাবটোটাল</span>
                   <span>৳{subtotal.toFixed(2)}</span>
@@ -1019,7 +1021,7 @@ const folder = "paymentScreenshot";
                   <span>ডেলিভারি চার্জ</span>
                   <span>৳{shipping.toFixed(2)}</span>
                 </div>
-                <div className="flex justify-between font-bold text-lg text-[#2D4A3C] border-t border-[#D1D8BE] pt-3">
+                <div className="flex justify-between font-bold text-base sm:text-lg text-[#2D4A3C] border-t border-[#D1D8BE] pt-2 sm:pt-3">
                   <span>মোট</span>
                   <span className="text-[#2D4A3C] font-bold">
                     ৳{total.toFixed(2)}
@@ -1028,13 +1030,13 @@ const folder = "paymentScreenshot";
               </div>
 
               {/* Trust Badges */}
-              <div className="mt-6 pt-6 border-t border-[#D1D8BE] space-y-4">
+              <div className="mt-4 sm:mt-6 pt-3 sm:pt-6 border-t border-[#D1D8BE] space-y-2 sm:space-y-4">
                 <div className="flex items-center gap-3 text-sm text-[#2D4A3C]">
-                  <Shield className="w-4 h-4 text-[#A7C1A8]" />
+                  <Shield className="w-3 h-3 sm:w-4 sm:h-4 text-[#A7C1A8]" />
                   <span>সুরক্ষিত পেমেন্ট</span>
                 </div>
                 <div className="flex items-center gap-3 text-sm text-[#2D4A3C]">
-                  <Truck className="w-4 h-4 text-[#819A91]" />
+                  <Truck className="w-3 h-3 sm:w-4 sm:h-4 text-[#819A91]" />
                   <span>২-৪ কর্মদিবসে ডেলিভারি</span>
                 </div>
               </div>
@@ -1046,27 +1048,27 @@ const folder = "paymentScreenshot";
       {/* Success Modal */}
       {showModal && (
         <div className="fixed inset-0 bg-black/50 z-50 flex items-center justify-center p-4">
-          <div className="bg-white rounded-2xl p-8 max-w-md w-full text-center space-y-6 shadow-2xl border border-[#D1D8BE]">
-            <div className="w-16 h-16 bg-[#A7C1A8] rounded-full flex items-center justify-center mx-auto">
-              <Check className="w-8 h-8 text-white" />
+          <div className="bg-white rounded-xl sm:rounded-2xl p-6 sm:p-8 max-w-md w-full text-center space-y-4 sm:space-y-6 shadow-2xl border border-[#D1D8BE]">
+            <div className="w-12 h-12 sm:w-16 sm:h-16 bg-[#A7C1A8] rounded-full flex items-center justify-center mx-auto">
+              <Check className="w-6 h-6 sm:w-8 sm:h-8 text-white" />
             </div>
             <h2 className="text-2xl font-bold text-[#2D4A3C]">
               🎉 অর্ডার সফল!
             </h2>
-            <p className="text-[#2D4A3C] leading-relaxed">
+            <p className="text-sm sm:text-base text-[#2D4A3C] leading-relaxed px-2">
               আপনার অর্ডার সফলভাবে গৃহীত হয়েছে। অর্ডার ট্র্যাক করতে নিচের
               বাটনে ক্লিক করুন।
             </p>
-            <div className="space-y-3">
+            <div className="space-y-2 sm:space-y-3">
               <Link href="/kitabghor/user/orders" className="block">
-                <Button className="w-full bg-[#819A91] hover:bg-[#819A91]/90 text-white py-3 rounded-xl">
+                <Button className="w-full bg-[#819A91] hover:bg-[#819A91]/90 text-white py-2 sm:py-3 rounded-lg sm:rounded-xl text-sm sm:text-base">
                   অর্ডার ট্র্যাক করুন
                 </Button>
               </Link>
               <Link href="/kitabghor/books">
                 <Button
                   variant="outline"
-                  className="w-full border-[#D1D8BE] text-[#2D4A3C] hover:bg-[#EEEFE0] rounded-xl"
+                  className="w-full border-[#D1D8BE] text-[#2D4A3C] hover:bg-[#EEEFE0] rounded-lg sm:rounded-xl text-sm sm:text-base"
                 >
                   আরও বই দেখুন
                 </Button>

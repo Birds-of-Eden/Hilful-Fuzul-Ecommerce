@@ -178,7 +178,6 @@ ${formData.message}
                 ইমেইল করুন
               </h3>
               <p className="text-[#0D1414]">
-                islamidawainstitute@gmail.com <br />
                 islamidawainstitute@gmail.com
               </p>
             </div>
