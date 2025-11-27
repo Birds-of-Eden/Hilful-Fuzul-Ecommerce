@@ -1,6 +1,7 @@
 "use client";
 
 import Link from "next/link";
+import Image from "next/image";
 import { useEffect, useState } from "react";
 import { usePathname, useRouter } from "next/navigation";
 import { useSession, signOut } from "@/lib/auth-client";
@@ -266,7 +267,13 @@ export default function Header() {
           {/* Logo */}
           <Link href="/" className="flex items-center space-x-3 group">
             <div className="w-8 h-8 bg-gradient-to-br from-[#0E4B4B] to-[#5FA3A3] rounded-md flex items-center justify-center">
-              <Book className="h-5 w-5 text-[#F4F8F7]" />
+              <Image
+                src="/logo_hf.png"
+                alt="Hilful Fuzul Logo"
+                width={32}
+                height={32}
+                className="rounded-md"
+              />
             </div>
             <div className="flex flex-col">
               <span
