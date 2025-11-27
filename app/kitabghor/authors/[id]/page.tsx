@@ -65,7 +65,7 @@ export default function AuthorBooksPage() {
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState<string | null>(null);
 
-  // ✅ writer + তার books + rating load
+  // ✅ writer + তার books + rating load (OPTIMIZED)
   useEffect(() => {
     const fetchAuthorData = async () => {
       try {
@@ -73,7 +73,10 @@ export default function AuthorBooksPage() {
         setError(null);
 
         // 1) writer info
-        const resWriter = await fetch(`/api/writers/${authorId}`);
+        const resWriter = await fetch(`/api/writers/${authorId}`, {
+          cache: "force-cache",
+          next: { revalidate: 300 } // Cache for 5 minutes
+        });
         if (!resWriter.ok) {
           if (resWriter.status === 404) {
             setAuthor(null);
@@ -87,8 +90,11 @@ export default function AuthorBooksPage() {
         const writerData: Writer = await resWriter.json();
         setAuthor(writerData);
 
-        // 2) সব product -> filter by writer
-        const resProducts = await fetch("/api/products");
+        // 2) সব product -> filter by writer (with caching)
+        const resProducts = await fetch("/api/products", {
+          cache: "force-cache",
+          next: { revalidate: 300 } // Cache for 5 minutes
+        });
         if (resProducts.ok) {
           const allProducts: Book[] = await resProducts.json();
           const booksOfAuthor = allProducts.filter(
@@ -96,8 +102,8 @@ export default function AuthorBooksPage() {
           );
           setAuthorBooks(booksOfAuthor);
 
-          // 3) এই লেখকের বইগুলোর rating লোড
-          const ids = Array.from(
+          // 3) OPTIMIZED: Load ratings in batches of 5 with delay
+          const bookIds = Array.from(
             new Set(
               booksOfAuthor
                 .map((b) => Number(b.id))
@@ -105,39 +111,54 @@ export default function AuthorBooksPage() {
             )
           );
 
-          if (ids.length > 0) {
-            const results = await Promise.all(
-              ids.map(async (id) => {
-                try {
-                  const r = await fetch(
-                    `/api/reviews?productId=${id}&page=1&limit=1`
-                  );
+          if (bookIds.length > 0) {
+            const ratingsMap: Record<string, RatingInfo> = {};
+            
+            // Process in batches of 5 to avoid overwhelming the server
+            for (let i = 0; i < bookIds.length; i += 5) {
+              const batch = bookIds.slice(i, i + 5);
+              
+              const batchResults = await Promise.all(
+                batch.map(async (id) => {
+                  try {
+                    const r = await fetch(
+                      `/api/reviews?productId=${id}&page=1&limit=1`,
+                      { cache: "force-cache", next: { revalidate: 600 } } // Cache for 10 minutes
+                    );
 
-                  if (!r.ok) {
+                    if (!r.ok) {
+                      return { id, avg: 0, total: 0 };
+                    }
+
+                    const rdata = await r.json();
+                    return {
+                      id,
+                      avg: Number(rdata.averageRating ?? 0),
+                      total: Number(rdata.pagination?.total ?? 0),
+                    };
+                  } catch (err) {
+                    console.error("Error fetching rating for product:", id, err);
                     return { id, avg: 0, total: 0 };
                   }
+                })
+              );
 
-                  const rdata = await r.json();
-                  return {
-                    id,
-                    avg: Number(rdata.averageRating ?? 0),
-                    total: Number(rdata.pagination?.total ?? 0),
-                  };
-                } catch (err) {
-                  console.error("Error fetching rating for product:", id, err);
-                  return { id, avg: 0, total: 0 };
-                }
-              })
-            );
+              // Update ratings map for this batch
+              batchResults.forEach(({ id, avg, total }) => {
+                ratingsMap[String(id)] = {
+                  averageRating: avg,
+                  totalReviews: total,
+                };
+              });
 
-            const map: Record<string, RatingInfo> = {};
-            for (const r of results) {
-              map[String(r.id)] = {
-                averageRating: r.avg,
-                totalReviews: r.total,
-              };
+              // Update state with current batch results (progressive loading)
+              setRatings({ ...ratingsMap });
+              
+              // Add small delay between batches to prevent server overload
+              if (i + 5 < bookIds.length) {
+                await new Promise(resolve => setTimeout(resolve, 100));
+              }
             }
-            setRatings(map);
           } else {
             setRatings({});
           }
@@ -444,25 +465,32 @@ export default function AuthorBooksPage() {
                         </span>
                       )}
                     </div>
-                    {book.stock > 0 ? (
-                      <div className="text-xs font-semibold bg-[#F4F8F7] text-[#0E4B4B] px-2 py-1 rounded-full border border-[#5FA3A3]/30">
-                        স্টকে আছে
+                    {book.stock === 0 ? (
+                      <div className="text-xs font-semibold bg-rose-600 text-white px-2 py-1 rounded-full">
+                        Stock Out
                       </div>
                     ) : (
-                      <div className="text-xs font-semibold bg-rose-50 text-rose-700 px-2 py-1 rounded-full">
-                        স্টক নেই
-                      </div>
+                      book.discount > 0 && (
+                        <div className="text-xs font-semibold bg-[#F4F8F7] text-[#0E4B4B] px-2 py-1 rounded-full border border-[#5FA3A3]/30">
+                          সাশ্রয় করুন
+                        </div>
+                      )
                     )}
                   </div>
                 </CardContent>
 
                 <CardFooter className="p-4 sm:p-5 pt-0">
                   <Button
-                    className="w-full rounded-xl py-3 sm:py-4 bg-gradient-to-r from-[#187a7a] to-[#5b9b9b] hover:from-[#0E4B4B] hover:to-[#42a8a8] text-white font-semibold border-0 shadow-md hover:shadow-lg transition-all duration-300 hover:scale-105 group/btn"
+                    disabled={book.stock === 0}
+                    className={`w-full rounded-xl py-3 sm:py-4 font-semibold border-0 shadow-md hover:shadow-lg transition-all duration-300 hover:scale-105 group/btn ${
+                      book.stock === 0
+                        ? "bg-gray-400 cursor-not-allowed opacity-60"
+                        : "bg-gradient-to-r from-[#187a7a] to-[#5b9b9b] hover:from-[#0E4B4B] hover:to-[#42a8a8] text-white"
+                    }`}
                     onClick={() => handleAddToCart(book)}
                   >
                     <ShoppingCart className="mr-2 h-4 w-4 group-hover/btn:scale-110 transition-transform" />
-                    কার্টে যোগ করুন
+                    {book.stock === 0 ? "স্টক শেষ" : "কার্টে যোগ করুন"}
                   </Button>
                 </CardFooter>
 

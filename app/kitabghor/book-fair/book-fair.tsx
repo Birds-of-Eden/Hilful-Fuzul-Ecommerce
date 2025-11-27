@@ -30,6 +30,7 @@ interface ProductApi {
   image?: string | null;
   price?: number | string | null;
   original_price?: number | string | null;
+  stock?: number | null;
   writer?: {
     id: number;
     name: string;
@@ -50,6 +51,7 @@ interface Book {
     id: number;
     name: string;
   };
+  stock?: number;
 }
 
 interface Category {
@@ -139,6 +141,7 @@ const BookFairPage = memo(function BookFairPage() {
             image: p.image || "/placeholder.svg",
             price: Number(p.price ?? 0),
             original_price: Number(p.original_price ?? p.price ?? 0),
+            stock: Number(p.stock ?? 0),
             writer: {
               name: p.writer?.name || "অজ্ঞাত লেখক",
             },
@@ -487,10 +490,17 @@ const BookFairPage = memo(function BookFairPage() {
                             </span>
                           )}
                         </div>
-                        {book.original_price > book.price && (
-                          <div className="text-xs font-bold bg-gradient-to-r from-emerald-100 to-teal-100 text-gray-700 px-3 py-1.5 rounded-full border border-emerald-300/30">
-                            সাশ্রয় করুন
+                        
+                        {book.stock === 0 ? (
+                          <div className="text-xs font-semibold bg-rose-600 text-white px-2 py-1 rounded-full">
+                            Stock Out
                           </div>
+                        ) : (
+                          book.original_price > book.price && (
+                            <div className="text-xs font-bold bg-gradient-to-r from-emerald-100 to-teal-100 text-gray-700 px-3 py-1.5 rounded-full border border-emerald-300/30">
+                              সাশ্রয় করুন
+                            </div>
+                          )
                         )}
                       </div>
                     </CardContent>
@@ -500,10 +510,17 @@ const BookFairPage = memo(function BookFairPage() {
                         href={`/kitabghor/books/${book.id}`}
                         className="w-full"
                       >
-                        <Button className="w-full rounded-2xl py-4 sm:py-5 bg-gradient-to-r from-emerald-600 to-teal-600 hover:from-teal-600 hover:to-emerald-600 text-white font-bold shadow-xl hover:shadow-2xl transition-all duration-300 hover:scale-105 group/btn text-base">
+                        <Button 
+                          disabled={book.stock === 0}
+                          className={`w-full rounded-2xl py-4 sm:py-5 font-bold shadow-xl hover:shadow-2xl transition-all duration-300 hover:scale-105 group/btn text-base ${
+                            book.stock === 0
+                              ? "bg-gray-400 cursor-not-allowed opacity-60"
+                              : "bg-gradient-to-r from-emerald-600 to-teal-600 hover:from-teal-600 hover:to-emerald-600 text-white"
+                          }`}
+                        >
                           <BookOpen className="mr-3 h-5 w-5 group-hover/btn:scale-110 transition-transform" />
-                          বিস্তারিত দেখুন
-                          <ArrowRight className="ml-2 h-4 w-4 group-hover/btn:translate-x-1 transition-transform" />
+                          {book.stock === 0 ? "স্টক শেষ" : "বিস্তারিত দেখুন"}
+                          {book.stock !== 0 && <ArrowRight className="ml-2 h-4 w-4 group-hover/btn:translate-x-1 transition-transform" />}
                         </Button>
                       </Link>
                     </CardFooter>

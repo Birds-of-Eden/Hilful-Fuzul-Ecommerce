@@ -20,9 +20,12 @@ type Product = {
   price: number;
   original_price: number;
   discount: number;
-  writer: { name: string };
+  writer: { id: number; name: string };
+  publisher: { id: number; name: string };
   image: string;
   stock?: number;
+  available?: boolean;
+  deleted?: boolean;
 };
 
 interface RatingInfo {

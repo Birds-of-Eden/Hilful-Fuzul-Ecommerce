@@ -12,8 +12,10 @@ interface PublisherFromApi {
   id: number;
   name: string;
   image?: string | null;
-  // API থেকে products হিসেবে আমরা length = product count এর একটা array পাচ্ছি
-  products: any[];
+  createdAt: string;
+  updatedAt: string;
+  // API থেকে productCount হিসেবে আমরা বইয়ের সংখ্যা পাচ্ছি
+  productCount: number;
 }
 
 const PublisherCategoriesPage = memo(function PublisherCategoriesPage() {
@@ -94,7 +96,7 @@ const PublisherCategoriesPage = memo(function PublisherCategoriesPage() {
           // Publishers Grid
           <div className="grid grid-cols-1 xs:grid-cols-2 sm:grid-cols-2 lg:grid-cols-3 xl:grid-cols-4 gap-6 md:gap-8">
             {publishers.map((publisher, index) => {
-              const booksCount = publisher.products?.length ?? 0;
+              const booksCount = publisher.productCount ?? 0;
 
               // আগের মতই ভ্যারিয়েন্ট রঙ
               const colorVariants = [

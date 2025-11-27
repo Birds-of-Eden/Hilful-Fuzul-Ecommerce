@@ -4,10 +4,10 @@ import { NextResponse } from "next/server";
 
 export async function GET(
   req: Request,
-  { params }: { params: { id: string } }
+  { params }: { params: Promise<{ id: string }> }
 ) {
   try {
-    const { id: idStr } = params;
+    const { id: idStr } = await params;
     const id = Number(idStr);
 
     const product = await prisma.product.findUnique({
@@ -44,7 +44,7 @@ export async function GET(
 // UPDATE
 export async function PUT(
   req: Request,
-  { params }: { params: { id: string } }
+  { params }: { params: Promise<{ id: string }> }
 ) {
   try {
     const { id: idStr } = await params;
@@ -111,10 +111,10 @@ export async function PUT(
 
 export async function DELETE(
   _req: Request,
-  { params }: { params: { id: string } }
+  { params }: { params: Promise<{ id: string }> }
 ) {
   try {
-    const { id: idStr } = params;
+    const { id: idStr } = await params;
     const id = Number(idStr);
 
     if (isNaN(id)) {

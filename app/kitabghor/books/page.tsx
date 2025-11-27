@@ -30,6 +30,7 @@ interface Product {
   writer: { name: string };
   publisher: { name: string };
   image: string;
+  stock?: number;
 }
 
 interface RatingInfo {
@@ -428,21 +429,32 @@ const AllBooksPage = memo(function AllBooksPage() {
                                 </span>
                               )}
                             </div>
-                            {book.discount > 0 && (
-                              <div className="text-xs font-semibold bg-[#F4F8F7] text-[#0E4B4B] px-1.5 sm:px-2 py-0.5 sm:py-1 rounded-full border border-[#5FA3A3]/30">
-                                সাশ্রয়
+                            {book.stock === 0 ? (
+                              <div className="text-xs font-semibold bg-rose-600 text-white px-1.5 sm:px-2 py-0.5 sm:py-1 rounded-full">
+                                Stock Out
                               </div>
+                            ) : (
+                              book.discount > 0 && (
+                                <div className="text-xs font-semibold bg-[#F4F8F7] text-[#0E4B4B] px-1.5 sm:px-2 py-0.5 sm:py-1 rounded-full border border-[#5FA3A3]/30">
+                                  সাশ্রয়
+                                </div>
+                              )
                             )}
                           </div>
                         </CardContent>
 
                         <CardFooter className="p-3 sm:p-4 md:p-5 pt-0">
                           <Button
-                            className="w-full rounded-lg sm:rounded-xl py-3 sm:py-4 md:py-6 bg-gradient-to-r from-[#187a7a] to-[#5b9b9b] hover:from-[#0E4B4B] hover:to-[#42a8a8] text-white font-semibold border-0 shadow-md hover:shadow-lg transition-all duration-300 hover:scale-105 group/btn text-sm sm:text-base"
+                            disabled={book.stock === 0}
+                            className={`w-full rounded-lg sm:rounded-xl py-3 sm:py-4 md:py-6 font-semibold border-0 shadow-md hover:shadow-lg transition-all duration-300 hover:scale-105 group/btn text-sm sm:text-base ${
+                              book.stock === 0
+                                ? "bg-gray-400 cursor-not-allowed opacity-60"
+                                : "bg-gradient-to-r from-[#187a7a] to-[#5b9b9b] hover:from-[#0E4B4B] hover:to-[#42a8a8] text-white"
+                            }`}
                             onClick={() => handleAddToCart(book)}
                           >
                             <ShoppingCart className="mr-1.5 sm:mr-2 h-3.5 w-3.5 sm:h-4 sm:w-4 group-hover/btn:scale-110 transition-transform" />
-                            কার্টে যোগ করুন
+                            {book.stock === 0 ? "স্টক শেষ" : "কার্টে যোগ করুন"}
                           </Button>
                         </CardFooter>
 
