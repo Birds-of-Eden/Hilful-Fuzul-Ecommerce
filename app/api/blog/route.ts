@@ -2,6 +2,7 @@ import { NextRequest, NextResponse } from 'next/server';
 import { getServerSession } from 'next-auth/next';
 import { authOptions } from '@/lib/auth';
 import { prisma } from '@/lib/prisma';
+import { generateSlug } from '@/lib/utils';
 
 // GET all blogs - Public access
 export async function GET(request: NextRequest) {
@@ -76,8 +77,24 @@ export async function POST(request: NextRequest) {
       ? summary
       : (content ? plainTextFromHtml(content).slice(0, 300) : '');
 
+    // Generate unique slug
+    let slug = generateSlug(title);
+    
+    // Check if slug already exists and make it unique
+    const existingBlog = await prisma.blog.findUnique({ where: { slug } });
+    if (existingBlog) {
+      let counter = 1;
+      let uniqueSlug = `${slug}-${counter}`;
+      while (await prisma.blog.findUnique({ where: { slug: uniqueSlug } })) {
+        counter++;
+        uniqueSlug = `${slug}-${counter}`;
+      }
+      slug = uniqueSlug;
+    }
+
     const blog = await prisma.blog.create({
       data: {
+        slug,
         title,
         summary: computedSummary,
         content: content || '',

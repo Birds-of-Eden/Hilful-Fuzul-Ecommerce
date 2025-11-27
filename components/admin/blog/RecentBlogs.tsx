@@ -3,9 +3,11 @@
 
 import { useState, useEffect } from "react";
 import Link from "next/link";
+import { generateSlug } from "@/lib/utils";
 
 interface Blog {
   id: number;
+  slug?: string;
   title: string;
   summary: string;
   image?: string;
@@ -88,7 +90,7 @@ export default function RecentBlogs() {
         {blogs.map((blog) => (
           <Link
             key={blog.id}
-            href={`/kitabghor/blogs/${blog.id}`}
+            href={`/kitabghor/blogs/${blog.slug || generateSlug(blog.title)}`}
             className="flex space-x-4 group hover:bg-gray-50 p-2 rounded-lg transition-colors duration-200 -mx-2"
           >
             {/* Image (Small Thumbnail) */}

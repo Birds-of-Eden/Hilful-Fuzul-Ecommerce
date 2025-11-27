@@ -2,14 +2,15 @@ import { NextRequest, NextResponse } from "next/server";
 import { getServerSession } from "next-auth/next";
 import { authOptions } from "@/lib/auth";
 import { prisma } from "@/lib/prisma";
+import { generateSlug } from "@/lib/utils";
 
-// GET single blog - Public access
+// GET single blog by ID - Public access (for backward compatibility)
 export async function GET(
   _req: NextRequest,
   { params }: { params: Promise<{ id: string }> }
 ) {
   try {
-    const { id } = await params;                   // 👈 await params
+    const { id } = await params;
     const blogId = Number(id);
     if (!Number.isInteger(blogId)) {
       return NextResponse.json({ error: "Invalid id" }, { status: 400 });
@@ -25,7 +26,7 @@ export async function GET(
 
     return NextResponse.json(blog);
   } catch (error) {
-    console.error("Error fetching blog:", error);
+    console.error("Error fetching blog by ID:", error);
     return NextResponse.json({ error: "Internal server error" }, { status: 500 });
   }
 }
@@ -41,7 +42,7 @@ export async function PUT(
       return NextResponse.json({ error: "Unauthorized" }, { status: 401 });
     }
 
-    const { id } = await params;                  // 👈 await params
+    const { id } = await params;
     const blogId = Number(id);
     if (!Number.isInteger(blogId)) {
       return NextResponse.json({ error: "Invalid id" }, { status: 400 });
@@ -57,17 +58,49 @@ export async function PUT(
     // Only allow fields in your schema
     const { title, summary, date, author, image } = await req.json();
 
+    // Generate new slug if title is being updated
+    let updateData: any = {
+      summary: typeof summary === "string" && summary.trim().length > 0
+        ? summary
+        : existingBlog.summary,
+      date: date ? new Date(date) : existingBlog.date,
+      author: author ?? existingBlog.author,
+      image: image ?? existingBlog.image,
+    };
+
+    if (title && title !== existingBlog.title) {
+      let newSlug = generateSlug(title);
+      
+      // Check if new slug already exists (excluding current blog)
+      const existingSlug = await prisma.blog.findFirst({ 
+        where: { 
+          slug: newSlug,
+          id: { not: blogId }
+        }
+      });
+      
+      if (existingSlug) {
+        let counter = 1;
+        let uniqueSlug = `${newSlug}-${counter}`;
+        while (await prisma.blog.findFirst({ 
+          where: { 
+            slug: uniqueSlug,
+            id: { not: blogId }
+          }
+        })) {
+          counter++;
+          uniqueSlug = `${newSlug}-${counter}`;
+        }
+        newSlug = uniqueSlug;
+      }
+      
+      updateData.title = title;
+      updateData.slug = newSlug;
+    }
+
     const updated = await prisma.blog.update({
       where: { id: blogId },
-      data: {
-        title: title ?? existingBlog.title,
-        summary: typeof summary === "string" && summary.trim().length > 0
-          ? summary
-          : existingBlog.summary,
-        date: date ? new Date(date) : existingBlog.date,
-        author: author ?? existingBlog.author,
-        image: image ?? existingBlog.image,
-      },
+      data: updateData,
     });
 
     return NextResponse.json(updated);
@@ -88,7 +121,7 @@ export async function DELETE(
       return NextResponse.json({ error: "Unauthorized" }, { status: 401 });
     }
 
-    const { id } = await params;                  // 👈 await params
+    const { id } = await params;
     const blogId = Number(id);
     if (!Number.isInteger(blogId)) {
       return NextResponse.json({ error: "Invalid id" }, { status: 400 });

@@ -3,9 +3,11 @@
 
 import { useState, useEffect } from "react";
 import Link from "next/link";
+import { generateSlug } from "@/lib/utils";
 
 interface Blog {
   id: number;
+  slug?: string;
   title: string;
   summary: string;
   author: string;
@@ -158,7 +160,7 @@ export default function AllBlogs() {
           {blogs.map((blog) => (
             <Link
               key={blog.id}
-              href={`/kitabghor/blogs/${blog.id}`}
+              href={`/kitabghor/blogs/${blog.slug || generateSlug(blog.title)}`}
               className="group block"
             >
               <div className="bg-white/80 backdrop-blur-sm rounded-3xl shadow-xl hover:shadow-2xl transition-all duration-500 overflow-hidden border border-emerald-200/30 hover:border-emerald-400/50 transform hover:scale-105 hover:-translate-y-2">

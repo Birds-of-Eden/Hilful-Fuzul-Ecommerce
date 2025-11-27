@@ -24,7 +24,7 @@ interface Blog {
   updatedAt: string | Date;
 }
 
-const RichTextEditor = dynamic(() => import("./richTextEditor"), {
+const RichTextEditor = dynamic(() => import("./JoditEditor"), {
   ssr: false,
   loading: () => (
     <div className="h-[400px] border border-gray-300 rounded-lg p-4">

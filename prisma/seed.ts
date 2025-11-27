@@ -1,6 +1,7 @@
 // prisma/seed.ts
 import { PrismaClient, OrderStatus, PaymentStatus } from "@prisma/client";
 import bcrypt from "bcryptjs";
+import { generateSlug } from "../lib/utils";
 
 // ⬇️ এখানে path টা তোমার প্রজেক্ট স্ট্রাকচার অনুযায়ী ঠিক করবে
 import {
@@ -271,6 +272,7 @@ async function main() {
 
     await db.blog.create({
       data: {
+        slug: generateSlug(b.title),
         title: b.title,
         summary: b.summary,
         content: "", // এখন content nei, chai le pore manually update

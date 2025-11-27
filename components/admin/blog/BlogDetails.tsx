@@ -8,6 +8,7 @@ import RecentBlogs from "./RecentBlogs"; // Assuming this is the correct path
 
 interface Blog {
   id: number;
+  slug: string;
   title: string;
   content: string;
   summary: string;
@@ -44,8 +45,8 @@ const AdPlaceholder = ({
 
 export default function BlogDetails() {
   const router = useRouter();
-  const params = useParams<{ id: string }>();
-  const blogId = params?.id;
+  const params = useParams<{ slug: string }>();
+  const blogSlug = params?.slug;
 
   // State Hooks
   const [blog, setBlog] = useState<Blog | null>(null);
@@ -54,9 +55,9 @@ export default function BlogDetails() {
 
   // Fetch blog details
   useEffect(() => {
-    if (!blogId) {
+    if (!blogSlug) {
       setLoading(false);
-      setError("Invalid blog ID");
+      setError("Invalid blog slug");
       return;
     }
 
@@ -65,7 +66,13 @@ export default function BlogDetails() {
         setLoading(true);
         setError(null);
 
-        const response = await fetch(`/api/blog/${blogId}`);
+        // First try to fetch by slug
+        let response = await fetch(`/api/blog/slug/${blogSlug}`);
+        
+        // If slug-based fetch fails (404), try ID-based fetch for backward compatibility
+        if (!response.ok) {
+          response = await fetch(`/api/blog/${blogSlug}`);
+        }
 
         if (!response.ok) {
           throw new Error("Failed to fetch blog");
@@ -82,7 +89,7 @@ export default function BlogDetails() {
     };
 
     fetchBlogDetails();
-  }, [blogId]);
+  }, [blogSlug]);
 
   // Loading and Error States (Enhanced)
   if (loading) {
