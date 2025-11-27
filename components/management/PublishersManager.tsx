@@ -36,7 +36,7 @@ export default function PublishersManager({
   });
 
   const filtered = publishers?.filter((pub: any) =>
-    pub.name.toLowerCase().includes(searchTerm.toLowerCase())
+    pub.name?.toLowerCase().includes(searchTerm.toLowerCase())
   );
 
   const openAdd = () => {
@@ -134,7 +134,7 @@ export default function PublishersManager({
               <p className="text-gray-600 text-sm">মোট বই সংখ্যা</p>
               <h2 className="text-2xl font-bold">
                 {publishers.reduce(
-                  (a: number, p: any) => a + (p.products?.length || 0),
+                  (a: number, p: any) => a + (p.productCount || 0),
                   0
                 )}
               </h2>
@@ -180,7 +180,7 @@ export default function PublishersManager({
               <CardContent className="p-5">
                 <h3 className="text-xl font-bold">{pub.name}</h3>
                 <p className="text-gray-600 mt-1">
-                  Total Books: {(pub.products || []).length}
+                  Total Books: {pub.productCount || 0}
                 </p>
 
                 <div className="flex gap-3 mt-4">

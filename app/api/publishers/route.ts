@@ -52,6 +52,7 @@ export async function POST(req: Request) {
       data: {
         name: body.name,
         image: body.image ?? null,
+        deleted: false,
       },
     });
 
