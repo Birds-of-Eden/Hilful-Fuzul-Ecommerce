@@ -22,6 +22,32 @@ function slugify(str: string) {
 async function main() {
   /**
    * ------------------------------------------------------------------
+   * 0️⃣ Clean Database (Delete all existing data)
+   * ------------------------------------------------------------------
+   */
+  console.log("🧹 Cleaning database...");
+  
+  // Delete in correct order to respect foreign key constraints
+  await db.cartItem.deleteMany();
+  await db.wishlist.deleteMany();
+  await db.orderItem.deleteMany();
+  await db.order.deleteMany();
+  await db.review.deleteMany();
+  await db.newsletterSubscriber.deleteMany();
+  await db.coupon.deleteMany();
+  await db.newsletter.deleteMany();
+  await db.blog.deleteMany();
+  await db.shipment.deleteMany();
+  await db.product.deleteMany();
+  await db.category.deleteMany();
+  await db.writer.deleteMany();
+  await db.publisher.deleteMany();
+  await db.user.deleteMany();
+  
+  console.log("✅ Database cleaned successfully");
+
+  /**
+   * ------------------------------------------------------------------
    * 1️⃣ Admin User
    * ------------------------------------------------------------------
    */

@@ -1,5 +1,6 @@
 import { NextRequest, NextResponse } from 'next/server';
 import { PrismaClient } from '@prisma/client';
+import bcrypt from 'bcryptjs';
 
 const prisma = new PrismaClient();
 
@@ -82,10 +83,10 @@ export async function GET(request: NextRequest) {
 export async function POST(request: NextRequest) {
   try {
     const body = await request.json();
-    const { email, name, role, phone, passwordHash, addresses } = body;
+    const { email, name, role, phone, password, addresses } = body;
 
     // Validate required fields
-    if (!email || !passwordHash) {
+    if (!email || !password) {
       return NextResponse.json(
         { error: 'Email and password are required' },
         { status: 400 }
@@ -104,13 +105,16 @@ export async function POST(request: NextRequest) {
       );
     }
 
+    // Hash the password before storing
+    const passwordHash = await bcrypt.hash(password, 10);
+
     const user = await prisma.user.create({
       data: {
         email,
         name,
         role: role || 'user',
         phone,
-        passwordHash, // In real app, this should be hashed
+        passwordHash,
         address: {
           addresses: normalizedAddresses,
         },

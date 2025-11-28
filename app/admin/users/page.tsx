@@ -152,7 +152,7 @@ export default function AdminUsersPage() {
           name: newUser.name || null,
           role: newUser.role,
           phone: newUser.phone || null,
-          passwordHash: newUser.password,
+          password: newUser.password,
           addresses: normalizedAddresses,
         }),
       });

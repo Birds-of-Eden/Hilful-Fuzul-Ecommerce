@@ -4,6 +4,7 @@
 import { useEffect, useState, FormEvent, ChangeEvent } from "react";
 import { useSession } from "next-auth/react";
 import { Card } from "@/components/ui/card";
+import { Lock, Eye, EyeOff } from "lucide-react";
 
 interface ProfileData {
   id: string;
@@ -30,6 +31,17 @@ export default function UserProfilePage() {
   const [note, setNote] = useState("");
   const [addresses, setAddresses] = useState<string[]>([""]);
   const [uploadingImage, setUploadingImage] = useState(false);
+
+  // Password change states
+  const [currentPassword, setCurrentPassword] = useState("");
+  const [newPassword, setNewPassword] = useState("");
+  const [confirmPassword, setConfirmPassword] = useState("");
+  const [showCurrentPassword, setShowCurrentPassword] = useState(false);
+  const [showNewPassword, setShowNewPassword] = useState(false);
+  const [showConfirmPassword, setShowConfirmPassword] = useState(false);
+  const [passwordError, setPasswordError] = useState("");
+  const [passwordSuccess, setPasswordSuccess] = useState("");
+  const [changingPassword, setChangingPassword] = useState(false);
 
   useEffect(() => {
     const loadProfile = async () => {
@@ -220,6 +232,58 @@ export default function UserProfilePage() {
   }
 };
 
+const handlePasswordChange = async (e: FormEvent<HTMLFormElement>) => {
+  e.preventDefault();
+  setPasswordError("");
+  setPasswordSuccess("");
+
+  // Validation
+  if (!newPassword || !confirmPassword) {
+    setPasswordError("নতুন পাসওয়ার্ড এবং নিশ্চিতকরণ পাসওয়ার্ড পূরণ করুন");
+    return;
+  }
+
+  if (newPassword.length < 6) {
+    setPasswordError("নতুন পাসওয়ার্ড অন্তত ৬ অক্ষরের হতে হবে");
+    return;
+  }
+
+  if (newPassword !== confirmPassword) {
+    setPasswordError("নতুন পাসওয়ার্ড এবং নিশ্চিতকরণ পাসওয়ার্ড মেলে না");
+    return;
+  }
+
+  try {
+    setChangingPassword(true);
+
+    const res = await fetch("/api/user/password", {
+      method: "PUT",
+      headers: { "Content-Type": "application/json" },
+      body: JSON.stringify({
+        newPassword,
+      }),
+    });
+
+    if (!res.ok) {
+      const data = await res.json().catch(() => ({}));
+      throw new Error(data?.error || "পাসওয়ার্ড পরিবর্তন করতে সমস্যা হয়েছে");
+    }
+
+    setPasswordSuccess("পাসওয়ার্ড সফলভাবে পরিবর্তন হয়েছে");
+    
+    // Reset password fields
+    setNewPassword("");
+    setConfirmPassword("");
+    
+    // Clear success message after 3 seconds
+    setTimeout(() => setPasswordSuccess(""), 3000);
+  } catch (err: any) {
+    setPasswordError(err.message || "পাসওয়ার্ড পরিবর্তন করতে ত্রুটি হয়েছে");
+  } finally {
+    setChangingPassword(false);
+  }
+};
+
 
   return (
     <div className="min-h-screen bg-gradient-to-b from-[#F4F8F7]/30 to-white py-8">
@@ -405,6 +469,92 @@ export default function UserProfilePage() {
             </div>
           </form>
           )}
+        </Card>
+
+        {/* Password Change Section - Separate Card */}
+        <Card className="mt-6 p-6 shadow-sm border border-[#5FA3A3]/20 bg-white rounded-2xl">
+          <div className="flex items-center gap-2 mb-4">
+            <Lock className="h-5 w-5 text-[#0E4B4B]" />
+            <h3 className="text-lg font-semibold text-[#0E4B4B]">পাসওয়ার্ড পরিবর্তন</h3>
+          </div>
+          
+          <form onSubmit={handlePasswordChange} className="space-y-4">
+            <div className="grid gap-4 md:grid-cols-1">
+              <div className="space-y-1">
+                <p className="text-xs font-medium text-[#5FA3A3] uppercase tracking-wide">
+                  নতুন পাসওয়ার্ড
+                </p>
+                <div className="relative">
+                  <input
+                    type={showNewPassword ? "text" : "password"}
+                    value={newPassword}
+                    onChange={(e) => setNewPassword(e.target.value)}
+                    className="w-full rounded-xl border border-[#5FA3A3]/30 px-3 py-2 text-sm focus:outline-none focus:ring-2 focus:ring-[#0E4B4B] focus:border-[#0E4B4B] bg-[#F4F8F7]/50 focus:bg-white transition-all duration-300 pr-12"
+                    placeholder="নতুন পাসওয়ার্ড লিখুন (কমপক্ষে ৬ অক্ষর)"
+                  />
+                  <button
+                    type="button"
+                    className="absolute right-3 top-1/2 -translate-y-1/2 text-[#5FA3A3] hover:text-[#0E4B4B]"
+                    onClick={() => setShowNewPassword(!showNewPassword)}
+                  >
+                    {showNewPassword ? (
+                      <EyeOff className="h-4 w-4" />
+                    ) : (
+                      <Eye className="h-4 w-4" />
+                    )}
+                  </button>
+                </div>
+              </div>
+
+              <div className="space-y-1">
+                <p className="text-xs font-medium text-[#5FA3A3] uppercase tracking-wide">
+                  নতুন পাসওয়ার্ড নিশ্চিত করুন
+                </p>
+                <div className="relative">
+                  <input
+                    type={showConfirmPassword ? "text" : "password"}
+                    value={confirmPassword}
+                    onChange={(e) => setConfirmPassword(e.target.value)}
+                    className="w-full rounded-xl border border-[#5FA3A3]/30 px-3 py-2 text-sm focus:outline-none focus:ring-2 focus:ring-[#0E4B4B] focus:border-[#0E4B4B] bg-[#F4F8F7]/50 focus:bg-white transition-all duration-300 pr-12"
+                    placeholder="নতুন পাসওয়ার্ড আবার লিখুন"
+                  />
+                  <button
+                    type="button"
+                    className="absolute right-3 top-1/2 -translate-y-1/2 text-[#5FA3A3] hover:text-[#0E4B4B]"
+                    onClick={() => setShowConfirmPassword(!showConfirmPassword)}
+                  >
+                    {showConfirmPassword ? (
+                      <EyeOff className="h-4 w-4" />
+                    ) : (
+                      <Eye className="h-4 w-4" />
+                    )}
+                  </button>
+                </div>
+              </div>
+            </div>
+
+            {passwordError && (
+              <p className="text-sm text-red-600 bg-red-50 px-3 py-2 rounded-lg border border-red-200">
+                {passwordError}
+              </p>
+            )}
+            
+            {passwordSuccess && (
+              <p className="text-sm text-green-600 bg-green-50 px-3 py-2 rounded-lg border border-green-200">
+                {passwordSuccess}
+              </p>
+            )}
+
+            <div className="flex justify-end">
+              <button
+                type="submit"
+                disabled={changingPassword}
+                className="px-6 py-3 rounded-xl bg-gradient-to-r from-[#0E4B4B] to-[#5FA3A3] hover:from-[#5FA3A3] hover:to-[#0E4B4B] text-white text-sm font-semibold disabled:opacity-60 disabled:cursor-not-allowed transition-all duration-300 hover:scale-105 shadow-md hover:shadow-lg"
+              >
+                {changingPassword ? "পাসওয়ার্ড পরিবর্তন হচ্ছে..." : "পাসওয়ার্ড পরিবর্তন করুন"}
+              </button>
+            </div>
+          </form>
         </Card>
       </div>
     </div>

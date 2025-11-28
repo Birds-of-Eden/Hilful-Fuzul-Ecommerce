@@ -22,6 +22,9 @@ import {
   Ban,
   Clock,
   RefreshCw,
+  Lock,
+  Eye,
+  EyeOff,
 } from "lucide-react";
 
 interface UserDetail {
@@ -63,6 +66,15 @@ export default function UserDetailPage() {
   const [confirmAction, setConfirmAction] = useState<"ban" | "unban" | null>(
     null
   );
+  const [showPasswordModal, setShowPasswordModal] = useState(false);
+  const [passwordData, setPasswordData] = useState({
+    newPassword: "",
+    confirmPassword: "",
+  });
+  const [showPassword, setShowPassword] = useState(false);
+  const [showConfirmPassword, setShowConfirmPassword] = useState(false);
+  const [passwordError, setPasswordError] = useState("");
+  const [changingPassword, setChangingPassword] = useState(false);
   const [formData, setFormData] = useState({
     name: "",
     role: "user",
@@ -241,6 +253,56 @@ export default function UserDetailPage() {
     }
   };
 
+  const handleChangePassword = async () => {
+    setPasswordError("");
+
+    if (!passwordData.newPassword || !passwordData.confirmPassword) {
+      setPasswordError("উভয় পাসওয়ার্ড ফিল্ড পূরণ করুন");
+      return;
+    }
+
+    if (passwordData.newPassword.length < 6) {
+      setPasswordError("পাসওয়ার্ড অন্তত ৬ অক্ষরের হতে হবে");
+      return;
+    }
+
+    if (passwordData.newPassword !== passwordData.confirmPassword) {
+      setPasswordError("পাসওয়ার্ডগুলো মেলে না");
+      return;
+    }
+
+    try {
+      setChangingPassword(true);
+      const loadingId = toast.loading("পাসওয়ার্ড পরিবর্তন করা হচ্ছে...");
+
+      const response = await fetch(`/api/users/${params.id}/password`, {
+        method: "PATCH",
+        headers: {
+          "Content-Type": "application/json",
+        },
+        body: JSON.stringify({
+          password: passwordData.newPassword,
+        }),
+      });
+
+      toast.dismiss(loadingId);
+
+      if (response.ok) {
+        toast.success("পাসওয়ার্ড সফলভাবে পরিবর্তন হয়েছে");
+        setShowPasswordModal(false);
+        setPasswordData({ newPassword: "", confirmPassword: "" });
+      } else {
+        const data = await response.json().catch(() => ({}));
+        setPasswordError(data?.error || "পাসওয়ার্ড পরিবর্তন করতে ব্যর্থ হয়েছে");
+      }
+    } catch (error) {
+      console.error("Error changing password:", error);
+      setPasswordError("পাসওয়ার্ড পরিবর্তন করতে ত্রুটি হয়েছে");
+    } finally {
+      setChangingPassword(false);
+    }
+  };
+
   const formatDate = (date: Date) => {
     return new Date(date).toLocaleDateString("bn-BD", {
       year: "numeric",
@@ -405,6 +467,14 @@ export default function UserDetailPage() {
                   <span>নিষিদ্ধ করুন</span>
                 </button>
               )}
+
+              <button
+                onClick={() => setShowPasswordModal(true)}
+                className="flex items-center space-x-2 px-4 py-2 rounded-xl bg-blue-600 text-white hover:bg-blue-700 transition-all duration-300 shadow-sm font-medium"
+              >
+                <Lock className="h-4 w-4" />
+                <span>পাসওয়ার্ড পরিবর্তন</span>
+              </button>
 
               <button
                 onClick={() => setEditing(!editing)}
@@ -848,6 +918,130 @@ export default function UserDetailPage() {
                 }`}
               >
                 {confirmAction === "ban" ? "নিষিদ্ধ করুন" : "নিষেধাজ্ঞা তুলুন"}
+              </button>
+            </div>
+          </div>
+        </div>
+      )}
+
+      {/* Password Change Modal */}
+      {showPasswordModal && (
+        <div className="fixed inset-0 z-50 flex items-center justify-center bg-black/40">
+          <div className="bg-white rounded-2xl shadow-2xl border border-[#D1D8BE] max-w-md w-full mx-4 p-6">
+            <div className="flex items-start space-x-3">
+              <div className="p-2 rounded-full bg-blue-100 text-blue-600">
+                <Lock className="h-5 w-5" />
+              </div>
+              <div className="flex-1">
+                <h3 className="text-lg font-semibold text-[#2C4A3B] mb-1">
+                  পাসওয়ার্ড পরিবর্তন করুন
+                </h3>
+                <p className="text-sm text-[#819A91]">
+                  {user.name || user.email} এর জন্য নতুন পাসওয়ার্ড সেট করুন
+                </p>
+              </div>
+              <button
+                onClick={() => {
+                  setShowPasswordModal(false);
+                  setPasswordError("");
+                  setPasswordData({ newPassword: "", confirmPassword: "" });
+                }}
+                className="text-gray-400 hover:text-gray-600"
+              >
+                ✕
+              </button>
+            </div>
+
+            <div className="mt-6 space-y-4">
+              <div>
+                <label className="block text-sm font-medium text-[#2C4A3B] mb-2">
+                  নতুন পাসওয়ার্ড
+                </label>
+                <div className="relative">
+                  <input
+                    type={showPassword ? "text" : "password"}
+                    value={passwordData.newPassword}
+                    onChange={(e) =>
+                      setPasswordData((prev) => ({
+                        ...prev,
+                        newPassword: e.target.value,
+                      }))
+                    }
+                    className="w-full px-4 py-3 rounded-xl border border-[#D1D8BE] focus:outline-none focus:ring-2 focus:ring-[#2C4A3B] focus:border-transparent pr-12"
+                    placeholder="কমপক্ষে ৬ অক্ষর"
+                  />
+                  <button
+                    type="button"
+                    className="absolute right-3 top-1/2 -translate-y-1/2 text-[#819A91] hover:text-[#2C4A3B]"
+                    onClick={() => setShowPassword(!showPassword)}
+                  >
+                    {showPassword ? (
+                      <EyeOff className="h-5 w-5" />
+                    ) : (
+                      <Eye className="h-5 w-5" />
+                    )}
+                  </button>
+                </div>
+              </div>
+
+              <div>
+                <label className="block text-sm font-medium text-[#2C4A3B] mb-2">
+                  পাসওয়ার্ড নিশ্চিত করুন
+                </label>
+                <div className="relative">
+                  <input
+                    type={showConfirmPassword ? "text" : "password"}
+                    value={passwordData.confirmPassword}
+                    onChange={(e) =>
+                      setPasswordData((prev) => ({
+                        ...prev,
+                        confirmPassword: e.target.value,
+                      }))
+                    }
+                    className="w-full px-4 py-3 rounded-xl border border-[#D1D8BE] focus:outline-none focus:ring-2 focus:ring-[#2C4A3B] focus:border-transparent pr-12"
+                    placeholder="পাসওয়ার্ড আবার লিখুন"
+                  />
+                  <button
+                    type="button"
+                    className="absolute right-3 top-1/2 -translate-y-1/2 text-[#819A91] hover:text-[#2C4A3B]"
+                    onClick={() => setShowConfirmPassword(!showConfirmPassword)}
+                  >
+                    {showConfirmPassword ? (
+                      <EyeOff className="h-5 w-5" />
+                    ) : (
+                      <Eye className="h-5 w-5" />
+                    )}
+                  </button>
+                </div>
+              </div>
+
+              {passwordError && (
+                <div className="p-3 bg-red-50 rounded-lg border border-red-200">
+                  <p className="text-sm text-red-600">{passwordError}</p>
+                </div>
+              )}
+            </div>
+
+            <div className="mt-6 flex justify-end space-x-3">
+              <button
+                onClick={() => {
+                  setShowPasswordModal(false);
+                  setPasswordError("");
+                  setPasswordData({ newPassword: "", confirmPassword: "" });
+                }}
+                className="px-4 py-2 rounded-xl border border-[#D1D8BE] text-white bg-green-600 hover:bg-green-500 transition-all duration-300 text-sm font-medium"
+              >
+                বাতিল
+              </button>
+              <button
+                onClick={handleChangePassword}
+                disabled={changingPassword}
+                className="px-4 py-2 rounded-xl bg-red-600 text-white hover:bg-red-500 transition-all duration-300 text-sm font-medium disabled:opacity-50 flex items-center space-x-2"
+              >
+                {changingPassword && (
+                  <RefreshCw className="h-4 w-4 animate-spin" />
+                )}
+                <span>{changingPassword ? "পরিবর্তন হচ্ছে..." : "পাসওয়ার্ড পরিবর্তন"}</span>
               </button>
             </div>
           </div>
