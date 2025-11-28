@@ -134,7 +134,7 @@ const SigninForm = () => {
                         Password
                       </FormLabel>
                       <Link
-                        href="/auth/forgot-password"
+                        href="/forgot-password"
                         className="text-xs text-[#0D1414]/70 hover:text-[#0D1414] hover:underline"
                       >
                         Forgot password?
