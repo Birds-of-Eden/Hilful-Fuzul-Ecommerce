@@ -61,7 +61,7 @@ export default function CategoryPage({ params }: CategoryPageProps) {
   const [error, setError] = useState<string | null>(null);
   const [ratings, setRatings] = useState<Record<string, RatingInfo>>({});
 
-  // ✅ Load single category + books + ratings
+  // ✅ Load single category + books + ratings (optimized)
   useEffect(() => {
     const fetchCategoryData = async () => {
       try {
@@ -69,7 +69,9 @@ export default function CategoryPage({ params }: CategoryPageProps) {
         setError(null);
 
         // 1) category + products
-        const res = await fetch(`/api/categories/${params.id}`);
+        const res = await fetch(`/api/categories/${params.id}`, {
+          cache: 'no-store'
+        });
         if (!res.ok) {
           if (res.status === 404) {
             setCategory(null);
@@ -84,14 +86,17 @@ export default function CategoryPage({ params }: CategoryPageProps) {
         setCategory(data.category);
         setCategoryBooks(data.products);
 
-        // 2) সব ক্যাটাগরি কাউন্ট (header info)
-        const resAll = await fetch("/api/categories");
+        // 2) সব ক্যাটাগরি কাউন্ট (header info) - with caching
+        const resAll = await fetch("/api/categories", {
+          cache: 'force-cache', // Cache this as it doesn't change often
+          next: { revalidate: 300 } // Revalidate every 5 minutes
+        });
         if (resAll.ok) {
           const allCats: Category[] = await resAll.json();
           setCategoryCount(allCats.length);
         }
 
-        // 3) এই ক্যাটাগরির বইগুলোর রেটিং লোড
+        // 3) এই ক্যাটাগরির বইগুলোর রেটিং লোড (batch API)
         const ids = Array.from(
           new Set(
             data.products
@@ -101,38 +106,30 @@ export default function CategoryPage({ params }: CategoryPageProps) {
         );
 
         if (ids.length > 0) {
-          const results = await Promise.all(
-            ids.map(async (id) => {
-              try {
-                const r = await fetch(
-                  `/api/reviews?productId=${id}&page=1&limit=1`
-                );
+          try {
+            const batchRes = await fetch("/api/reviews/batch", {
+              method: "POST",
+              headers: {
+                "Content-Type": "application/json",
+              },
+              body: JSON.stringify({ productIds: ids }),
+              cache: 'no-store'
+            });
 
-                if (!r.ok) {
-                  return { id, avg: 0, total: 0 };
-                }
-
-                const rdata = await r.json();
-                return {
-                  id,
-                  avg: Number(rdata.averageRating ?? 0),
-                  total: Number(rdata.pagination?.total ?? 0),
-                };
-              } catch (err) {
-                console.error("Error fetching rating for product:", id, err);
-                return { id, avg: 0, total: 0 };
+            if (batchRes.ok) {
+              const batchData = await batchRes.json();
+              if (batchData.success) {
+                setRatings(batchData.data);
+              } else {
+                setRatings({});
               }
-            })
-          );
-
-          const map: Record<string, RatingInfo> = {};
-          for (const r of results) {
-            map[String(r.id)] = {
-              averageRating: r.avg,
-              totalReviews: r.total,
-            };
+            } else {
+              setRatings({});
+            }
+          } catch (err) {
+            console.error("Error fetching batch ratings:", err);
+            setRatings({});
           }
-          setRatings(map);
         } else {
           setRatings({});
         }

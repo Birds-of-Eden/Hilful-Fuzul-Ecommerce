@@ -1,7 +1,7 @@
-import { PrismaClient, OrderStatus, PaymentStatus } from "@prisma/client";
+import { PrismaClient } from "@prisma/client";
 import bcrypt from "bcryptjs";
 
-// ⬇️ এখানে path ঠিক থাকলে কিছু পরিবর্তন লাগবে না
+// Import actual data from BookData.ts
 import {
   writers as jsonWriters,
   publishers as jsonPublishers,
@@ -11,7 +11,7 @@ import {
 
 const db = new PrismaClient();
 
-// simple slugify helper
+// Simple slugify helper
 function slugify(str: string) {
   return str
     .toLowerCase()
@@ -200,6 +200,58 @@ async function main() {
     console.log("📝 Blog created");
   } else {
     console.log("ℹ️ Blog already exists");
+  }
+
+  /**
+   * ------------------------------------------------------------------
+   * 8️⃣ Create Sample Newsletter Subscribers
+   * ------------------------------------------------------------------
+   */
+  const subscribers = [
+    { email: "subscriber1@example.com" },
+    { email: "subscriber2@example.com" },
+    { email: "estiakahmed898@gmail.com" }
+  ];
+
+  for (const subscriber of subscribers) {
+    await db.newsletterSubscriber.upsert({
+      where: { email: subscriber.email },
+      update: {},
+      create: {
+        email: subscriber.email,
+        status: "subscribed"
+      },
+    });
+  }
+
+  console.log("✅ Newsletter subscribers seeded");
+
+  /**
+   * ------------------------------------------------------------------
+   * 9️⃣ Create Sample Coupon
+   * ------------------------------------------------------------------
+   */
+  const couponExists = await db.coupon.findUnique({
+    where: { code: "WELCOME10" },
+  });
+
+  if (!couponExists) {
+    await db.coupon.create({
+      data: {
+        code: "WELCOME10",
+        discountType: "percentage",
+        discountValue: 10.00,
+        minOrderValue: 500.00,
+        maxDiscount: 100.00,
+        usageLimit: 100,
+        isValid: true,
+        expiresAt: new Date(Date.now() + 30 * 24 * 60 * 60 * 1000), // 30 days from now
+      },
+    });
+
+    console.log("✅ Coupon created");
+  } else {
+    console.log("ℹ️ Coupon already exists");
   }
 }
 

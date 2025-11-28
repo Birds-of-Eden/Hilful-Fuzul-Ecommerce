@@ -102,7 +102,7 @@ export default function AuthorBooksPage() {
           );
           setAuthorBooks(booksOfAuthor);
 
-          // 3) OPTIMIZED: Load ratings in batches of 5 with delay
+          // 3) OPTIMIZED: Load ratings using batch API
           const bookIds = Array.from(
             new Set(
               booksOfAuthor
@@ -112,52 +112,29 @@ export default function AuthorBooksPage() {
           );
 
           if (bookIds.length > 0) {
-            const ratingsMap: Record<string, RatingInfo> = {};
-            
-            // Process in batches of 5 to avoid overwhelming the server
-            for (let i = 0; i < bookIds.length; i += 5) {
-              const batch = bookIds.slice(i, i + 5);
-              
-              const batchResults = await Promise.all(
-                batch.map(async (id) => {
-                  try {
-                    const r = await fetch(
-                      `/api/reviews?productId=${id}&page=1&limit=1`,
-                      { cache: "force-cache", next: { revalidate: 600 } } // Cache for 10 minutes
-                    );
-
-                    if (!r.ok) {
-                      return { id, avg: 0, total: 0 };
-                    }
-
-                    const rdata = await r.json();
-                    return {
-                      id,
-                      avg: Number(rdata.averageRating ?? 0),
-                      total: Number(rdata.pagination?.total ?? 0),
-                    };
-                  } catch (err) {
-                    console.error("Error fetching rating for product:", id, err);
-                    return { id, avg: 0, total: 0 };
-                  }
-                })
-              );
-
-              // Update ratings map for this batch
-              batchResults.forEach(({ id, avg, total }) => {
-                ratingsMap[String(id)] = {
-                  averageRating: avg,
-                  totalReviews: total,
-                };
+            try {
+              const batchRes = await fetch("/api/reviews/batch", {
+                method: "POST",
+                headers: {
+                  "Content-Type": "application/json",
+                },
+                body: JSON.stringify({ productIds: bookIds }),
+                cache: 'no-store'
               });
 
-              // Update state with current batch results (progressive loading)
-              setRatings({ ...ratingsMap });
-              
-              // Add small delay between batches to prevent server overload
-              if (i + 5 < bookIds.length) {
-                await new Promise(resolve => setTimeout(resolve, 100));
+              if (batchRes.ok) {
+                const batchData = await batchRes.json();
+                if (batchData.success) {
+                  setRatings(batchData.data);
+                } else {
+                  setRatings({});
+                }
+              } else {
+                setRatings({});
               }
+            } catch (err) {
+              console.error("Error fetching batch ratings:", err);
+              setRatings({});
             }
           } else {
             setRatings({});
