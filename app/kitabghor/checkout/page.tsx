@@ -513,7 +513,31 @@ const folder = "paymentScreenshot";
     }
   };
 
-  const handleConfirmOrder = () => {
+  const handleConfirmOrder = async () => {
+    // Add email to newsletter subscribers
+    if (email) {
+      try {
+        const response = await fetch("/api/newsletter/subscribers", {
+          method: "POST",
+          headers: {
+            "Content-Type": "application/json",
+          },
+          body: JSON.stringify({ email }),
+        });
+        
+        if (response.ok) {
+          console.log("Email added to newsletter subscribers successfully");
+        } else {
+          const result = await response.json();
+          if (response.status !== 409) { // Don't show error for already subscribed
+            console.warn("Failed to add to newsletter:", result.error);
+          }
+        }
+      } catch (error) {
+        console.warn("Error adding to newsletter:", error);
+      }
+    }
+    
     clearCart();
     setOrderConfirmed(true);
     setShowModal(true);
@@ -644,7 +668,7 @@ const folder = "paymentScreenshot";
                     <Button
                       variant="ghost"
                       onClick={() => setStep("details")}
-                      className="text-[#2D4A3C]/80 hover:text-[#2D4A3C] hover:bg-[#EEEFE0] text-sm sm:text-base p-2 sm:p-auto"
+                      className="text-[#2D4A3C]/80 hover:text-[#2D4A3C] text-white hover:bg-[#EEEFE0] text-sm sm:text-base p-2 sm:p-auto"
                     >
                       <ArrowLeft className="w-3 h-3 sm:w-4 sm:h-4 mr-1 sm:mr-2" />
                       <span className="hidden sm:inline">পূর্ববর্তী</span>
@@ -825,7 +849,7 @@ const folder = "paymentScreenshot";
                     <Button
                       variant="ghost"
                       onClick={() => setStep("payment")}
-                      className="text-[#2D4A3C]/80 hover:text-[#2D4A3C] hover:bg-[#EEEFE0] text-sm sm:text-base p-2 sm:p-auto"
+                      className="text-[#2D4A3C]/80 hover:text-[#2D4A3C] text-white hover:bg-[#EEEFE0] text-sm sm:text-base p-2 sm:p-auto"
                     >
                       <ArrowLeft className="w-3 h-3 sm:w-4 sm:h-4 mr-1 sm:mr-2" />
                       <span className="hidden sm:inline">পূর্ববর্তী</span>

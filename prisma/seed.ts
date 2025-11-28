@@ -25,8 +25,8 @@ async function main() {
    * 1️⃣ Admin User
    * ------------------------------------------------------------------
    */
-  const adminEmail = "admin@hf.com";
-  const adminPassword = "123456";
+  const adminEmail = "admin@example.com";
+  const adminPassword = "admin123";
 
   const adminExists = await db.user.findUnique({
     where: { email: adminEmail },
@@ -52,7 +52,7 @@ async function main() {
    * 2️⃣ Normal User
    * ------------------------------------------------------------------
    */
-  const userEmail = "user@hf.com";
+  const userEmail = "user@example.com";
 
   const userExists = await db.user.findUnique({
     where: { email: userEmail },
@@ -63,7 +63,7 @@ async function main() {
       data: {
         name: "Test User",
         email: userEmail,
-        passwordHash: await bcrypt.hash("111111", 10),
+        passwordHash: await bcrypt.hash("user123", 10),
         role: "user",
       },
     });
