@@ -108,10 +108,45 @@ export default function AllBlogs() {
 
   if (loading) {
     return (
-      <div className="flex justify-center items-center min-h-96 bg-gradient-to-br from-emerald-50/30 via-white to-teal-50/20">
-        <div className="text-center">
-          <div className="animate-spin rounded-full h-16 w-16 border-4 border-emerald-200 border-t-emerald-600 mx-auto mb-4"></div>
-          <p className="text-emerald-600 font-medium">ব্লগ লোড হচ্ছে...</p>
+      <div className="min-h-screen bg-gradient-to-br from-emerald-50/30 via-white to-teal-50/20 py-12 px-4 sm:px-6 lg:px-8">
+        <div className="max-w-7xl mx-auto">
+          {/* Header Skeleton */}
+          <div className="text-center mb-12">
+            <div className="h-12 bg-gray-200 rounded-lg w-96 mx-auto mb-4 animate-pulse"></div>
+            <div className="h-1 bg-gray-200 rounded-full w-32 mx-auto animate-pulse"></div>
+          </div>
+
+          {/* Blog Cards Skeleton */}
+          <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-8">
+            {Array.from({ length: 6 }, (_, i) => (
+              <div key={i} className="bg-white/80 rounded-3xl shadow-xl overflow-hidden border border-emerald-200/30">
+                {/* Image Skeleton */}
+                <div className="relative h-48 overflow-hidden">
+                  <div className="w-full h-full bg-gradient-to-br from-gray-200 to-gray-300 animate-pulse"></div>
+                  <div className="absolute top-4 right-4">
+                    <div className="bg-gray-300 text-gray-300 text-xs font-bold px-3 py-1.5 rounded-full animate-pulse w-12 h-6"></div>
+                  </div>
+                </div>
+
+                {/* Content Skeleton */}
+                <div className="p-6">
+                  <div className="h-6 bg-gray-200 rounded-lg mb-3 animate-pulse"></div>
+                  <div className="h-4 bg-gray-200 rounded mb-2 animate-pulse"></div>
+                  <div className="h-4 bg-gray-200 rounded mb-2 animate-pulse w-5/6"></div>
+                  <div className="h-4 bg-gray-200 rounded mb-4 animate-pulse w-4/6"></div>
+
+                  {/* Meta Info Skeleton */}
+                  <div className="flex items-center justify-between pt-4 border-t border-emerald-100">
+                    <div className="flex items-center gap-2">
+                      <div className="w-2 h-2 bg-gray-300 rounded-full animate-pulse"></div>
+                      <div className="h-4 bg-gray-200 rounded w-20 animate-pulse"></div>
+                    </div>
+                    <div className="w-5 h-5 bg-gray-300 rounded animate-pulse"></div>
+                  </div>
+                </div>
+              </div>
+            ))}
+          </div>
         </div>
       </div>
     );

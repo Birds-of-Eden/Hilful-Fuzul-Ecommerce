@@ -167,10 +167,71 @@ export default function CouponManagement() {
 
   if (loading) {
     return (
-      <div className="flex justify-center items-center h-64 bg-gradient-to-br from-[#F4F8F7] to-[#EEEFE0]">
-        <div className="text-center">
-          <div className="animate-spin rounded-full h-12 w-12 border-b-2 border-[#0E4B4B] mx-auto mb-4"></div>
-          <p className="text-[#0D1414]">Loading coupons...</p>
+      <div className="min-h-screen bg-gradient-to-br from-[#F4F8F7] to-[#EEEFE0] p-4 sm:p-6">
+        <div className="space-y-8">
+          {/* Header Skeleton */}
+          <div className="bg-gradient-to-r from-gray-200 to-gray-300 rounded-2xl shadow-lg p-6 mb-8 animate-pulse">
+            <div className="flex flex-col lg:flex-row lg:items-center lg:justify-between gap-4">
+              <div>
+                <div className="h-8 bg-gray-300 rounded w-48 mb-2"></div>
+                <div className="h-4 bg-gray-300 rounded w-64"></div>
+              </div>
+              <div className="h-12 bg-gray-300 rounded-full w-32"></div>
+            </div>
+          </div>
+
+          {/* Coupon Grid Skeleton */}
+          <div className="grid gap-6 md:grid-cols-2 lg:grid-cols-3">
+            {Array.from({ length: 6 }, (_, i) => (
+              <div key={i} className="bg-white/90 border border-gray-200 rounded-2xl shadow-lg overflow-hidden">
+                {/* Card Header Skeleton */}
+                <div className="bg-gray-100 border-b border-gray-200 p-4">
+                  <div className="flex justify-between items-start">
+                    <div className="flex-1">
+                      <div className="flex items-center gap-2 mb-2">
+                        <div className="w-5 h-5 bg-gray-200 rounded animate-pulse"></div>
+                        <div className="h-5 bg-gray-200 rounded w-24 animate-pulse"></div>
+                      </div>
+                      <div className="h-4 bg-gray-200 rounded w-20 animate-pulse"></div>
+                    </div>
+                    <div className="flex gap-2">
+                      <div className="h-6 bg-gray-200 rounded-full w-16 animate-pulse"></div>
+                      <div className="h-6 bg-gray-200 rounded-full w-20 animate-pulse"></div>
+                    </div>
+                  </div>
+                </div>
+
+                {/* Card Content Skeleton */}
+                <div className="p-4">
+                  <div className="grid grid-cols-2 gap-4 text-sm mb-4">
+                    <div>
+                      <div className="h-3 bg-gray-200 rounded w-12 mb-1 animate-pulse"></div>
+                      <div className="h-4 bg-gray-200 rounded w-16 animate-pulse"></div>
+                    </div>
+                    <div>
+                      <div className="h-3 bg-gray-200 rounded w-12 mb-1 animate-pulse"></div>
+                      <div className="h-4 bg-gray-200 rounded w-14 animate-pulse"></div>
+                    </div>
+                    <div>
+                      <div className="h-3 bg-gray-200 rounded w-12 mb-1 animate-pulse"></div>
+                      <div className="h-4 bg-gray-200 rounded w-12 animate-pulse"></div>
+                    </div>
+                    <div>
+                      <div className="h-3 bg-gray-200 rounded w-12 mb-1 animate-pulse"></div>
+                      <div className="h-4 bg-gray-200 rounded w-16 animate-pulse"></div>
+                    </div>
+                  </div>
+                  <div className="flex justify-between items-center pt-4 border-t border-gray-200">
+                    <div className="h-3 bg-gray-200 rounded w-20 animate-pulse"></div>
+                    <div className="flex gap-2">
+                      <div className="w-8 h-8 bg-gray-200 rounded animate-pulse"></div>
+                      <div className="w-8 h-8 bg-gray-200 rounded animate-pulse"></div>
+                    </div>
+                  </div>
+                </div>
+              </div>
+            ))}
+          </div>
         </div>
       </div>
     );

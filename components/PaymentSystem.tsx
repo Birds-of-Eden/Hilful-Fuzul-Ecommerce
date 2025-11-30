@@ -231,16 +231,59 @@ export default function PaymentGatewayManager() {
 
   if (loading) {
     return (
-      <div className="flex justify-center items-center py-12">
-        <div className="animate-spin rounded-full h-8 w-8 border-b-2 border-blue-600"></div>
-        <span className="ml-2">Loading payment gateways...</span>
+      <div className="space-y-6 p-4 w-full">
+        {/* Header Skeleton */}
+        <div className="flex justify-between items-center">
+          <div>
+            <div className="h-9 bg-gray-200 rounded w-48 animate-pulse"></div>
+          </div>
+          <div className="h-10 bg-gray-200 rounded w-32 animate-pulse"></div>
+        </div>
+
+        {/* Payment Gateways Grid Skeleton */}
+        <div className="grid gap-4 md:grid-cols-2">
+          {Array.from({ length: 4 }, (_, i) => (
+            <Card key={i} className="hover:shadow-lg transition-shadow border">
+              <CardHeader className="pb-3">
+                <div className="flex justify-between items-start">
+                  <div className="space-y-2">
+                    <div className="h-6 bg-gray-200 rounded w-32 animate-pulse"></div>
+                    <div className="h-4 bg-gray-200 rounded w-16 animate-pulse"></div>
+                  </div>
+                  <div className="flex gap-1">
+                    <div className="h-8 w-8 bg-gray-200 rounded animate-pulse"></div>
+                    <div className="h-8 w-8 bg-gray-200 rounded animate-pulse"></div>
+                  </div>
+                </div>
+              </CardHeader>
+
+              <CardContent className="space-y-3">
+                {/* Account Numbers List Skeleton */}
+                <div className="space-y-2">
+                  <div className="h-4 bg-gray-200 rounded w-24 animate-pulse"></div>
+                  {Array.from({ length: 2 }, (_, j) => (
+                    <div key={j} className="flex items-center justify-between p-2 bg-gray-50 rounded border">
+                      <div className="h-4 bg-gray-200 rounded w-3/4 animate-pulse"></div>
+                      <div className="h-6 w-6 bg-gray-200 rounded animate-pulse"></div>
+                    </div>
+                  ))}
+                </div>
+
+                {/* Created Date Skeleton */}
+                <div className="pt-2 border-t">
+                  <div className="h-3 bg-gray-200 rounded w-32 animate-pulse"></div>
+                </div>
+              </CardContent>
+            </Card>
+          ))}
+        </div>
       </div>
     );
   }
 
   return (
     <div className="space-y-6 p-4 w-full">
-      {/* Header */}
+      {/* Header Skeleton */}
       <div className="flex justify-between items-center">
         <div>
           <h1 className="text-3xl font-bold text-gray-900">Payment Gateways</h1>

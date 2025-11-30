@@ -588,8 +588,78 @@ const OrderManagement = () => {
 
         {/* Loading / Error */}
         {loading && (
-          <div className="mt-6 text-center text-sm text-gray-600">
-            লোড হচ্ছে...
+          <div className="mt-6">
+            {/* Stats Cards Skeleton */}
+            <div className="flex flex-col gap-4 md:flex-row mb-6">
+              <div className="flex w-full items-center justify-between rounded-2xl bg-white px-6 py-4 shadow-sm md:w-1/4">
+                <div>
+                  <div className="h-3 bg-gray-200 rounded w-16 mb-2 animate-pulse"></div>
+                  <div className="h-8 bg-gray-200 rounded w-12 animate-pulse"></div>
+                </div>
+                <div className="flex h-12 w-12 items-center justify-center rounded-full bg-gray-200 animate-pulse"></div>
+              </div>
+              <div className="flex w-full items-center justify-between rounded-2xl bg-white px-6 py-4 shadow-sm md:w-1/4">
+                <div>
+                  <div className="h-3 bg-gray-200 rounded w-20 mb-2 animate-pulse"></div>
+                  <div className="h-8 bg-gray-200 rounded w-16 animate-pulse"></div>
+                </div>
+                <div className="flex h-12 w-12 items-center justify-center rounded-full bg-gray-200 animate-pulse"></div>
+              </div>
+              <div className="flex flex-1 items-center gap-4 rounded-2xl bg-white px-6 py-4 shadow-sm">
+                <div className="flex flex-1 items-center gap-2 rounded-full border border-gray-200 bg-gray-50 px-4 py-2">
+                  <div className="h-4 w-4 bg-gray-200 rounded animate-pulse"></div>
+                  <div className="h-4 bg-gray-200 rounded flex-1 animate-pulse"></div>
+                </div>
+                <div className="h-8 bg-gray-200 rounded w-24 animate-pulse"></div>
+              </div>
+            </div>
+
+            {/* Order Cards Skeleton */}
+            <div className="grid gap-6 md:grid-cols-2 lg:grid-cols-3">
+              {Array.from({ length: 6 }, (_, i) => (
+                <div key={i} className="overflow-hidden rounded-2xl bg-white shadow-sm">
+                  {/* Header Gradient */}
+                  <div className="h-24 bg-gradient-to-r from-gray-200 to-gray-300 animate-pulse"></div>
+
+                  <div className="-mt-10 px-5 pb-5">
+                    {/* Avatar Circle */}
+                    <div className="flex h-20 w-20 items-center justify-center rounded-full bg-gray-200 shadow-md animate-pulse"></div>
+
+                    <div className="mt-3 space-y-2">
+                      <div className="h-5 bg-gray-200 rounded w-3/4 animate-pulse"></div>
+                      <div className="h-3 bg-gray-200 rounded w-1/2 animate-pulse"></div>
+                      <div className="h-3 bg-gray-200 rounded w-2/3 animate-pulse"></div>
+                      <div className="h-3 bg-gray-200 rounded w-1/2 animate-pulse"></div>
+                    </div>
+
+                    {/* Totals */}
+                    <div className="mt-3 rounded-xl bg-gray-50 px-3 py-2">
+                      <div className="space-y-1">
+                        <div className="flex items-center justify-between">
+                          <div className="h-3 bg-gray-200 rounded w-20 animate-pulse"></div>
+                          <div className="h-3 bg-gray-200 rounded w-8 animate-pulse"></div>
+                        </div>
+                        <div className="flex items-center justify-between">
+                          <div className="h-3 bg-gray-200 rounded w-16 animate-pulse"></div>
+                          <div className="h-3 bg-gray-200 rounded w-12 animate-pulse"></div>
+                        </div>
+                      </div>
+                    </div>
+
+                    {/* Status Badges */}
+                    <div className="mt-3 flex flex-wrap items-center gap-2">
+                      <div className="h-6 bg-gray-200 rounded-full w-20 animate-pulse"></div>
+                      <div className="h-6 bg-gray-200 rounded-full w-16 animate-pulse"></div>
+                    </div>
+
+                    {/* Action Button */}
+                    <div className="mt-4">
+                      <div className="h-8 bg-gray-200 rounded-full w-full animate-pulse"></div>
+                    </div>
+                  </div>
+                </div>
+              ))}
+            </div>
           </div>
         )}
         {error && (

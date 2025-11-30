@@ -94,10 +94,120 @@ export default function BlogDetails() {
   // Loading and Error States (Enhanced)
   if (loading) {
     return (
-      <div className="min-h-screen bg-gradient-to-br from-[#F4F8F7] to-[#EEEFE0] flex justify-center items-center">
-        <div className="text-center">
-          <div className="animate-spin rounded-full h-16 w-16 border-4 border-[#D1D8BE] border-t-[#0E4B4B] mx-auto mb-4"></div>
-          <p className="text-[#0D1414] font-medium">ব্লগ লোড হচ্ছে...</p>
+      <div className="min-h-screen bg-gradient-to-br from-[#F4F8F7] to-[#EEEFE0] py-12 px-4 sm:px-6 lg:px-8">
+        {/* Header Skeleton */}
+        <div className="mb-8">
+          <div className="flex items-center gap-4">
+            <div className="inline-flex items-center gap-3 px-6 py-3 bg-white/90 rounded-2xl shadow-lg border border-[#D1D8BE] w-32 h-12 animate-pulse"></div>
+            <div className="h-px bg-gradient-to-r from-[#D1D8BE] to-transparent flex-1"></div>
+          </div>
+        </div>
+
+        {/* Three-Column Grid Skeleton */}
+        <div className="grid grid-cols-1 lg:grid-cols-[200px_1fr_200px] xl:grid-cols-[250px_1fr_250px] gap-6 lg:gap-8">
+          {/* Left Ad Column Skeleton */}
+          <div className="hidden lg:block">
+            <div className="sticky top-6 p-4 border border-dashed border-[#D1D8BE]/50 rounded-2xl bg-gradient-to-br from-[#F4F8F7]/30 to-white/50 h-[600px] flex items-center justify-center animate-pulse">
+              <div className="text-center text-[#819A91]">
+                <svg className="w-8 h-8 mx-auto mb-2" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                  <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={1.5} d="M9 19v-6a2 2 0 00-2-2H5a2 2 0 00-2 2v6a2 2 0 002 2h2a2 2 0 002-2zm0 0V9a2 2 0 012-2h2a2 2 0 012 2v10m-6 0a2 2 0 002 2h2a2 2 0 002-2m0 0V5a2 2 0 012-2h2a2 2 0 012 2v14a2 2 0 01-2 2h-2a2 2 0 01-2-2z" />
+                </svg>
+                <p className="text-sm">Advertisement</p>
+              </div>
+            </div>
+          </div>
+
+          {/* Center Content Column Skeleton */}
+          <div className="lg:col-span-1">
+            <div className="bg-white/90 rounded-3xl shadow-2xl overflow-hidden border border-[#D1D8BE] mb-8">
+              {/* Blog Header Skeleton */}
+              <div className="relative">
+                {/* Blog Image Skeleton */}
+                <div className="h-96 lg:h-[500px] w-full overflow-hidden">
+                  <div className="w-full h-full bg-gradient-to-br from-gray-200 to-gray-300 animate-pulse"></div>
+                  
+                  {/* Blog Badge Skeleton */}
+                  <div className="absolute top-6 right-6">
+                    <div className="bg-gray-300 text-gray-300 text-sm font-bold px-4 py-2 rounded-full w-20 h-8 animate-pulse"></div>
+                  </div>
+                </div>
+                
+                {/* Title Overlay Skeleton */}
+                <div className="absolute bottom-0 left-0 right-0 p-8 bg-gradient-to-t from-black/80 to-transparent">
+                  <div className="h-12 bg-gray-300 rounded-lg w-3/4 mb-4 animate-pulse"></div>
+                </div>
+              </div>
+
+              {/* Content Body Skeleton */}
+              <div className="p-8 md:p-12 lg:p-16">
+                {/* Meta Info Skeleton */}
+                <div className="flex flex-wrap items-center gap-6 mb-8 pb-6 border-b border-[#D1D8BE]">
+                  <div className="flex items-center gap-3">
+                    <div className="w-10 h-10 bg-gray-300 rounded-full animate-pulse"></div>
+                    <div>
+                      <div className="h-4 bg-gray-300 rounded w-20 mb-1 animate-pulse"></div>
+                      <div className="h-3 bg-gray-200 rounded w-12 animate-pulse"></div>
+                    </div>
+                  </div>
+                  <div className="flex items-center gap-2">
+                    <div className="w-5 h-5 bg-gray-300 rounded animate-pulse"></div>
+                    <div className="h-4 bg-gray-300 rounded w-24 animate-pulse"></div>
+                  </div>
+                  <div className="flex items-center gap-2">
+                    <div className="w-5 h-5 bg-gray-300 rounded animate-pulse"></div>
+                    <div className="h-4 bg-gray-300 rounded w-20 animate-pulse"></div>
+                  </div>
+                </div>
+
+                {/* Summary Skeleton */}
+                <div className="mb-8 p-6 bg-gradient-to-r from-[#F4F8F7]/50 to-[#EEEFE0]/50 rounded-2xl border border-[#D1D8BE]">
+                  <div className="h-6 bg-gray-300 rounded w-24 mb-3 animate-pulse"></div>
+                  <div className="h-4 bg-gray-300 rounded mb-2 animate-pulse"></div>
+                  <div className="h-4 bg-gray-300 rounded w-5/6 animate-pulse"></div>
+                </div>
+
+                {/* Main Content Skeleton */}
+                <div className="space-y-4">
+                  <div className="h-4 bg-gray-300 rounded animate-pulse"></div>
+                  <div className="h-4 bg-gray-300 rounded animate-pulse"></div>
+                  <div className="h-4 bg-gray-300 rounded w-5/6 animate-pulse"></div>
+                  <div className="h-4 bg-gray-300 rounded animate-pulse"></div>
+                  <div className="h-4 bg-gray-300 rounded w-4/6 animate-pulse"></div>
+                  <div className="h-4 bg-gray-300 rounded animate-pulse"></div>
+                  <div className="h-4 bg-gray-300 rounded w-3/4 animate-pulse"></div>
+                </div>
+              </div>
+            </div>
+          </div>
+
+          {/* Right Ad Column Skeleton */}
+          <div className="hidden lg:block">
+            <div className="sticky top-6 p-4 border border-dashed border-[#D1D8BE]/50 rounded-2xl bg-gradient-to-br from-[#F4F8F7]/30 to-white/50 h-[600px] flex items-center justify-center animate-pulse">
+              <div className="text-center text-[#819A91]">
+                <svg className="w-8 h-8 mx-auto mb-2" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                  <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={1.5} d="M9 19v-6a2 2 0 00-2-2H5a2 2 0 00-2 2v6a2 2 0 002 2h2a2 2 0 002-2zm0 0V9a2 2 0 012-2h2a2 2 0 012 2v10m-6 0a2 2 0 002 2h2a2 2 0 002-2m0 0V5a2 2 0 012-2h2a2 2 0 012 2v14a2 2 0 01-2 2h-2a2 2 0 01-2-2z" />
+                </svg>
+                <p className="text-sm">Advertisement</p>
+              </div>
+            </div>
+          </div>
+        </div>
+        
+        {/* Recent Blogs Skeleton */}
+        <div className="mt-12">
+          <div className="max-w-7xl mx-auto">
+            <div className="h-8 bg-gray-300 rounded w-48 mb-6 animate-pulse"></div>
+            <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
+              {Array.from({ length: 3 }, (_, i) => (
+                <div key={i} className="bg-white/90 rounded-2xl shadow-lg p-6 animate-pulse">
+                  <div className="h-32 bg-gray-300 rounded-lg mb-4"></div>
+                  <div className="h-6 bg-gray-300 rounded w-3/4 mb-2"></div>
+                  <div className="h-4 bg-gray-300 rounded w-full mb-2"></div>
+                  <div className="h-4 bg-gray-300 rounded w-5/6"></div>
+                </div>
+              ))}
+            </div>
+          </div>
         </div>
       </div>
     );

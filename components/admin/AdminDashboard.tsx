@@ -116,15 +116,170 @@ export default function GlassmorphismAdminDashboard() {
 
   if (loading && !stats) {
     return (
-      <div className="min-h-screen bg-[#EEEFE0] flex items-center justify-center p-6">
-        <div className="text-center bg-white/80 rounded-3xl p-8 shadow-lg">
-          <div className="w-20 h-20 bg-gradient-to-r from-[#2C4A3B] to-[#819A91] rounded-full flex items-center justify-center mx-auto mb-4">
-            <Activity className="h-8 w-8 text-white" />
+      <div className="min-h-screen bg-gradient-to-br from-[#f8fff2f5] to-[#d9f3c1]/30 p-4 lg:p-6">
+        <div className="space-y-8">
+          {/* Header Skeleton */}
+          <div className="text-center mb-12">
+            <div className="flex items-center justify-center gap-3 mb-4">
+              <div className="w-2 h-10 bg-gray-200 rounded animate-pulse"></div>
+              <div className="h-10 bg-gray-200 rounded w-48 animate-pulse"></div>
+              <div className="w-2 h-10 bg-gray-200 rounded animate-pulse"></div>
+            </div>
+            <div className="h-5 bg-gray-200 rounded w-64 mx-auto animate-pulse"></div>
           </div>
-          <p className="text-gray-800 text-lg font-semibold">
-            ড্যাশবোর্ড লোড হচ্ছে...
-          </p>
-          <p className="text-gray-600 text-sm mt-2">অনুগ্রহ করে অপেক্ষা করুন</p>
+
+          {/* Controls Skeleton */}
+          <div className="flex items-center justify-center gap-6 mb-8">
+            <div className="flex items-center justify-center bg-gray-100 rounded-2xl p-1 shadow-lg">
+              {Array.from({ length: 4 }, (_, i) => (
+                <div
+                  key={i}
+                  className="px-4 py-2 h-10 bg-gray-200 rounded-xl w-16 animate-pulse"
+                ></div>
+              ))}
+            </div>
+            <div className="w-10 h-10 bg-gray-200 rounded-2xl animate-pulse"></div>
+          </div>
+
+          {/* Main Stats Grid Skeleton */}
+          <div className="grid grid-cols-1 md:grid-cols-2 xl:grid-cols-4 gap-6 mb-8">
+            {Array.from({ length: 4 }, (_, i) => (
+              <div key={i} className="bg-white/80 rounded-2xl p-6 shadow-lg">
+                <div className="flex items-center justify-between">
+                  <div className="flex-1">
+                    <div className="h-4 bg-gray-200 rounded w-20 mb-3 animate-pulse"></div>
+                    <div className="h-8 bg-gray-200 rounded w-24 mb-3 animate-pulse"></div>
+                    <div className="flex items-center space-x-2">
+                      <div className="h-4 bg-gray-200 rounded w-4 animate-pulse"></div>
+                      <div className="h-4 bg-gray-200 rounded w-8 animate-pulse"></div>
+                      <div className="h-4 bg-gray-200 rounded w-16 animate-pulse"></div>
+                    </div>
+                  </div>
+                  <div className="w-12 h-12 bg-gray-200 rounded-full animate-pulse"></div>
+                </div>
+              </div>
+            ))}
+          </div>
+
+          {/* Analytics Chart Skeleton */}
+          <div className="bg-white/80 rounded-2xl p-6 shadow-lg mb-8">
+            <div className="flex items-center justify-between mb-4">
+              <div>
+                <div className="h-6 bg-gray-200 rounded w-32 mb-2 animate-pulse"></div>
+                <div className="h-4 bg-gray-200 rounded w-48 animate-pulse"></div>
+              </div>
+              <div className="flex space-x-2">
+                <div className="h-8 bg-gray-200 rounded w-16 animate-pulse"></div>
+                <div className="h-8 bg-gray-200 rounded w-12 animate-pulse"></div>
+              </div>
+            </div>
+            <div className="h-64 flex items-end justify-between space-x-2">
+              {Array.from({ length: 7 }, (_, i) => (
+                <div key={i} className="flex flex-col items-center flex-1">
+                  <div
+                    className="w-full bg-gray-200 rounded-t-lg animate-pulse"
+                    style={{
+                      height: `${Math.random() * 60 + 20}%`,
+                      minHeight: "20px",
+                    }}
+                  ></div>
+                  <div className="h-3 bg-gray-200 rounded w-8 mt-2 animate-pulse"></div>
+                  <div className="h-3 bg-gray-200 rounded w-6 mt-1 animate-pulse"></div>
+                </div>
+              ))}
+            </div>
+          </div>
+
+          {/* Additional Analytics Cards Skeleton */}
+          <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-6 mb-8">
+            {Array.from({ length: 4 }, (_, i) => (
+              <div key={i} className="bg-white/80 rounded-2xl p-6 shadow-lg">
+                <div className="flex items-center space-x-3">
+                  <div className="w-12 h-12 bg-gray-200 rounded-full animate-pulse"></div>
+                  <div>
+                    <div className="h-4 bg-gray-200 rounded w-24 mb-2 animate-pulse"></div>
+                    <div className="h-5 bg-gray-200 rounded w-16 animate-pulse"></div>
+                  </div>
+                </div>
+              </div>
+            ))}
+          </div>
+
+          {/* Bottom Section Skeleton */}
+          <div className="grid grid-cols-1 xl:grid-cols-2 gap-6">
+            {/* Recent Orders Skeleton */}
+            <div className="bg-white/80 rounded-2xl p-6 shadow-lg">
+              <div className="flex items-center justify-between mb-6">
+                <div className="h-6 bg-gray-200 rounded w-32 animate-pulse"></div>
+                <div className="h-4 bg-gray-200 rounded w-20 animate-pulse"></div>
+              </div>
+              <div className="space-y-4">
+                {Array.from({ length: 5 }, (_, i) => (
+                  <div
+                    key={i}
+                    className="flex items-center justify-between p-4 bg-gray-50 rounded-2xl border border-gray-200"
+                  >
+                    <div className="flex items-center space-x-4">
+                      <div className="w-10 h-10 bg-gray-200 rounded-full animate-pulse"></div>
+                      <div>
+                        <div className="h-4 bg-gray-200 rounded w-24 mb-2 animate-pulse"></div>
+                        <div className="h-3 bg-gray-200 rounded w-20 animate-pulse"></div>
+                      </div>
+                    </div>
+                    <div className="text-right">
+                      <div className="h-4 bg-gray-200 rounded w-16 mb-2 animate-pulse"></div>
+                      <div className="h-5 bg-gray-200 rounded w-12 animate-pulse"></div>
+                    </div>
+                  </div>
+                ))}
+              </div>
+            </div>
+
+            {/* Top Products Skeleton */}
+            <div className="bg-white/80 rounded-2xl p-6 shadow-lg">
+              <div className="flex items-center justify-between mb-6">
+                <div className="h-6 bg-gray-200 rounded w-32 animate-pulse"></div>
+                <div className="h-4 bg-gray-200 rounded w-20 animate-pulse"></div>
+              </div>
+              <div className="space-y-4">
+                {Array.from({ length: 5 }, (_, i) => (
+                  <div
+                    key={i}
+                    className="flex items-center space-x-4 p-4 bg-gray-50 rounded-2xl border border-gray-200"
+                  >
+                    <div className="w-10 h-10 bg-gray-200 rounded-full animate-pulse"></div>
+                    <div className="flex-1 min-w-0">
+                      <div className="h-4 bg-gray-200 rounded w-3/4 mb-2 animate-pulse"></div>
+                      <div className="flex items-center space-x-4">
+                        <div className="h-3 bg-gray-200 rounded w-16 animate-pulse"></div>
+                        <div className="h-3 bg-gray-200 rounded w-12 animate-pulse"></div>
+                      </div>
+                    </div>
+                    <div className="text-right">
+                      <div className="h-4 bg-gray-200 rounded w-16 mb-2 animate-pulse"></div>
+                      <div className="h-3 bg-gray-200 rounded w-8 animate-pulse"></div>
+                    </div>
+                  </div>
+                ))}
+              </div>
+            </div>
+          </div>
+
+          {/* Quick Actions Skeleton */}
+          <div className="bg-white/80 rounded-2xl p-8 shadow-lg">
+            <div className="h-8 bg-gray-200 rounded w-32 mb-6 mx-auto animate-pulse"></div>
+            <div className="grid grid-cols-2 md:grid-cols-4 gap-4">
+              {Array.from({ length: 4 }, (_, i) => (
+                <div
+                  key={i}
+                  className="p-6 bg-gray-100 rounded-2xl text-center border border-gray-200"
+                >
+                  <div className="w-8 h-8 bg-gray-200 rounded mx-auto mb-3 animate-pulse"></div>
+                  <div className="h-4 bg-gray-200 rounded w-16 mx-auto animate-pulse"></div>
+                </div>
+              ))}
+            </div>
+          </div>
         </div>
       </div>
     );

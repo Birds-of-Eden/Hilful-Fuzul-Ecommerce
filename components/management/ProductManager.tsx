@@ -272,9 +272,79 @@ export default function ProductManager({
 
         {/* LOADING */}
         {loading ? (
-          <div className="bg-white/80 rounded-2xl shadow p-12 text-center">
-            <div className="animate-spin rounded-full h-16 w-16 border-b-2 border-[#819A91] mx-auto"></div>
-            <p className="mt-4 text-lg">Loading products...</p>
+          <div className="min-h-screen bg-gradient-to-br from-[#EEEFE0] to-[#D1D8BE]/30 p-6">
+            <div className="max-w-7xl mx-auto">
+              {/* Header Skeleton */}
+              <div className="text-center mb-12">
+                <div className="flex items-center justify-center gap-3 mb-4">
+                  <div className="w-2 h-10 bg-gray-200 rounded-full animate-pulse"></div>
+                  <div className="h-10 bg-gray-200 rounded w-48 animate-pulse"></div>
+                  <div className="w-2 h-10 bg-gray-200 rounded-full animate-pulse"></div>
+                </div>
+                <div className="h-6 bg-gray-200 rounded w-96 mx-auto animate-pulse"></div>
+              </div>
+
+              {/* Stats Cards Skeleton */}
+              <div className="grid grid-cols-1 md:grid-cols-4 gap-6 mb-8">
+                {Array.from({ length: 4 }, (_, i) => (
+                  <div key={i} className="bg-white/80 rounded-2xl shadow-lg p-6">
+                    <div className="flex justify-between items-center">
+                      <div>
+                        <div className="h-4 bg-gray-200 rounded w-24 mb-2 animate-pulse"></div>
+                        <div className="h-8 bg-gray-200 rounded w-12 animate-pulse"></div>
+                      </div>
+                      <div className="w-12 h-12 bg-gray-200 rounded-full animate-pulse"></div>
+                    </div>
+                  </div>
+                ))}
+              </div>
+
+              {/* Search and Button Skeleton */}
+              <div className="bg-white/80 rounded-2xl shadow-lg p-6 mb-8">
+                <div className="flex items-center gap-4">
+                  <div className="flex-1 relative">
+                    <div className="absolute left-3 top-1/2 -translate-y-1/2 w-4 h-4 bg-gray-200 rounded animate-pulse"></div>
+                    <div className="h-10 bg-gray-200 rounded-full w-full pl-10 animate-pulse"></div>
+                  </div>
+                  <div className="h-10 bg-gray-200 rounded-full w-32 animate-pulse"></div>
+                </div>
+              </div>
+
+              {/* Product Grid Skeleton */}
+              <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 xl:grid-cols-4 gap-6">
+                {Array.from({ length: 8 }, (_, i) => (
+                  <div key={i} className="bg-white/80 rounded-2xl shadow-lg">
+                    {/* Image Skeleton */}
+                    <div className="relative h-48">
+                      <div className="h-full w-full bg-gray-200 rounded-t-2xl animate-pulse"></div>
+                      <div className="absolute top-3 right-3 flex gap-2">
+                        <div className="w-8 h-8 bg-gray-300 rounded-full animate-pulse"></div>
+                        <div className="w-8 h-8 bg-gray-300 rounded-full animate-pulse"></div>
+                      </div>
+                    </div>
+
+                    {/* Content Skeleton */}
+                    <div className="p-5">
+                      <div className="h-6 bg-gray-200 rounded w-3/4 mb-1 animate-pulse"></div>
+                      
+                      <div className="space-y-1 mb-3">
+                        <div className="h-4 bg-gray-200 rounded w-full animate-pulse"></div>
+                        <div className="h-4 bg-gray-200 rounded w-5/6 animate-pulse"></div>
+                        <div className="h-4 bg-gray-200 rounded w-4/5 animate-pulse"></div>
+                        <div className="h-4 bg-gray-200 rounded w-2/3 animate-pulse"></div>
+                      </div>
+
+                      <div className="h-4 bg-gray-200 rounded w-20 mb-4 animate-pulse"></div>
+
+                      <div className="flex gap-2">
+                        <div className="h-10 bg-gray-200 rounded flex-1 animate-pulse"></div>
+                        <div className="h-10 bg-gray-200 rounded w-10 animate-pulse"></div>
+                      </div>
+                    </div>
+                  </div>
+                ))}
+              </div>
+            </div>
           </div>
         ) : (
           /* PRODUCT GRID */

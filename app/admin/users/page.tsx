@@ -196,24 +196,115 @@ export default function AdminUsersPage() {
 
   if (loading && users.length === 0) {
     return (
-      <div className="min-h-screen bg-gradient-to-br from-[#EEEFE0] to-[#F5F6E9] p-6">
+      <div className="min-h-screen bg-gradient-to-br from-[#fdfdfd] to-[#eeffe8] p-4 sm:p-6">
         <div className="max-w-7xl mx-auto">
-          <div className="flex flex-col justify-center items-center h-96 space-y-4">
-            <div className="relative">
-              <div className="w-16 h-16 bg-gradient-to-br from-[#2C4A3B] to-[#819A91] rounded-2xl flex items-center justify-center shadow-lg">
-                <Users className="h-8 w-8 text-[#EEEFE0]" />
+          {/* Header Skeleton */}
+          <div className="mb-8">
+            <div className="flex flex-col sm:flex-row sm:items-center sm:justify-between gap-4">
+              <div className="flex items-center space-x-4">
+                <div className="w-12 h-12 bg-gray-200 rounded-xl animate-pulse"></div>
+                <div>
+                  <div className="h-8 bg-gray-200 rounded w-48 mb-2 animate-pulse"></div>
+                  <div className="h-4 bg-gray-200 rounded w-64 animate-pulse"></div>
+                </div>
               </div>
-              <div className="absolute -inset-2 bg-[#819A91] rounded-2xl opacity-20 animate-pulse"></div>
+              <div className="flex items-center gap-2">
+                <div className="h-10 bg-gray-200 rounded-xl w-32 animate-pulse"></div>
+                <div className="h-10 bg-gray-200 rounded-xl w-20 animate-pulse"></div>
+              </div>
             </div>
-            <div className="text-center space-y-2">
-              <div className="text-xl font-semibold text-[#2C4A3B]">
-                ব্যবহারকারী লোড হচ্ছে...
-              </div>
-              <div className="text-[#819A91] text-sm">
-                অনুগ্রহ করে কিছুক্ষণ অপেক্ষা করুন
+          </div>
+
+          {/* Filters Skeleton */}
+          <div className="bg-white rounded-2xl shadow-lg border border-[#D1D8BE] p-6 mb-6">
+            <div className="grid grid-cols-1 md:grid-cols-3 gap-4">
+              <div className="h-10 bg-gray-200 rounded-lg animate-pulse"></div>
+              <div className="h-10 bg-gray-200 rounded-lg animate-pulse"></div>
+              <div className="h-10 bg-gray-200 rounded-lg w-24 animate-pulse"></div>
+            </div>
+          </div>
+
+          {/* Stats Skeleton */}
+          <div className="grid grid-cols-1 md:grid-cols-3 gap-4 mb-6">
+            <div className="bg-white p-4 rounded-xl border border-[#D1D8BE] shadow-sm">
+              <div className="flex items-center space-x-3">
+                <div className="w-10 h-10 bg-gray-200 rounded-lg animate-pulse"></div>
+                <div>
+                  <div className="h-4 bg-gray-200 rounded w-20 mb-2 animate-pulse"></div>
+                  <div className="h-6 bg-gray-200 rounded w-12 animate-pulse"></div>
+                </div>
               </div>
             </div>
-            <Loader2 className="h-6 w-6 text-[#819A91] animate-spin" />
+            <div className="bg-white p-4 rounded-xl border border-[#D1D8BE] shadow-sm">
+              <div className="flex items-center space-x-3">
+                <div className="w-10 h-10 bg-gray-200 rounded-lg animate-pulse"></div>
+                <div>
+                  <div className="h-4 bg-gray-200 rounded w-24 mb-2 animate-pulse"></div>
+                  <div className="h-6 bg-gray-200 rounded w-12 animate-pulse"></div>
+                </div>
+              </div>
+            </div>
+            <div className="bg-white p-4 rounded-xl border border-[#D1D8BE] shadow-sm">
+              <div className="flex items-center space-x-3">
+                <div className="w-10 h-10 bg-gray-200 rounded-lg animate-pulse"></div>
+                <div>
+                  <div className="h-4 bg-gray-200 rounded w-20 mb-2 animate-pulse"></div>
+                  <div className="h-6 bg-gray-200 rounded w-12 animate-pulse"></div>
+                </div>
+              </div>
+            </div>
+          </div>
+
+          {/* Table Skeleton */}
+          <div className="bg-white rounded-2xl shadow-lg border border-[#D1D8BE] overflow-hidden">
+            {/* Table Header Skeleton */}
+            <div className="p-6 border-b border-[#D1D8BE] bg-gradient-to-r from-[#EEEFE0] to-[#F5F6E9]">
+              <div className="flex flex-col sm:flex-row sm:items-center sm:justify-between gap-4">
+                <div>
+                  <div className="h-6 bg-gray-200 rounded w-32 mb-2 animate-pulse"></div>
+                  <div className="h-4 bg-gray-200 rounded w-40 animate-pulse"></div>
+                </div>
+                <div className="flex items-center space-x-4">
+                  <div className="h-8 bg-gray-200 rounded w-20 animate-pulse"></div>
+                  <div className="h-8 bg-gray-200 rounded w-24 animate-pulse"></div>
+                </div>
+              </div>
+            </div>
+
+            {/* Table Rows Skeleton */}
+            <div className="divide-y divide-[#D1D8BE]">
+              {Array.from({ length: 10 }, (_, i) => (
+                <div key={i} className="p-4">
+                  <div className="grid grid-cols-1 md:grid-cols-6 gap-4">
+                    <div className="flex items-center space-x-3">
+                      <div className="w-10 h-10 bg-gray-200 rounded-full animate-pulse"></div>
+                      <div>
+                        <div className="h-4 bg-gray-200 rounded w-24 mb-1 animate-pulse"></div>
+                        <div className="h-3 bg-gray-200 rounded w-32 animate-pulse"></div>
+                      </div>
+                    </div>
+                    <div className="h-4 bg-gray-200 rounded w-20 animate-pulse"></div>
+                    <div className="h-4 bg-gray-200 rounded w-16 animate-pulse"></div>
+                    <div className="h-4 bg-gray-200 rounded w-24 animate-pulse"></div>
+                    <div className="h-4 bg-gray-200 rounded w-16 animate-pulse"></div>
+                    <div className="flex items-center space-x-2">
+                      <div className="h-8 bg-gray-200 rounded w-8 animate-pulse"></div>
+                      <div className="h-8 bg-gray-200 rounded w-8 animate-pulse"></div>
+                      <div className="h-8 bg-gray-200 rounded w-8 animate-pulse"></div>
+                    </div>
+                  </div>
+                </div>
+              ))}
+            </div>
+
+            {/* Pagination Skeleton */}
+            <div className="p-6 border-t border-[#D1D8BE] bg-[#EEEFE0] bg-opacity-50">
+              <div className="flex justify-center items-center space-x-2">
+                {Array.from({ length: 5 }, (_, i) => (
+                  <div key={i} className="h-10 bg-gray-200 rounded w-10 animate-pulse"></div>
+                ))}
+              </div>
+            </div>
           </div>
         </div>
       </div>
