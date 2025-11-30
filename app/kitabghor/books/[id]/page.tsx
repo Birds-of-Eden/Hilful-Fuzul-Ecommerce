@@ -22,7 +22,11 @@ import {
   BookText,
   Share2,
 } from "lucide-react";
-import BookModel from "@/components/ecommarce/book-model";
+import dynamic from "next/dynamic";
+const BookModel = dynamic(
+  () => import("@/components/ecommarce/book-model"),
+  { ssr: false }
+);
 import PdfViewer from "@/components/ecommarce/pdf-viewer";
 import RelatedBooks from "@/components/ecommarce/related-books";
 import BookReviews from "@/components/ecommarce/book-reviews";
@@ -703,7 +707,7 @@ export default function BookDetail() {
                 </h3>
               </div>
               <div className="h-[calc(80vh-80px)]">
-                <PdfViewer pdfUrl={book.pdf} />
+                <PdfViewer pdfUrl={book.pdf} onClose={() => setShowPdf(false)} />
               </div>
               <div className="absolute top-4 right-4">
                 <Button
