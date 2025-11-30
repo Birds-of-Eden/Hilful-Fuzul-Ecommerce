@@ -70,7 +70,7 @@ export default function CategoryPage({ params }: CategoryPageProps) {
 
         // 1) category + products
         const res = await fetch(`/api/categories/${params.id}`, {
-          cache: 'no-store'
+          cache: "no-store",
         });
         if (!res.ok) {
           if (res.status === 404) {
@@ -88,8 +88,8 @@ export default function CategoryPage({ params }: CategoryPageProps) {
 
         // 2) সব ক্যাটাগরি কাউন্ট (header info) - with caching
         const resAll = await fetch("/api/categories", {
-          cache: 'force-cache', // Cache this as it doesn't change often
-          next: { revalidate: 300 } // Revalidate every 5 minutes
+          cache: "force-cache", // Cache this as it doesn't change often
+          next: { revalidate: 300 }, // Revalidate every 5 minutes
         });
         if (resAll.ok) {
           const allCats: Category[] = await resAll.json();
@@ -113,7 +113,7 @@ export default function CategoryPage({ params }: CategoryPageProps) {
                 "Content-Type": "application/json",
               },
               body: JSON.stringify({ productIds: ids }),
-              cache: 'no-store'
+              cache: "no-store",
             });
 
             if (batchRes.ok) {
@@ -197,9 +197,7 @@ export default function CategoryPage({ params }: CategoryPageProps) {
       } catch (err) {
         console.error("Error adding to cart:", err);
         toast.error(
-          err instanceof Error
-            ? err.message
-            : "কার্টে যোগ করতে সমস্যা হয়েছে"
+          err instanceof Error ? err.message : "কার্টে যোগ করতে সমস্যা হয়েছে"
         );
       }
     },
@@ -360,9 +358,7 @@ export default function CategoryPage({ params }: CategoryPageProps) {
                         : "bg-white/80 text-gray-500 hover:bg-red-500/20 hover:text-red-500"
                     }`}
                     aria-label={
-                      isWishlisted
-                        ? "Remove from wishlist"
-                        : "Add to wishlist"
+                      isWishlisted ? "Remove from wishlist" : "Add to wishlist"
                     }
                   >
                     <Heart
@@ -376,16 +372,18 @@ export default function CategoryPage({ params }: CategoryPageProps) {
 
                   {/* Book Image */}
                   <Link href={`/kitabghor/books/${book.id}`}>
-                    <div className="relative h-48 sm:h-56 md:h-64 w-full overflow-hidden">
-                      <Image
-                        src={book.image || "/placeholder.svg"}
-                        alt={book.name}
-                        fill
-                        className="object-cover transition-transform duration-700 group-hover:scale-110"
-                        sizes="(max-width: 768px) 100vw, (max-width: 1200px) 50vw, 25vw"
-                      />
+                    <div className="relative w-full overflow-hidden bg-white p-4">
+                      <div className="relative aspect-[3/4] w-full">
+                        <Image
+                          src={book.image || "/placeholder.svg"}
+                          alt={book.name}
+                          fill
+                          className="object-contain transition-transform duration-700 group-hover:scale-105"
+                          sizes="(max-width: 768px) 100vw, (max-width: 1200px) 50vw, 25vw"
+                        />
+                      </div>
                       {/* Overlay */}
-                      <div className="absolute inset-0 bg-gradient-to-t from-black/20 via-transparent to-transparent opacity-0 group-hover:opacity-100 transition-opacity duration-300" />
+                      <div className="absolute inset-0 bg-gradient-to-t from-black/10 via-transparent to-transparent opacity-0 group-hover:opacity-100 transition-opacity duration-300" />
 
                       {/* Quick View */}
                       <div className="absolute inset-0 flex items-center justify-center opacity-0 group-hover:opacity-100 transition-all duration-300">

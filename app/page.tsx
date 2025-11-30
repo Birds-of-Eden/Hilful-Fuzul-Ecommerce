@@ -5,6 +5,7 @@ import CategoryBooks from "@/components/ecommarce/category-books";
 import Hero from "@/components/ecommarce/hero";
 import Header from "@/components/ecommarce/header";
 import Footer from "@/components/ecommarce/footer";
+import Head from "next/head";
 
 type Category = {
   id: number;
@@ -152,36 +153,84 @@ DataProvider.displayName = "DataProvider";
 
 export default function Home() {
   return (
-    <div className="w-full">
-      <div className="min-h-screen flex flex-col">
-        <Header />
-        <Hero />
-        <DataProvider>
-          {(data: {
-            categories: Category[];
-            allProducts: Product[];
-            ratings: Record<string, RatingInfo>;
-            loading: boolean;
-            error: string | null;
-          }) => (
-            <div className="container mx-auto py-12 px-4">
-              {data.loading && <p>Loading categories...</p>}
-              {data.error && <p className="text-red-500">{data.error}</p>}
-              {!data.loading &&
-                !data.error &&
-                data.categories.map((category) => (
-                  <CategoryBooks
-                    key={category.id}
-                    category={category}
-                    allProducts={data.allProducts}
-                    ratings={data.ratings}
-                  />
-                ))}
-            </div>
-          )}
-        </DataProvider>
-        <Footer />
+    <>
+      <Head>
+        <title>হিলফুল-ফুযুল প্রকাশনী | ইসলামিক বইয়ের অনলাইন বিক্রেতা - বাংলাদেশ</title>
+        <meta name="description" content="হিলফুল-ফুযুল প্রকাশনী - বাংলাদেশের সেরা ইসলামিক বইয়ের অনলাইন স্টোর। হাদিস, কুরআন, ফিকহ, ইসলামিক ইতিহাস ও জীবনীসহ নানা ধরনের বই সংগ্রহ করুন।" />
+        <meta name="keywords" content="ইসলামিক বই, হিলফুল-ফুযুল প্রকাশনী, অনলাইন বই স্টোর, বাংলাদেশ, হাদিস বই, কুরআন বই, ফিকহ বই, ইসলামিক সাহিত্য, ইসলামিক বই কিনুন" />
+        <meta name="author" content="হিলফুল-ফুযুল প্রকাশনী" />
+        <meta property="og:title" content="হিলফুল-ফুযুল প্রকাশনী | ইসলামিক বইয়ের অনলাইন বিক্রেতা - বাংলাদেশ" />
+        <meta property="og:description" content="হিলফুল-ফুযুল প্রকাশনী - বাংলাদেশের সেরা ইসলামিক বইয়ের অনলাইন স্টোর। হাদিস, কুরআন, ফিকহ, ইসলামিক ইতিহাস ও জীবনীসহ নানা ধরনের বই সংগ্রহ করুন।" />
+        <meta property="og:type" content="website" />
+        <meta property="og:url" content={process.env.NEXT_PUBLIC_BASE_URL || 'https://hilfulfuzul.com'} />
+        <meta property="og:image" content={`${process.env.NEXT_PUBLIC_BASE_URL || 'https://hilfulfuzul.com'}/images/books-collection.jpg`} />
+        <meta property="og:image:width" content="1200" />
+        <meta property="og:image:height" content="630" />
+        <meta property="og:locale" content="bn_BD" />
+        <meta name="twitter:card" content="summary_large_image" />
+        <meta name="twitter:title" content="হিলফুল-ফুযুল প্রকাশনী | ইসলামিক বইয়ের অনলাইন বিক্রেতা" />
+        <meta name="twitter:description" content="হিলফুল-ফুযুল প্রকাশনী - বাংলাদেশের সেরা ইসলামিক বইয়ের অনলাইন স্টোর।" />
+        <meta name="twitter:image" content={`${process.env.NEXT_PUBLIC_BASE_URL || 'https://hilfulfuzul.com'}/images/books-collection.jpg`} />
+        <link rel="canonical" href={process.env.NEXT_PUBLIC_BASE_URL || 'https://hilfulfuzul.com'} />
+        <script
+          type="application/ld+json"
+          dangerouslySetInnerHTML={{
+            __html: JSON.stringify({
+              "@context": "https://schema.org",
+              "@type": "WebPage",
+              "name": "হিলফুল-ফুযুল প্রকাশনী - হোম",
+              "description": "হিলফুল-ফুযুল প্রকাশনী - বাংলাদেশের সেরা ইসলামিক বইয়ের অনলাইন স্টোর",
+              "url": process.env.NEXT_PUBLIC_BASE_URL || 'https://hilfulfuzul.com',
+              "isPartOf": {
+                "@type": "WebSite",
+                "name": "হিলফুল-ফুযুল প্রকাশনী",
+                "url": process.env.NEXT_PUBLIC_BASE_URL || 'https://hilfulfuzul.com'
+              },
+              "about": {
+                "@type": "Thing",
+                "name": "ইসলামিক বই",
+                "description": "ইসলামিক বই ও সাহিত্য"
+              },
+              "mainEntity": {
+                "@type": "ItemList",
+                "name": "ইসলামিক বই সংগ্রহ",
+                "description": "বিভিন্ন ক্যাটেগরির ইসলামিক বই"
+              }
+            }),
+          }}
+        />
+      </Head>
+      <div className="w-full">
+        <div className="min-h-screen flex flex-col">
+          <Header />
+          <Hero />
+          <DataProvider>
+            {(data: {
+              categories: Category[];
+              allProducts: Product[];
+              ratings: Record<string, RatingInfo>;
+              loading: boolean;
+              error: string | null;
+            }) => (
+              <div className="container mx-auto py-12 px-4">
+                {data.loading && <p>Loading categories...</p>}
+                {data.error && <p className="text-red-500">{data.error}</p>}
+                {!data.loading &&
+                  !data.error &&
+                  data.categories.map((category) => (
+                    <CategoryBooks
+                      key={category.id}
+                      category={category}
+                      allProducts={data.allProducts}
+                      ratings={data.ratings}
+                    />
+                  ))}
+              </div>
+            )}
+          </DataProvider>
+          <Footer />
+        </div>
       </div>
-    </div>
+    </>
   );
 }

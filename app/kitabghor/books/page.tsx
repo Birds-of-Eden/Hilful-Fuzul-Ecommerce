@@ -260,9 +260,9 @@ const AllBooksPage = memo(function AllBooksPage() {
               <div className="flex flex-col sm:flex-row justify-between items-start sm:items-center gap-3 mb-6 md:mb-8 px-4">
                 <div className="text-[#5FA3A3] text-sm sm:text-base">
                   <span className="font-semibold text-[#0E4B4B] mr-1">
-                    {filteredProducts.length} 
+                    {filteredProducts.length}
                   </span>
-                   টি বই পাওয়া গেছে
+                  টি বই পাওয়া গেছে
                 </div>
                 {searchTerm && (
                   <Button
@@ -352,25 +352,23 @@ const AllBooksPage = memo(function AllBooksPage() {
 
                         {/* Book Image */}
                         <Link href={`/kitabghor/books/${book.id}`}>
-                          <div className="relative h-48 sm:h-56 md:h-64 lg:h-72 w-full overflow-hidden">
-                            <Image
-                              src={book.image || "/placeholder.svg"}
-                              alt={book.name}
-                              fill
-                              className="object-cover transition-transform duration-700 group-hover:scale-110"
-                              sizes="(max-width: 480px) 100vw, (max-width: 768px) 50vw, (max-width: 1200px) 33vw, 25vw"
-                              loading="lazy"
-                              placeholder="blur"
-                              blurDataURL="data:image/jpeg;base64,/9j/4AAQSkZJRgABAQAAAQABAAD/2wBDAAYEBQYFBAYGBQYHBwYIChAKCgkJChQODwwQFxQYGBcUFhYaHSUfGhsjHBYWICwgIyYnKSopGR8tMC0oMCUoKSj/2wBDAQcHBwoIChMKChMoGhYaKCgoKCgoKCgoKCgoKCgoKCgoKCgoKCgoKCgoKCgoKCgoKCgoKCgoKCgoKCgoKCgoKCj/wAARCAABAAEDASIAAhEBAxEB/8QAFQABAQAAAAAAAAAAAAAAAAAAAAv/xAAUEAEAAAAAAAAAAAAAAAAAAAAA/8QAFQEBAQAAAAAAAAAAAAAAAAAAAAX/xAAUEQEAAAAAAAAAAAAAAAAAAAAA/9oADAMBAAIRAxEAPwCdABmX/9k="
-                              onError={(e) => {
-                                const target = e.target as HTMLImageElement;
-                                target.src = "/placeholder.svg";
-                              }}
-                            />
-                            <div className="absolute inset-0 bg-gradient-to-t from-black/20 via-transparent to-transparent opacity-0 group-hover:opacity-100 transition-opacity duration-300" />
+                          <div className="relative w-full overflow-hidden bg-white p-4">
+                            <div className="relative aspect-[3/4] w-full">
+                              <Image
+                                src={book.image || "/placeholder.svg"}
+                                alt={book.name}
+                                fill
+                                className="object-contain transition-transform duration-700 group-hover:scale-105"
+                                sizes="(max-width: 768px) 100vw, (max-width: 1200px) 50vw, 25vw"
+                              />
+                            </div>
+                            {/* Overlay */}
+                            <div className="absolute inset-0 bg-gradient-to-t from-black/10 via-transparent to-transparent opacity-0 group-hover:opacity-100 transition-opacity duration-300" />
+
+                            {/* Quick View */}
                             <div className="absolute inset-0 flex items-center justify-center opacity-0 group-hover:opacity-100 transition-all duration-300">
-                              <div className="bg-white/90 backdrop-blur-sm rounded-full p-2 sm:p-3 transform translate-y-4 group-hover:translate-y-0 transition-transform duration-300">
-                                <BookOpen className="h-4 w-4 sm:h-6 sm:w-6 text-[#0E4B4B]" />
+                              <div className="bg-white/90 backdrop-blur-sm rounded-full p-3 transform translate-y-4 group-hover:translate-y-0 transition-transform duration-300">
+                                <BookOpen className="h-6 w-6 text-[#0E4B4B]" />
                               </div>
                             </div>
                           </div>

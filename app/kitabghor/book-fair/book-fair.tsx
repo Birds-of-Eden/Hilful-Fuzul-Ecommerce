@@ -1,13 +1,29 @@
 "use client";
 
-import { useEffect, useState, useMemo, useCallback, memo, Suspense } from "react";
+import {
+  useEffect,
+  useState,
+  useMemo,
+  useCallback,
+  memo,
+  Suspense,
+} from "react";
 import dynamic from "next/dynamic";
 import Image from "next/image";
 import Link from "next/link";
 import { Button } from "@/components/ui/button";
 import { Card, CardContent, CardFooter } from "@/components/ui/card";
 import { Skeleton } from "@/components/ui/skeleton";
-import { Filter, Calendar, BookOpen, ArrowRight, Zap, Sparkles, Gift, Clock } from "lucide-react";
+import {
+  Filter,
+  Calendar,
+  BookOpen,
+  ArrowRight,
+  Zap,
+  Sparkles,
+  Gift,
+  Clock,
+} from "lucide-react";
 
 // ====== API Types (তোমার দেওয়া API অনুযায়ী) ======
 interface CategoryApi {
@@ -67,7 +83,9 @@ const BookFairPage = memo(function BookFairPage() {
     productsByCategory: Record<number, Book[]>;
     allProducts: Book[];
   } | null>(null);
-  const [selectedCategoryId, setSelectedCategoryId] = useState<number | null>(null);
+  const [selectedCategoryId, setSelectedCategoryId] = useState<number | null>(
+    null
+  );
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState<string | null>(null);
 
@@ -88,7 +106,7 @@ const BookFairPage = memo(function BookFairPage() {
           method: "GET",
           headers: { "Content-Type": "application/json" },
           cache: "force-cache",
-          next: { revalidate: 300 } // Cache for 5 minutes
+          next: { revalidate: 300 }, // Cache for 5 minutes
         });
 
         if (!catRes.ok) {
@@ -110,7 +128,7 @@ const BookFairPage = memo(function BookFairPage() {
                 method: "GET",
                 headers: { "Content-Type": "application/json" },
                 cache: "force-cache",
-                next: { revalidate: 300 }
+                next: { revalidate: 300 },
               });
 
               if (!r.ok) return null;
@@ -163,7 +181,7 @@ const BookFairPage = memo(function BookFairPage() {
         setFairData({
           categories: catList,
           productsByCategory: productsByCat,
-          allProducts: Array.from(allBooksMap.values())
+          allProducts: Array.from(allBooksMap.values()),
         });
       } catch (err) {
         console.error("Error loading book fair data:", err);
@@ -179,7 +197,7 @@ const BookFairPage = memo(function BookFairPage() {
   // 🔹 Memoized filtered books
   const filteredBooks = useMemo(() => {
     if (!fairData) return [];
-    
+
     return selectedCategoryId === null
       ? fairData.allProducts
       : fairData.productsByCategory[selectedCategoryId] || [];
@@ -187,7 +205,7 @@ const BookFairPage = memo(function BookFairPage() {
 
   // 🔹 Memoized category data
   const fairCategories = useMemo(() => fairData?.categories || [], [fairData]);
-  
+
   const selectedCategory = useMemo(() => {
     if (!selectedCategoryId || !fairData) return null;
     return fairData.categories.find((c) => c.id === selectedCategoryId) ?? null;
@@ -208,7 +226,7 @@ const BookFairPage = memo(function BookFairPage() {
             <div className="absolute top-0 left-1/4 w-32 h-32 bg-gradient-to-r from-emerald-400/20 to-teal-400/20 rounded-full blur-3xl"></div>
             <div className="absolute top-0 right-1/4 w-40 h-40 bg-gradient-to-r from-teal-400/20 to-emerald-400/20 rounded-full blur-3xl"></div>
           </div>
-          
+
           <div className="relative z-10">
             <div className="flex items-center justify-center gap-3 mb-6">
               <div className="w-3 h-16 bg-gradient-to-b from-emerald-600 to-teal-600 rounded-full shadow-lg"></div>
@@ -220,7 +238,7 @@ const BookFairPage = memo(function BookFairPage() {
               </div>
               <div className="w-3 h-16 bg-gradient-to-b from-teal-600 to-emerald-600 rounded-full shadow-lg"></div>
             </div>
-            
+
             <p className="text-gray-600 text-xl max-w-3xl mx-auto mb-8 leading-relaxed">
               বিশেষ বইমেলা অফার! সীমিত সময়ের জন্য বিশেষ মূল্যে বই কিনুন
             </p>
@@ -234,12 +252,10 @@ const BookFairPage = memo(function BookFairPage() {
                 </span>
                 <Gift className="h-6 w-6 animate-bounce" />
               </div>
-              
+
               <div className="inline-flex items-center gap-2 bg-gradient-to-r from-amber-500 to-orange-500 text-white px-6 py-3 rounded-full shadow-lg">
                 <Clock className="h-5 w-5" />
-                <span className="font-semibold">
-                  অফার শেষ হতে আরও কিছুক্ষণ
-                </span>
+                <span className="font-semibold">অফার শেষ হতে আরও কিছুক্ষণ</span>
               </div>
             </div>
           </div>
@@ -259,7 +275,9 @@ const BookFairPage = memo(function BookFairPage() {
                     <h2 className="text-2xl font-bold bg-gradient-to-r from-emerald-600 to-teal-600 bg-clip-text text-transparent">
                       কওমী পাঠ্য কিতাব
                     </h2>
-                    <p className="text-sm text-gray-600">ক্যাটাগরি অনুযায়ী বই দেখুন</p>
+                    <p className="text-sm text-gray-600">
+                      ক্যাটাগরি অনুযায়ী বই দেখুন
+                    </p>
                   </div>
                 </div>
 
@@ -276,9 +294,13 @@ const BookFairPage = memo(function BookFairPage() {
                     disabled={loading || !!error}
                   >
                     <div className="flex items-center gap-3">
-                      <div className={`w-2 h-2 rounded-full ${
-                        selectedCategoryId === null ? "bg-white" : "bg-emerald-600"
-                      }`}></div>
+                      <div
+                        className={`w-2 h-2 rounded-full ${
+                          selectedCategoryId === null
+                            ? "bg-white"
+                            : "bg-emerald-600"
+                        }`}
+                      ></div>
                       <span className="font-bold text-base">সকল বই</span>
                     </div>
                     <div
@@ -304,9 +326,13 @@ const BookFairPage = memo(function BookFairPage() {
                       disabled={loading || !!error}
                     >
                       <div className="flex items-center gap-3">
-                        <div className={`w-2 h-2 rounded-full ${
-                          selectedCategoryId === category.id ? "bg-white" : "bg-emerald-600"
-                        }`}></div>
+                        <div
+                          className={`w-2 h-2 rounded-full ${
+                            selectedCategoryId === category.id
+                              ? "bg-white"
+                              : "bg-emerald-600"
+                          }`}
+                        ></div>
                         <span className="font-bold text-sm group-hover:translate-x-2 transition-transform duration-300">
                           {category.name}
                         </span>
@@ -335,19 +361,27 @@ const BookFairPage = memo(function BookFairPage() {
                   <div className="space-y-3">
                     <div className="flex items-center gap-3 p-3 bg-white/50 rounded-xl">
                       <Gift className="h-5 w-5 text-emerald-600 flex-shrink-0" />
-                      <span className="text-sm font-medium text-gray-700">বিশেষ মূল্যে সকল বই</span>
+                      <span className="text-sm font-medium text-gray-700">
+                        বিশেষ মূল্যে সকল বই
+                      </span>
                     </div>
                     <div className="flex items-center gap-3 p-3 bg-white/50 rounded-xl">
                       <Sparkles className="h-5 w-5 text-emerald-600 flex-shrink-0" />
-                      <span className="text-sm font-medium text-gray-700">হোম ডেলিভারি</span>
+                      <span className="text-sm font-medium text-gray-700">
+                        হোম ডেলিভারি
+                      </span>
                     </div>
                     <div className="flex items-center gap-3 p-3 bg-white/50 rounded-xl">
                       <Zap className="h-5 w-5 text-emerald-600 flex-shrink-0" />
-                      <span className="text-sm font-medium text-gray-700">এক্সক্লুসিভ অফার</span>
+                      <span className="text-sm font-medium text-gray-700">
+                        এক্সক্লুসিভ অফার
+                      </span>
                     </div>
                     <div className="flex items-center gap-3 p-3 bg-white/50 rounded-xl">
                       <Clock className="h-5 w-5 text-emerald-600 flex-shrink-0" />
-                      <span className="text-sm font-medium text-gray-700">সীমিত সময়ের জন্য</span>
+                      <span className="text-sm font-medium text-gray-700">
+                        সীমিত সময়ের জন্য
+                      </span>
                     </div>
                   </div>
                 </div>
@@ -439,28 +473,27 @@ const BookFairPage = memo(function BookFairPage() {
                       </div>
                     </div>
 
-                    {/* Enhanced Book Image */}
+                    {/* Book Image */}
                     <Link href={`/kitabghor/books/${book.id}`}>
-                      <div className="relative h-56 sm:h-64 w-full overflow-hidden">
-                        <div className="absolute inset-0 bg-gradient-to-br from-emerald-600/10 to-teal-600/10 opacity-0 group-hover:opacity-100 transition-opacity duration-500"></div>
-                        <Image
-                          src={book.image}
-                          alt={book.name}
-                          fill
-                          className="object-cover transition-all duration-700 group-hover:scale-110 group-hover:rotate-1"
-                          sizes="(max-width: 768px) 100vw, (max-width: 1200px) 50vw, 33vw"
-                          loading="lazy"
-                          placeholder="blur"
-                          blurDataURL="data:image/jpeg;base64,/9j/4AAQSkZJRgABAQAAAQABAAD/2wBDAAYEBQYFBAYGBQYHBwYIChAKCgkJChQODwwQFxQYGBcUFhYaHSUfGhsjHBYWICwgIyYnKSopGR8tMC0oMCUoKSj/2wBDAQcHBwoIChMKChMoGhYaKCgoKCgoKCgoKCgoKCgoKCgoKCgoKCgoKCgoKCgoKCgoKCgoKCgoKCgoKCgoKCgoKCj/wAARCAABAAEDASIAAhEBAxEB/8QAFQABAQAAAAAAAAAAAAAAAAAAAAv/xAAUEAEAAAAAAAAAAAAAAAAAAAAA/8QAFQEBAQAAAAAAAAAAAAAAAAAAAAX/xAAUEQEAAAAAAAAAAAAAAAAAAAAA/9oADAMBAAIRAxEAPwCdABmX/9k="
-                          onError={(e) => {
-                            const target = e.target as HTMLImageElement;
-                            target.src = "/placeholder.svg";
-                          }}
-                        />
-                        {/* Enhanced Overlay */}
-                        <div className="absolute inset-0 bg-gradient-to-t from-black/30 via-transparent to-transparent opacity-0 group-hover:opacity-100 transition-all duration-500" />
-                        {/* Hover glow effect */}
-                        <div className="absolute inset-0 bg-gradient-to-r from-emerald-600/20 to-teal-600/20 opacity-0 group-hover:opacity-30 transition-all duration-700 blur-xl"></div>
+                      <div className="relative w-full overflow-hidden bg-white p-4">
+                        <div className="relative aspect-[3/4] w-full">
+                          <Image
+                            src={book.image || "/placeholder.svg"}
+                            alt={book.name}
+                            fill
+                            className="object-contain transition-transform duration-700 group-hover:scale-105"
+                            sizes="(max-width: 768px) 100vw, (max-width: 1200px) 50vw, 25vw"
+                          />
+                        </div>
+                        {/* Overlay */}
+                        <div className="absolute inset-0 bg-gradient-to-t from-black/10 via-transparent to-transparent opacity-0 group-hover:opacity-100 transition-opacity duration-300" />
+
+                        {/* Quick View */}
+                        <div className="absolute inset-0 flex items-center justify-center opacity-0 group-hover:opacity-100 transition-all duration-300">
+                          <div className="bg-white/90 backdrop-blur-sm rounded-full p-3 transform translate-y-4 group-hover:translate-y-0 transition-transform duration-300">
+                            <BookOpen className="h-6 w-6 text-[#0E4B4B]" />
+                          </div>
+                        </div>
                       </div>
                     </Link>
 
@@ -490,7 +523,7 @@ const BookFairPage = memo(function BookFairPage() {
                             </span>
                           )}
                         </div>
-                        
+
                         {book.stock === 0 ? (
                           <div className="text-xs font-semibold bg-rose-600 text-white px-2 py-1 rounded-full">
                             Stock Out
@@ -510,7 +543,7 @@ const BookFairPage = memo(function BookFairPage() {
                         href={`/kitabghor/books/${book.id}`}
                         className="w-full"
                       >
-                        <Button 
+                        <Button
                           disabled={book.stock === 0}
                           className={`w-full rounded-2xl py-4 sm:py-5 font-bold shadow-xl hover:shadow-2xl transition-all duration-300 hover:scale-105 group/btn text-base ${
                             book.stock === 0
@@ -520,7 +553,9 @@ const BookFairPage = memo(function BookFairPage() {
                         >
                           <BookOpen className="mr-3 h-5 w-5 group-hover/btn:scale-110 transition-transform" />
                           {book.stock === 0 ? "স্টক শেষ" : "বিস্তারিত দেখুন"}
-                          {book.stock !== 0 && <ArrowRight className="ml-2 h-4 w-4 group-hover/btn:translate-x-1 transition-transform" />}
+                          {book.stock !== 0 && (
+                            <ArrowRight className="ml-2 h-4 w-4 group-hover/btn:translate-x-1 transition-transform" />
+                          )}
                         </Button>
                       </Link>
                     </CardFooter>
@@ -554,7 +589,7 @@ const BookFairPage = memo(function BookFairPage() {
   );
 });
 
-BookFairPage.displayName = 'BookFairPage';
+BookFairPage.displayName = "BookFairPage";
 
 export default function BookFair() {
   return (

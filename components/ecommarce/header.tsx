@@ -268,7 +268,7 @@ export default function Header() {
           <Link href="/" className="flex items-center space-x-3 group">
             <div className="w-8 h-8 bg-gradient-to-br from-[#0E4B4B] to-[#5FA3A3] rounded-md flex items-center justify-center">
               <Image
-                src="/logo_hf.png"
+                src="/logo.png"
                 alt="Hilful Fuzul Logo"
                 width={32}
                 height={32}

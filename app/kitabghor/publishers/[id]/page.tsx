@@ -6,7 +6,7 @@ import Link from "next/link";
 import Image from "next/image";
 import { Button } from "@/components/ui/button";
 import { Card, CardContent, CardFooter } from "@/components/ui/card";
-import { Heart, ShoppingCart } from "lucide-react";
+import { BookOpen, Heart, ShoppingCart } from "lucide-react";
 import { useCart } from "@/components/ecommarce/CartContext";
 import { useWishlist } from "@/components/ecommarce/WishlistContext";
 import { toast } from "sonner";
@@ -297,17 +297,27 @@ export default function PublisherBooksPage() {
                 />
               </button>
 
+                  {/* Book Image */}
               <Link href={`/kitabghor/books/${book.id}`}>
-                <div className="relative h-48 sm:h-56 md:h-64 w-full overflow-hidden">
-                  <Image
-                    src={book.image || "/placeholder.svg"}
-                    alt={book.name}
-                    fill
-                    className="object-cover transition-transform duration-700 group-hover:scale-110"
-                    sizes="(max-width: 768px) 100vw, (max-width: 1200px) 50vw, 25vw"
-                  />
+                <div className="relative w-full overflow-hidden bg-white p-4">
+                  <div className="relative aspect-[3/4] w-full">
+                    <Image
+                      src={book.image || "/placeholder.svg"}
+                      alt={book.name}
+                      fill
+                      className="object-contain transition-transform duration-700 group-hover:scale-105"
+                      sizes="(max-width: 768px) 100vw, (max-width: 1200px) 50vw, 25vw"
+                    />
+                  </div>
                   {/* Overlay */}
-                  <div className="absolute inset-0 bg-gradient-to-t from-black/20 via-transparent to-transparent opacity-0 group-hover:opacity-100 transition-opacity duration-300" />
+                  <div className="absolute inset-0 bg-gradient-to-t from-black/10 via-transparent to-transparent opacity-0 group-hover:opacity-100 transition-opacity duration-300" />
+
+                  {/* Quick View */}
+                  <div className="absolute inset-0 flex items-center justify-center opacity-0 group-hover:opacity-100 transition-all duration-300">
+                    <div className="bg-white/90 backdrop-blur-sm rounded-full p-3 transform translate-y-4 group-hover:translate-y-0 transition-transform duration-300">
+                      <BookOpen className="h-6 w-6 text-[#0E4B4B]" />
+                    </div>
+                  </div>
                 </div>
               </Link>
               <CardContent className="p-4 sm:p-5">

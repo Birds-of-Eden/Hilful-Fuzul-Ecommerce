@@ -17,7 +17,7 @@ const BookCardSkeleton = () => (
     <div className="relative h-72 w-full bg-gray-200 animate-pulse">
       <div className="absolute inset-0 bg-gradient-to-t from-gray-300/20 to-transparent"></div>
     </div>
-    
+
     {/* Skeleton Content */}
     <div className="p-5">
       {/* Skeleton Rating */}
@@ -203,11 +203,12 @@ export default function CategoryBooks({
             ? products
             : products.filter(
                 (product: Product) =>
-                  product.category && String(product.category.id) === String(category.id)
+                  product.category &&
+                  String(product.category.id) === String(category.id)
               );
 
         const displayBooks = categoryBooks.slice(0, 8);
-        
+
         const ids = Array.from(
           new Set(
             displayBooks
@@ -268,19 +269,23 @@ export default function CategoryBooks({
     if (product.deleted || product.available === false) {
       return false;
     }
-    
+
     // If we're not filtering by a specific category, just check for required relations
     if (category.id === "all") {
-      return product.category !== null && 
-             product.writer !== null && 
-             product.publisher !== null;
+      return (
+        product.category !== null &&
+        product.writer !== null &&
+        product.publisher !== null
+      );
     }
-    
+
     // If filtering by a specific category, check category match and required relations
-    return product.category !== null && 
-           String(product.category.id) === String(category.id) &&
-           product.writer !== null && 
-           product.publisher !== null;
+    return (
+      product.category !== null &&
+      String(product.category.id) === String(category.id) &&
+      product.writer !== null &&
+      product.publisher !== null
+    );
   });
 
   const displayBooks = categoryBooks.slice(0, 8);
@@ -391,7 +396,7 @@ export default function CategoryBooks({
       <div className="mb-16">
         {/* Skeleton Header */}
         <CategoryHeaderSkeleton />
-        
+
         {/* Skeleton Books Grid */}
         <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-8">
           {[1, 2, 3, 4, 5, 6, 7, 8].map((index) => (
@@ -491,16 +496,18 @@ export default function CategoryBooks({
 
               {/* Book Image */}
               <Link href={`/kitabghor/books/${book.id}`}>
-                <div className="relative h-72 w-full overflow-hidden">
-                  <Image
-                    src={book.image || "/placeholder.svg"}
-                    alt={book.name}
-                    fill
-                    className="object-cover transition-transform duration-700 group-hover:scale-110"
-                    sizes="(max-width: 768px) 100vw, (max-width: 1200px) 50vw, 25vw"
-                  />
+                <div className="relative w-full overflow-hidden bg-white p-4">
+                  <div className="relative aspect-[3/4] w-full">
+                    <Image
+                      src={book.image || "/placeholder.svg"}
+                      alt={book.name}
+                      fill
+                      className="object-contain transition-transform duration-700 group-hover:scale-105"
+                      sizes="(max-width: 768px) 100vw, (max-width: 1200px) 50vw, 25vw"
+                    />
+                  </div>
                   {/* Overlay */}
-                  <div className="absolute inset-0 bg-gradient-to-t from-black/20 via-transparent to-transparent opacity-0 group-hover:opacity-100 transition-opacity duration-300" />
+                  <div className="absolute inset-0 bg-gradient-to-t from-black/10 via-transparent to-transparent opacity-0 group-hover:opacity-100 transition-opacity duration-300" />
 
                   {/* Quick View */}
                   <div className="absolute inset-0 flex items-center justify-center opacity-0 group-hover:opacity-100 transition-all duration-300">
@@ -510,7 +517,7 @@ export default function CategoryBooks({
                   </div>
                 </div>
               </Link>
-
+              
               <CardContent className="p-5">
                 {/* Rating */}
                 <div className="flex items-center gap-1 mb-3 min-h-[20px]">
@@ -549,7 +556,7 @@ export default function CategoryBooks({
                 {/* Author */}
                 <p className="text-sm text-[#5FA3A3] mb-3 flex items-center">
                   <span className="w-1 h-1 bg-[#0E4B4B] rounded-full mr-2"></span>
-                  {book.writer?.name || 'Unknown Author'}
+                  {book.writer?.name || "Unknown Author"}
                 </p>
 
                 {/* Price */}
