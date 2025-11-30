@@ -1,6 +1,5 @@
 "use client";
 
-import { useCallback, useEffect, useState } from "react";
 import Link from "next/link";
 import Image from "next/image";
 import { Button } from "@/components/ui/button";
@@ -14,196 +13,45 @@ import {
   Filter,
   BookText,
 } from "lucide-react";
-import { useCart } from "@/components/ecommarce/CartContext";
-import { useWishlist } from "@/components/ecommarce/WishlistContext";
-import { toast } from "sonner";
 
 interface CategoryPageProps {
-  params: {
-    id: string;
-  };
-}
-
-type Writer = {
-  id: number;
-  name: string;
-};
-
-type Book = {
-  id: number;
-  name: string;
-  image: string | null;
-  price: number;
-  original_price?: number | null;
-  discount: number;
-  writer: Writer;
-  stock?: number;
-};
-
-type Category = {
-  id: number;
-  name: string;
-};
-
-interface RatingInfo {
-  averageRating: number;
-  totalReviews: number;
-}
-
-export default function CategoryPage({ params }: CategoryPageProps) {
-  const { addToCart } = useCart();
-  const { addToWishlist, removeFromWishlist, isInWishlist } = useWishlist();
-
-  const [category, setCategory] = useState<Category | null>(null);
-  const [categoryBooks, setCategoryBooks] = useState<Book[]>([]);
-  const [categoryCount, setCategoryCount] = useState<number | null>(null);
-  const [loading, setLoading] = useState(true);
-  const [error, setError] = useState<string | null>(null);
-  const [ratings, setRatings] = useState<Record<string, RatingInfo>>({});
-
-  // ✅ Load single category + books + ratings (optimized)
-  useEffect(() => {
-    const fetchCategoryData = async () => {
-      try {
-        setLoading(true);
-        setError(null);
-
-        // 1) category + products
-        const res = await fetch(`/api/categories/${params.id}`, {
-          cache: "no-store",
-        });
-        if (!res.ok) {
-          if (res.status === 404) {
-            setCategory(null);
-            setCategoryBooks([]);
-            setError("বিভাগ পাওয়া যায়নি");
-            return;
-          }
-          throw new Error("Failed to fetch category");
-        }
-
-        const data: { category: Category; products: Book[] } = await res.json();
-        setCategory(data.category);
-        setCategoryBooks(data.products);
-
-        // 2) সব ক্যাটাগরি কাউন্ট (header info) - with caching
-        const resAll = await fetch("/api/categories", {
-          cache: "force-cache", // Cache this as it doesn't change often
-          next: { revalidate: 300 }, // Revalidate every 5 minutes
-        });
-        if (resAll.ok) {
-          const allCats: Category[] = await resAll.json();
-          setCategoryCount(allCats.length);
-        }
-
-        // 3) এই ক্যাটাগরির বইগুলোর রেটিং লোড (batch API)
-        const ids = Array.from(
-          new Set(
-            data.products
-              .map((b) => Number(b.id))
-              .filter((id) => !!id && !Number.isNaN(id))
-          )
-        );
-
-        if (ids.length > 0) {
-          try {
-            const batchRes = await fetch("/api/reviews/batch", {
-              method: "POST",
-              headers: {
-                "Content-Type": "application/json",
-              },
-              body: JSON.stringify({ productIds: ids }),
-              cache: "no-store",
-            });
-
-            if (batchRes.ok) {
-              const batchData = await batchRes.json();
-              if (batchData.success) {
-                setRatings(batchData.data);
-              } else {
-                setRatings({});
-              }
-            } else {
-              setRatings({});
-            }
-          } catch (err) {
-            console.error("Error fetching batch ratings:", err);
-            setRatings({});
-          }
-        } else {
-          setRatings({});
-        }
-      } catch (err) {
-        console.error(err);
-        setError("ডাটা লোড করতে সমস্যা হচ্ছে");
-      } finally {
-        setLoading(false);
-      }
+  category: {
+    id: number;
+    name: string;
+  } | null;
+  categoryBooks: Array<{
+    id: number;
+    name: string;
+    image: string | null;
+    price: number;
+    original_price?: number | null;
+    discount: number;
+    writer: {
+      id: number;
+      name: string;
     };
+    stock?: number;
+  }>;
+  categoryCount: number | null;
+  loading: boolean;
+  error: string | null;
+  ratings: Record<string, { averageRating: number; totalReviews: number }>;
+  toggleWishlist: (bookId: number) => void;
+  handleAddToCart: (book: any) => void;
+  isInWishlist: (bookId: number) => boolean;
+}
 
-    fetchCategoryData();
-  }, [params.id]);
-
-  // শুধু badge গুলোর জন্য deterministic enhancement
-  const getBookWithEnhancements = useCallback(
-    (book: Book, index: number) => ({
-      ...book,
-      isBestseller: index % 3 === 0,
-      isNew: index % 4 === 0,
-    }),
-    []
-  );
-
-  const toggleWishlist = useCallback(
-    (bookId: number) => {
-      if (isInWishlist(bookId)) {
-        removeFromWishlist(bookId);
-        toast.success("উইশলিস্ট থেকে সরানো হয়েছে");
-      } else {
-        addToWishlist(bookId);
-        toast.success("উইশলিস্টে যোগ করা হয়েছে");
-      }
-    },
-    [isInWishlist, removeFromWishlist, addToWishlist]
-  );
-
-  // ✅ এখানে /api/cart + local cart দুটোই ব্যবহার করছি
-  const handleAddToCart = useCallback(
-    async (book: Book) => {
-      try {
-        // ১) server-side cart এ যোগ করার চেষ্টা (login থাকলে সফল হবে)
-        const res = await fetch("/api/cart", {
-          method: "POST",
-          headers: {
-            "Content-Type": "application/json",
-          },
-          body: JSON.stringify({
-            productId: book.id,
-            quantity: 1,
-          }),
-        });
-
-        // 401 মানে user লগইন না, তখন error দেখাবো না।
-        if (!res.ok && res.status !== 401) {
-          const data = await res.json().catch(() => null);
-          const message = data?.error || "কার্টে যোগ করতে সমস্যা হয়েছে";
-          throw new Error(message);
-        }
-
-        // ২) সবসময় local cart context update হবে (login থাকুক/না থাকুক)
-        addToCart(book.id, 1);
-
-        toast.success(`"${book.name}" কার্টে যোগ করা হয়েছে`);
-      } catch (err) {
-        console.error("Error adding to cart:", err);
-        toast.error(
-          err instanceof Error ? err.message : "কার্টে যোগ করতে সমস্যা হয়েছে"
-        );
-      }
-    },
-    [addToCart]
-  );
-
+export default function CategoryPage({ 
+  category, 
+  categoryBooks, 
+  categoryCount, 
+  loading, 
+  error, 
+  ratings,
+  toggleWishlist,
+  handleAddToCart,
+  isInWishlist
+}: CategoryPageProps) {
   // ✅ Loading state
   if (loading) {
     return (
@@ -318,7 +166,11 @@ export default function CategoryPage({ params }: CategoryPageProps) {
         ) : (
           <div className="grid grid-cols-1 xs:grid-cols-2 sm:grid-cols-2 lg:grid-cols-3 xl:grid-cols-4 gap-6">
             {categoryBooks.map((book, index) => {
-              const enhancedBook = getBookWithEnhancements(book, index);
+              const enhancedBook = {
+                ...book,
+                isBestseller: index % 3 === 0,
+                isNew: index % 4 === 0,
+              };
               const isWishlisted = isInWishlist(book.id);
 
               const ratingInfo = ratings[String(book.id)];

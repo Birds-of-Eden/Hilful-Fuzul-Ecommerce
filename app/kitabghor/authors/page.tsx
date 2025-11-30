@@ -1,6 +1,6 @@
 "use client";
 
-import { useState, useEffect, useRef } from "react";
+import { useState, useEffect, useRef, useMemo, useCallback } from "react";
 import Link from "next/link";
 import Image from "next/image";
 import { Card, CardContent } from "@/components/ui/card";
@@ -37,6 +37,7 @@ export default function AuthorCategoriesPage() {
       }
     }, 10000); // 10 seconds timeout
 
+    // Memoized fetch function
     const fetchWriters = async () => {
       try {
         console.log('Fetching writers...');
@@ -93,13 +94,68 @@ export default function AuthorCategoriesPage() {
     };
   }, []);
 
-  // ⏳ Loader state
+  // Memoized authors data
+  const memoizedAuthors = useMemo(() => {
+    return authors.map((author, index) => {
+      const authoredBooksCount =
+        author.bookCount ??
+        author.productCount ??
+        author._count?.products ??
+        0;
+
+      // Generate different background colors for variety
+      const colorVariants = [
+        "from-[#0E4B4B] to-[#5FA3A3]",
+        "from-[#5FA3A3] to-[#0E4B4B]",
+        "from-[#0E4B4B] to-[#C0704D]",
+        "from-[#5FA3A3] to-[#A85D3F]",
+      ];
+      const colorVariant = colorVariants[index % colorVariants.length];
+
+      return {
+        ...author,
+        authoredBooksCount,
+        colorVariant,
+      };
+    });
+  }, [authors]);
+
+  // ⏳ Skeleton Loader state
   if (loading) {
     return (
-      <div className="min-h-screen bg-gradient-to-b from-[#F4F8F7]/30 to-white flex items-center justify-center">
-        <div className="text-center">
-          <Users className="h-10 w-10 text-[#0E4B4B] mx-auto mb-3 animate-pulse" />
-          <p className="text-[#5FA3A3] text-lg">লেখকদের ডাটা লোড হচ্ছে...</p>
+      <div className="min-h-screen bg-gradient-to-b from-[#F4F8F7]/30 to-white py-8 md:py-12 lg:py-16">
+        <div className="container mx-auto px-4 sm:px-6 lg:px-8">
+          {/* Skeleton Header */}
+          <div className="text-center mb-12 md:mb-16">
+            <div className="flex items-center justify-center gap-3 mb-4">
+              <div className="w-2 h-12 bg-gradient-to-b from-[#0E4B4B] to-[#5FA3A3] rounded-full animate-pulse"></div>
+              <div className="h-10 w-48 bg-gray-200 rounded-lg animate-pulse"></div>
+              <div className="h-10 w-10 bg-gray-200 rounded-full animate-pulse"></div>
+            </div>
+            <div className="h-6 w-96 bg-gray-200 rounded-lg mx-auto animate-pulse"></div>
+          </div>
+
+          {/* Skeleton Grid */}
+          <div className="grid grid-cols-1 xs:grid-cols-2 sm:grid-cols-2 lg:grid-cols-3 xl:grid-cols-4 gap-6 md:gap-8">
+            {[...Array(8)].map((_, index) => (
+              <div key={index} className="h-full border-0 bg-gradient-to-br from-white to-[#F4F8F7] shadow-lg rounded-2xl overflow-hidden">
+                <div className="p-6 md:p-8 text-center flex flex-col items-center justify-center h-full">
+                  {/* Skeleton Avatar */}
+                  <div className="relative mb-4 md:mb-6">
+                    <div className="w-20 h-20 md:w-24 md:h-24 rounded-xl bg-gray-200 animate-pulse"></div>
+                    <div className="absolute -bottom-2 -right-2 w-8 h-6 bg-gray-200 rounded-full animate-pulse"></div>
+                    <div className="absolute -top-2 -left-2 w-6 h-6 bg-gray-200 rounded-full animate-pulse"></div>
+                  </div>
+                  {/* Skeleton Name */}
+                  <div className="h-6 w-32 bg-gray-200 rounded-lg mb-2 animate-pulse"></div>
+                  {/* Skeleton Book Count */}
+                  <div className="h-4 w-24 bg-gray-200 rounded-lg mb-4 animate-pulse"></div>
+                  {/* Skeleton Button */}
+                  <div className="h-4 w-20 bg-gray-200 rounded-lg animate-pulse"></div>
+                </div>
+              </div>
+            ))}
+          </div>
         </div>
       </div>
     );
@@ -141,21 +197,7 @@ export default function AuthorCategoriesPage() {
 
         {/* Authors Grid */}
         <div className="grid grid-cols-1 xs:grid-cols-2 sm:grid-cols-2 lg:grid-cols-3 xl:grid-cols-4 gap-6 md:gap-8">
-          {authors.map((author, index) => {
-            const authoredBooksCount =
-              author.bookCount ??
-              author.productCount ??
-              author._count?.products ??
-              0;
-
-            // Generate different background colors for variety
-            const colorVariants = [
-              "from-[#0E4B4B] to-[#5FA3A3]",
-              "from-[#5FA3A3] to-[#0E4B4B]",
-              "from-[#0E4B4B] to-[#C0704D]",
-              "from-[#5FA3A3] to-[#A85D3F]",
-            ];
-            const colorVariant = colorVariants[index % colorVariants.length];
+          {memoizedAuthors.map((author) => {
 
             return (
               <Link
@@ -178,7 +220,7 @@ export default function AuthorCategoriesPage() {
                     <div className="relative mb-4 md:mb-6">
                       {/* Background Gradient Ring */}
                       <div
-                        className={`absolute -inset-2 bg-gradient-to-br ${colorVariant} rounded-full opacity-20 group-hover:opacity-30 transition-opacity duration-300`}
+                        className={`absolute -inset-2 bg-gradient-to-br ${author.colorVariant} rounded-full opacity-20 group-hover:opacity-30 transition-opacity duration-300`}
                       ></div>
 
                       {/* Main Avatar */}
@@ -206,10 +248,10 @@ export default function AuthorCategoriesPage() {
 
                       {/* Book Count Badge */}
                       <div
-                        className={`absolute -bottom-2 -right-2 bg-gradient-to-r ${colorVariant} text-white text-xs font-bold px-3 py-1 rounded-full shadow-lg flex items-center gap-1`}
+                        className={`absolute -bottom-2 -right-2 bg-gradient-to-r ${author.colorVariant} text-white text-xs font-bold px-3 py-1 rounded-full shadow-lg flex items-center gap-1`}
                       >
                         <BookOpen className="h-3 w-3" />
-                        <span>{authoredBooksCount}</span>
+                        <span>{author.authoredBooksCount}</span>
                       </div>
 
                       {/* Pen Icon Decoration */}
@@ -226,7 +268,7 @@ export default function AuthorCategoriesPage() {
                     {/* Book Count Text */}
                     <p className="text-sm text-[#5FA3A3] mb-4 flex items-center gap-2">
                       <BookOpen className="h-4 w-4 text-[#0E4B4B]" />
-                      <span>মোট {authoredBooksCount} টি বই</span>
+                      <span>মোট {author.authoredBooksCount} টি বই</span>
                     </p>
 
                     {/* CTA Button */}
@@ -240,14 +282,14 @@ export default function AuthorCategoriesPage() {
                   </CardContent>
 
                   {/* Popular Author Badge */}
-                  {authoredBooksCount >= 5 && (
+                  {author.authoredBooksCount >= 5 && (
                     <div className="absolute top-4 right-4 bg-gradient-to-r from-[#C0704D] to-[#A85D3F] text-white text-xs font-bold px-2 py-1 rounded-full shadow-lg z-20">
                       জনপ্রিয়
                     </div>
                   )}
 
                   {/* New Author Badge */}
-                  {authoredBooksCount <= 2 && (
+                  {author.authoredBooksCount <= 2 && (
                     <div className="absolute top-4 right-4 bg-gradient-to-r from-[#5FA3A3] to-[#0E4B4B] text-white text-xs font-bold px-2 py-1 rounded-full shadow-lg z-20">
                       নতুন
                     </div>

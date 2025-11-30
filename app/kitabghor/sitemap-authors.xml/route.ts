@@ -1,7 +1,7 @@
 import { NextResponse } from "next/server";
 
 export async function GET() {
-  const res = await fetch("https://hilfulfujulbd.com/api/authors", {
+  const res = await fetch("https://hilfulfujulbd.com/api/writers", {
     next: { revalidate: 3600 },
   });
   const authors = await res.json();

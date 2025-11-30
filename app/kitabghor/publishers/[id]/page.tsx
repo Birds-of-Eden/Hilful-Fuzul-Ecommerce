@@ -1,6 +1,6 @@
 "use client";
 
-import { useEffect, useState } from "react";
+import { useEffect, useState, useMemo, useCallback, useRef } from "react";
 import { useParams } from "next/navigation";
 import Link from "next/link";
 import Image from "next/image";
@@ -47,15 +47,30 @@ export default function PublisherBooksPage() {
   const [booksByPublisher, setBooksByPublisher] = useState<BookFromApi[]>([]);
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState<string | null>(null);
+  const isMounted = useRef(true);
 
   // 🔹 API থেকে publisher + তার সব বই লোড
   useEffect(() => {
+    const abortController = new AbortController();
+    const signal = abortController.signal;
+    isMounted.current = true;
+
     if (!publisherId || Number.isNaN(publisherId)) {
       setError("ভুল প্রকাশক আইডি প্রদান করা হয়েছে।");
       setLoading(false);
       return;
     }
 
+    // Add timeout to prevent infinite loading
+    const timeoutId = setTimeout(() => {
+      if (isMounted.current && loading) {
+        console.error('Request timeout - taking too long to fetch publisher data');
+        setError("লোড হতে অনেক সময় লাগছে। দয়া করে পুনরায় চেষ্টা করুন।");
+        setLoading(false);
+      }
+    }, 10000); // 10 seconds timeout
+
+    // Memoized fetch function
     const fetchData = async () => {
       try {
         setLoading(true);
@@ -68,6 +83,7 @@ export default function PublisherBooksPage() {
             "Content-Type": "application/json",
           },
           cache: "no-store",
+          signal,
         });
 
         const publisherData = await resPublisher.json().catch(() => null);
@@ -92,7 +108,7 @@ export default function PublisherBooksPage() {
         setPublisher(publisherData as PublisherFromApi);
 
         // 2) সব প্রোডাক্ট নিয়ে আসি, তারপর publisherId দিয়ে filter করি
-        const resProducts = await fetch("/api/products", { cache: "no-store" });
+        const resProducts = await fetch("/api/products", { cache: "no-store", signal });
 
         if (!resProducts.ok) {
           console.error("Failed to fetch products:", resProducts.statusText);
@@ -116,20 +132,31 @@ export default function PublisherBooksPage() {
         );
 
         setBooksByPublisher(filtered);
-      } catch (err) {
+      } catch (err: any) {
+        if (!isMounted.current || err.name === 'AbortError') return;
         console.error("Error fetching publisher/books:", err);
         setError("ডাটা লোড করতে সমস্যা হয়েছে।");
         setPublisher(null);
         setBooksByPublisher([]);
       } finally {
-        setLoading(false);
+        clearTimeout(timeoutId);
+        if (isMounted.current) {
+          setLoading(false);
+        }
       }
     };
 
     fetchData();
-  }, [publisherId]);
 
-  const toggleWishlist = (bookId: number) => {
+    return () => {
+      isMounted.current = false;
+      abortController.abort();
+      clearTimeout(timeoutId);
+    };
+  }, [publisherId, loading]);
+
+  // Memoized toggle wishlist function
+  const toggleWishlist = useCallback((bookId: number) => {
     if (isInWishlist(bookId)) {
       removeFromWishlist(bookId);
       toast.success("উইশলিস্ট থেকে সরানো হয়েছে");
@@ -137,19 +164,83 @@ export default function PublisherBooksPage() {
       addToWishlist(bookId);
       toast.success("উইশলিস্টে যোগ করা হয়েছে");
     }
-  };
+  }, [isInWishlist, removeFromWishlist, addToWishlist]);
 
-  const handleAddToCart = (book: BookFromApi) => {
+  // Memoized add to cart function
+  const handleAddToCart = useCallback((book: BookFromApi) => {
     // শুধু context এ যোগ হচ্ছে (guest + logged-in দুই কেসেই কাজ করবে)
     addToCart(book.id);
     toast.success(`"${book.name}" কার্টে যোগ করা হয়েছে`);
-  };
+  }, [addToCart]);
 
-  // 🔹 লোডিং স্টেট
+  // Memoized books data with computed properties
+  const memoizedBooks = useMemo(() => {
+    return booksByPublisher.map((book) => ({
+      ...book,
+      isInWishlist: isInWishlist(book.id),
+      hasDiscount: book.discount > 0,
+      isOutOfStock: book.stock === 0,
+      displayPrice: `৳${book.price}`,
+      displayOriginalPrice: book.original_price ? `৳${book.original_price}` : null,
+    }));
+  }, [booksByPublisher, isInWishlist]);
+
+  // ⏳ Enhanced Skeleton Loader state
   if (loading) {
     return (
-      <div className="min-h-screen bg-gradient-to-b from-[#F4F8F7]/30 to-white py-16 flex items-center justify-center">
-        <p className="text-[#5FA3A3]">প্রকাশকের তথ্য লোড হচ্ছে...</p>
+      <div className="min-h-screen bg-gradient-to-b from-[#F4F8F7]/30 to-white py-8 md:py-12 lg:py-16">
+        <div className="container mx-auto px-4 sm:px-6 lg:px-8">
+          {/* Skeleton Header */}
+          <div className="mb-8 md:mb-12">
+            <div className="flex items-center gap-4 mb-6">
+              <div className="h-6 w-24 bg-gray-200 rounded-lg animate-pulse"></div>
+              <div className="w-1 h-8 bg-gradient-to-b from-[#0E4B4B] to-[#5FA3A3] rounded-full"></div>
+            </div>
+            <div className="bg-gradient-to-r from-[#0E4B4B] to-[#5FA3A3] rounded-2xl p-6 md:p-8">
+              <div className="h-8 w-96 bg-white/20 rounded-lg animate-pulse mb-2"></div>
+              <div className="h-4 w-64 bg-white/10 rounded-lg animate-pulse"></div>
+            </div>
+          </div>
+
+          {/* Skeleton Grid */}
+          <div className="grid grid-cols-1 xs:grid-cols-2 sm:grid-cols-2 lg:grid-cols-3 xl:grid-cols-4 gap-6">
+            {[...Array(8)].map((_, index) => (
+              <div key={index} className="group overflow-hidden border-0 bg-gradient-to-br from-white to-[#F4F8F7] shadow-lg rounded-2xl">
+                {/* Skeleton Badges */}
+                <div className="absolute top-3 left-3 z-10">
+                  <div className="w-16 h-6 bg-gray-200 rounded-full animate-pulse"></div>
+                </div>
+                {/* Skeleton Wishlist Button */}
+                <div className="absolute top-3 right-3 z-10">
+                  <div className="w-10 h-10 bg-white/80 rounded-full animate-pulse"></div>
+                </div>
+                {/* Skeleton Book Image */}
+                <div className="relative w-full overflow-hidden bg-white p-4">
+                  <div className="relative aspect-[3/4] w-full bg-gray-200 animate-pulse"></div>
+                </div>
+                <div className="p-4 sm:p-5">
+                  {/* Skeleton Book Name */}
+                  <div className="h-6 w-full bg-gray-200 rounded-lg animate-pulse mb-2"></div>
+                  <div className="h-6 w-3/4 bg-gray-200 rounded-lg animate-pulse mb-3"></div>
+                  {/* Skeleton Author */}
+                  <div className="h-4 w-32 bg-gray-200 rounded-lg animate-pulse mb-3"></div>
+                  {/* Skeleton Price */}
+                  <div className="flex items-center justify-between mb-3">
+                    <div className="flex items-baseline gap-2">
+                      <div className="h-6 w-16 bg-gray-200 rounded-lg animate-pulse"></div>
+                      <div className="h-4 w-12 bg-gray-200 rounded-lg animate-pulse"></div>
+                    </div>
+                    <div className="h-6 w-20 bg-gray-200 rounded-lg animate-pulse"></div>
+                  </div>
+                </div>
+                {/* Skeleton Button */}
+                <div className="p-4 sm:p-5 pt-0">
+                  <div className="w-full h-12 bg-gray-200 rounded-xl animate-pulse"></div>
+                </div>
+              </div>
+            ))}
+          </div>
+        </div>
       </div>
     );
   }
@@ -255,7 +346,7 @@ export default function PublisherBooksPage() {
           </div>
           <div className="bg-gradient-to-r from-[#0E4B4B] to-[#5FA3A3] rounded-2xl p-6 md:p-8 text-white">
             <h1 className="text-2xl md:text-3xl lg:text-4xl font-bold mb-2">
-              প্রকাশক: {publisher.name} — {booksByPublisher.length} টি বই
+              প্রকাশক: {publisher.name} — {memoizedBooks.length} টি বই
             </h1>
             <p className="text-white/90 opacity-90">
               এই প্রকাশকের সকল বইয়ের সংগ্রহ
@@ -264,14 +355,14 @@ export default function PublisherBooksPage() {
         </div>
 
         <div className="grid grid-cols-1 xs:grid-cols-2 sm:grid-cols-2 lg:grid-cols-3 xl:grid-cols-4 gap-6">
-          {booksByPublisher.map((book) => (
+          {memoizedBooks.map((book) => (
             <Card
               key={book.id}
               className="group overflow-hidden border-0 bg-gradient-to-br from-white to-[#F4F8F7] shadow-lg hover:shadow-2xl transition-all duration-500 rounded-2xl relative"
             >
               {/* Badges */}
               <div className="absolute top-3 left-3 z-10 flex flex-col gap-2">
-                {book.discount > 0 && (
+                {book.hasDiscount && (
                   <div className="bg-gradient-to-r from-[#0E4B4B] to-[#5FA3A3] text-white text-xs font-bold px-3 py-1 rounded-full shadow-lg">
                     {book.discount}% ছাড়
                   </div>
@@ -282,7 +373,7 @@ export default function PublisherBooksPage() {
               <button
                 onClick={() => toggleWishlist(book.id)}
                 className={`absolute top-3 right-3 z-10 p-2 rounded-full backdrop-blur-sm transition-all duration-300 ${
-                  isInWishlist(book.id)
+                  book.isInWishlist
                     ? "bg-red-500/20 text-red-500"
                     : "bg-white/80 text-gray-500 hover:bg-red-500/20 hover:text-red-500"
                 }`}
@@ -290,7 +381,7 @@ export default function PublisherBooksPage() {
               >
                 <Heart
                   className={`h-5 w-5 transition-all ${
-                    isInWishlist(book.id)
+                    book.isInWishlist
                       ? "scale-110 fill-current"
                       : "group-hover:scale-110"
                   }`}
@@ -333,20 +424,20 @@ export default function PublisherBooksPage() {
                 <div className="flex items-center justify-between mb-3">
                   <div className="flex items-baseline gap-2">
                     <span className="font-bold text-xl text-[#0E4B4B]">
-                      ৳{book.price}
+                      {book.displayPrice}
                     </span>
-                    {book.discount > 0 && book.original_price && (
+                    {book.hasDiscount && book.displayOriginalPrice && (
                       <span className="text-sm text-[#5FA3A3]/60 line-through">
-                        ৳{book.original_price}
+                        {book.displayOriginalPrice}
                       </span>
                     )}
                   </div>
-                  {book.stock === 0 ? (
+                  {book.isOutOfStock ? (
                     <div className="text-xs font-semibold bg-rose-600 text-white px-2 py-1 rounded-full">
                       Stock Out
                     </div>
                   ) : (
-                    book.discount > 0 && (
+                    book.hasDiscount && (
                       <div className="text-xs font-semibold bg-[#F4F8F7] text-[#0E4B4B] px-2 py-1 rounded-full border border-[#5FA3A3]/30">
                         সাশ্রয় করুন
                       </div>
@@ -356,16 +447,16 @@ export default function PublisherBooksPage() {
               </CardContent>
               <CardFooter className="p-4 sm:p-5 pt-0">
                 <Button
-                  disabled={book.stock === 0}
+                  disabled={book.isOutOfStock}
                   className={`w-full rounded-xl py-3 sm:py-4 font-semibold border-0 shadow-md hover:shadow-lg transition-all duration-300 hover:scale-105 group/btn ${
-                    book.stock === 0
+                    book.isOutOfStock
                       ? "bg-gray-400 cursor-not-allowed opacity-60"
                       : "bg-gradient-to-r from-[#187a7a] to-[#5b9b9b] hover:from-[#0E4B4B] hover:to-[#42a8a8] text-white"
                   }`}
                   onClick={() => handleAddToCart(book)}
                 >
                   <ShoppingCart className="mr-2 h-4 w-4 group-hover/btn:scale-110 transition-transform" />
-                  {book.stock === 0 ? "স্টক শেষ" : "কার্টে যোগ করুন"}
+                  {book.isOutOfStock ? "স্টক শেষ" : "কার্টে যোগ করুন"}
                 </Button>
               </CardFooter>
 
@@ -388,7 +479,7 @@ export default function PublisherBooksPage() {
           <div className="text-sm text-[#5FA3A3]">
             মোট{" "}
             <span className="font-semibold text-[#0E4B4B]">
-              {booksByPublisher.length}
+              {memoizedBooks.length}
             </span>{" "}
             টি বই
           </div>
