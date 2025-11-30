@@ -1,6 +1,6 @@
 "use client";
 
-import { useState, useCallback } from "react";
+import { useState, useCallback, useEffect } from "react";
 import { Card, CardContent } from "@/components/ui/card";
 import NewsletterManagement from "@/components/newsletter/NewsletterManager";
 import SubscriberManagement from "@/components/newsletter/SubscriberManagement";
@@ -21,13 +21,14 @@ export default function NewsletterPage() {
     }, 150);
   }, [activeTab]);
 
-  // Initial loading state
-  useState(() => {
+  // Initial loading state - moved to useEffect
+  useEffect(() => {
     const timer = setTimeout(() => {
       setLoading(false);
     }, 800);
+    
     return () => clearTimeout(timer);
-  });
+  }, []);
 
   if (loading) {
     return (

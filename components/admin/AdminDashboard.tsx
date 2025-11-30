@@ -1,6 +1,6 @@
 "use client";
 
-import { useState, useEffect } from "react";
+import { useState, useEffect, useMemo, useCallback } from "react";
 import Link from "next/link";
 import {
   Users,
@@ -49,6 +49,12 @@ interface DashboardStats {
   successRate: number;
 }
 
+interface SalesDataItem {
+  month: string;
+  sales: number;
+  revenue: number;
+}
+
 export default function GlassmorphismAdminDashboard() {
   const [stats, setStats] = useState<DashboardStats | null>(null);
   const [loading, setLoading] = useState(true);
@@ -56,14 +62,31 @@ export default function GlassmorphismAdminDashboard() {
     "today" | "week" | "month" | "year"
   >("today");
   const [activeChart, setActiveChart] = useState<"sales" | "revenue">("sales");
+  const [dashboardCache, setDashboardCache] = useState<Map<string, DashboardStats>>(new Map());
 
-  const fetchDashboardData = async () => {
+  // Memoize fetch function with caching
+  const fetchDashboardData = useCallback(async () => {
+    const cacheKey = timeRange;
+    
+    // Check cache first
+    if (dashboardCache.has(cacheKey)) {
+      const cachedData = dashboardCache.get(cacheKey);
+      if (cachedData) {
+        setStats(cachedData);
+        setLoading(false);
+        return;
+      }
+    }
+
     try {
       setLoading(true);
       const response = await fetch(`/api/admindashboard?range=${timeRange}`);
 
       if (response.ok) {
         const data = await response.json();
+        
+        // Update cache
+        setDashboardCache(prev => new Map(prev).set(cacheKey, data));
         setStats(data);
       }
     } catch (error) {
@@ -71,37 +94,35 @@ export default function GlassmorphismAdminDashboard() {
     } finally {
       setLoading(false);
     }
-  };
+  }, [timeRange, dashboardCache]);
 
   useEffect(() => {
     fetchDashboardData();
-  }, [timeRange]);
+  }, [fetchDashboardData]);
 
-  const formatCurrency = (amount: number) => {
+  // Memoize formatting functions to prevent unnecessary re-creations
+  const formatCurrency = useCallback((amount: number) => {
     return new Intl.NumberFormat("bn-BD", {
       style: "currency",
       currency: "BDT",
       minimumFractionDigits: 0,
     }).format(amount);
-  };
+  }, []);
 
-  const formatNumber = (num: number) => {
+  const formatNumber = useCallback((num: number) => {
     return new Intl.NumberFormat("bn-BD").format(num);
-  };
+  }, []);
 
-  const getStatusColor = (status: string) => {
+  const getStatusColor = useCallback((status: string) => {
     const colors = {
       DELIVERED: "bg-emerald-500/20 text-emerald-600 border-emerald-500/30",
       PROCESSING: "bg-blue-500/20 text-blue-600 border-blue-500/30",
       PENDING: "bg-amber-500/20 text-amber-600 border-amber-500/30",
       SHIPPED: "bg-indigo-500/20 text-indigo-600 border-indigo-500/30",
       CANCELLED: "bg-red-500/20 text-red-600 border-red-500/30",
-    };
-    return (
-      colors[status as keyof typeof colors] ||
-      "bg-gray-500/20 text-gray-600 border-gray-500/30"
-    );
-  };
+    } as const;
+    return colors[status as keyof typeof colors] || "bg-gray-500/20 text-gray-600 border-gray-500/30";
+  }, []);
 
   const getStatusText = (status: string) => {
     const texts = {
@@ -113,6 +134,118 @@ export default function GlassmorphismAdminDashboard() {
     };
     return texts[status as keyof typeof texts] || status;
   };
+
+  // Memoize expensive calculations - move all hooks to top before early returns
+  const salesData = useMemo((): SalesDataItem[] => {
+    if (!stats) return [];
+    
+    const totalOrders = stats.totalOrders || 0;
+    const totalRevenue = stats.totalRevenue || 0;
+
+    if (timeRange === "today") {
+      return [
+        {
+          month: "আজ",
+          sales: totalOrders,
+          revenue: totalRevenue,
+        },
+      ];
+    }
+
+    if (timeRange === "week") {
+      const labels = ["সোম", "মঙ্গল", "বুধ", "বৃহস্পতি", "শুক্র", "শনি", "রবি"];
+      const perDaySales = totalOrders / labels.length || 0;
+      const perDayRevenue = totalRevenue / labels.length || 0;
+      return labels.map((label, idx) => ({
+        month: label,
+        sales: Math.max(0, Math.round(perDaySales + (idx - 3) * 0.5)),
+        revenue: Math.max(0, Math.round(perDayRevenue + (idx - 3) * 500)),
+      }));
+    }
+
+    if (timeRange === "month") {
+      const now = new Date();
+      const daysInMonth = new Date(
+        now.getFullYear(),
+        now.getMonth() + 1,
+        0
+      ).getDate();
+      const perDaySales = totalOrders / daysInMonth || 0;
+      const perDayRevenue = totalRevenue / daysInMonth || 0;
+      return Array.from({ length: daysInMonth }, (_, i) => {
+        const day = i + 1;
+        return {
+          month: String(day),
+          sales: Math.max(0, Math.round(perDaySales)),
+          revenue: Math.max(0, Math.round(perDayRevenue)),
+        };
+      });
+    }
+
+    // year
+    const monthLabels = [
+      "জানু",
+      "ফেব্রু",
+      "মার্চ",
+      "এপ্রিল",
+      "মে",
+      "জুন",
+      "জুলা",
+      "আগস্ট",
+      "সেপ্টে",
+      "অক্টো",
+      "নভে",
+      "ডিসে",
+    ];
+    const perMonthSales = totalOrders / monthLabels.length || 0;
+    const perMonthRevenue = totalRevenue / monthLabels.length || 0;
+    return monthLabels.map((label, idx) => ({
+      month: label,
+      sales: Math.max(0, Math.round(perMonthSales + idx)),
+      revenue: Math.max(0, Math.round(perMonthRevenue + idx * 1000)),
+    }));
+  }, [stats?.totalOrders, stats?.totalRevenue, timeRange, stats]);
+
+  // Memoize category colors
+  const categoryColors = useMemo(() => [
+    "from-emerald-400 to-emerald-600",
+    "from-blue-400 to-blue-600",
+    "from-amber-400 to-amber-600",
+    "from-purple-400 to-purple-600",
+    "from-gray-400 to-gray-600",
+  ], []);
+
+  // Memoize time range buttons
+  const timeRangeButtons = useMemo(() => [
+    { value: "today", label: "আজ" },
+    { value: "week", label: "সপ্তাহ" },
+    { value: "month", label: "মাস" },
+    { value: "year", label: "বছর" },
+  ], []);
+
+  // Memoize expensive calculations
+  const totalSoldAcrossTop = useMemo(() => 
+    stats?.topProducts?.reduce(
+      (sum, p: any) => sum + (p.soldCount || 0),
+      0
+    ) || 0,
+    [stats?.topProducts]
+  );
+
+  const categoryData = useMemo(() => 
+    stats?.topProducts
+      ?.slice(0, 5)
+      .map((product: any, index: number) => ({
+        name: product.name,
+        value: product.soldCount || 0,
+        percentage: totalSoldAcrossTop > 0 
+          ? Math.round(((product.soldCount || 0) / totalSoldAcrossTop) * 100)
+          : 0,
+        color: categoryColors[index % categoryColors.length],
+      }))
+      .filter((item: any) => item.value > 0) || [],
+    [stats?.topProducts, totalSoldAcrossTop, categoryColors]
+  );
 
   if (loading && !stats) {
     return (
@@ -305,100 +438,6 @@ export default function GlassmorphismAdminDashboard() {
       </div>
     );
   }
-
-  // Real-time sales data for chart (shape adjusts with timeRange)
-  const salesData = (() => {
-    const totalOrders = stats.totalOrders || 0;
-    const totalRevenue = stats.totalRevenue || 0;
-
-    if (timeRange === "today") {
-      return [
-        {
-          month: "আজ",
-          sales: totalOrders,
-          revenue: totalRevenue,
-        },
-      ];
-    }
-
-    if (timeRange === "week") {
-      const labels = ["সোম", "মঙ্গল", "বুধ", "বৃহস্পতি", "শুক্র", "শনি", "রবি"];
-      const perDaySales = totalOrders / labels.length || 0;
-      const perDayRevenue = totalRevenue / labels.length || 0;
-      return labels.map((label, idx) => ({
-        month: label,
-        sales: Math.max(0, Math.round(perDaySales + (idx - 3) * 0.5)),
-        revenue: Math.max(0, Math.round(perDayRevenue + (idx - 3) * 500)),
-      }));
-    }
-
-    if (timeRange === "month") {
-      const now = new Date();
-      const daysInMonth = new Date(
-        now.getFullYear(),
-        now.getMonth() + 1,
-        0
-      ).getDate();
-      const perDaySales = totalOrders / daysInMonth || 0;
-      const perDayRevenue = totalRevenue / daysInMonth || 0;
-      return Array.from({ length: daysInMonth }, (_, i) => {
-        const day = i + 1;
-        return {
-          month: String(day),
-          sales: Math.max(0, Math.round(perDaySales)),
-          revenue: Math.max(0, Math.round(perDayRevenue)),
-        };
-      });
-    }
-
-    // year
-    const monthLabels = [
-      "জানু",
-      "ফেব্রু",
-      "মার্চ",
-      "এপ্রিল",
-      "মে",
-      "জুন",
-      "জুলা",
-      "আগস্ট",
-      "সেপ্টে",
-      "অক্টো",
-      "নভে",
-      "ডিসে",
-    ];
-    const perMonthSales = totalOrders / monthLabels.length || 0;
-    const perMonthRevenue = totalRevenue / monthLabels.length || 0;
-    return monthLabels.map((label, idx) => ({
-      month: label,
-      sales: Math.max(0, Math.round(perMonthSales + idx)),
-      revenue: Math.max(0, Math.round(perMonthRevenue + idx * 1000)),
-    }));
-  })();
-
-  // Real-time category data based on top selling products (no mock values)
-  const categoryColors = [
-    "from-emerald-400 to-emerald-600",
-    "from-blue-400 to-blue-600",
-    "from-amber-400 to-amber-600",
-    "from-purple-400 to-purple-600",
-    "from-gray-400 to-gray-600",
-  ];
-
-  const totalSoldAcrossTop = stats.topProducts.reduce(
-    (sum, p: any) => sum + (p.soldCount || 0),
-    0
-  );
-
-  const categoryData = stats.topProducts
-    .slice(0, 5)
-    .map((product: any, index) => ({
-      name: product.name,
-      value:
-        totalSoldAcrossTop > 0
-          ? Math.round(((product.soldCount || 0) / totalSoldAcrossTop) * 100)
-          : 0,
-      color: categoryColors[index % categoryColors.length],
-    }));
 
   const rangeTitleMap: Record<typeof timeRange, string> = {
     today: "আজকের কর্মক্ষমতা",
@@ -626,7 +665,7 @@ export default function GlassmorphismAdminDashboard() {
 
             {/* Bar Chart */}
             <div className="h-64 flex items-end justify-between space-x-2">
-              {salesData.map((item, index) => (
+              {salesData.map((item: SalesDataItem, index: number) => (
                 <div key={index} className="flex flex-col items-center flex-1">
                   <div
                     className={`w-full rounded-t-lg transition-all duration-500 ${

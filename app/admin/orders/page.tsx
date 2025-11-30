@@ -1,6 +1,6 @@
 "use client";
 
-import { useEffect, useMemo, useState } from "react";
+import { useEffect, useMemo, useState, useCallback } from "react";
 
 type OrderStatusType =
   | "PENDING"
@@ -75,6 +75,7 @@ const OrderManagement = () => {
   const [search, setSearch] = useState("");
   const [loading, setLoading] = useState(false);
   const [error, setError] = useState<string | null>(null);
+  const [ordersCache, setOrdersCache] = useState<Map<string, { orders: Order[], pagination: any }>>(new Map());
 
   // details modal states
   const [detailOpen, setDetailOpen] = useState(false);
@@ -106,35 +107,61 @@ const OrderManagement = () => {
 
   // ------------------- ORDER LIST -------------------
 
-  useEffect(() => {
-    const fetchOrders = async () => {
-      try {
-        setLoading(true);
-        setError(null);
+  // Memoize fetch function with caching
+  const fetchOrders = useCallback(async () => {
+    try {
+      setLoading(true);
+      setError(null);
 
-        let url = `/api/orders?page=${page}&limit=9`;
-        if (statusFilter !== "ALL") {
-          url += `&status=${statusFilter}`;
+      // Create cache key based on current filters and page
+      const cacheKey = JSON.stringify({
+        page,
+        statusFilter,
+        limit: 9
+      });
+
+      // Check cache first
+      if (ordersCache.has(cacheKey)) {
+        const cachedData = ordersCache.get(cacheKey);
+        if (cachedData) {
+          setOrders(cachedData.orders);
+          setPagination(cachedData.pagination);
+          setLoading(false);
+          return;
         }
-
-        const res = await fetch(url, { cache: "no-store" });
-        if (!res.ok) {
-          const data = await res.json().catch(() => ({}));
-          throw new Error(data?.error || "Something went wrong");
-        }
-
-        const data = await res.json();
-        setOrders(data.orders || []);
-        setPagination(data.pagination || null);
-      } catch (err: any) {
-        setError(err?.message || "Failed to load orders");
-      } finally {
-        setLoading(false);
       }
-    };
 
+      let url = `/api/orders?page=${page}&limit=9`;
+      if (statusFilter !== "ALL") {
+        url += `&status=${statusFilter}`;
+      }
+
+      const res = await fetch(url, { cache: "no-store" });
+      if (!res.ok) {
+        const data = await res.json().catch(() => ({}));
+        throw new Error(data?.error || "Something went wrong");
+      }
+
+      const data = await res.json();
+      
+      // Update cache
+      setOrdersCache(prev => new Map(prev).set(cacheKey, {
+        orders: data.orders || [],
+        pagination: data.pagination || null,
+      }));
+      
+      setOrders(data.orders || []);
+      setPagination(data.pagination || null);
+    } catch (err: any) {
+      setError(err?.message || "Failed to load orders");
+    } finally {
+      setLoading(false);
+    }
+  }, [page, statusFilter, ordersCache]);
+
+  useEffect(() => {
     fetchOrders();
-  }, [page, statusFilter]);
+  }, [fetchOrders]);
 
   const filteredOrders = useMemo(() => {
     if (!search) return orders;
@@ -161,7 +188,8 @@ const OrderManagement = () => {
 
   // ------------------- HELPERS -------------------
 
-  const statusBadgeClass = (status: string) => {
+  // Memoize badge functions to prevent unnecessary re-renders
+  const statusBadgeClass = useCallback((status: string) => {
     switch (status) {
       case "PENDING":
         return "bg-yellow-100 text-yellow-700";
@@ -176,15 +204,15 @@ const OrderManagement = () => {
       default:
         return "bg-gray-100 text-gray-700";
     }
-  };
+  }, []);
 
-  const paymentBadgeClass = (status: string) => {
+  const paymentBadgeClass = useCallback((status: string) => {
     return status === "PAID"
       ? "bg-emerald-100 text-emerald-700"
       : "bg-red-100 text-red-700";
-  };
+  }, []);
 
-  const shipmentBadgeClass = (status: ShipmentStatusType) => {
+  const shipmentBadgeClass = useCallback((status: ShipmentStatusType) => {
     switch (status) {
       case "PENDING":
         return "bg-yellow-100 text-yellow-700";
@@ -199,24 +227,47 @@ const OrderManagement = () => {
       default:
         return "bg-gray-100 text-gray-700";
     }
-  };
+  }, []);
 
-  const formatDate = (dateStr?: string | null) => {
-    if (!dateStr) return "-";
+  const formatDate = useCallback((dateStr?: string | null) => {
+    if (!dateStr) return "";
     const d = new Date(dateStr);
-    if (Number.isNaN(d.getTime())) return "-";
-    return d.toLocaleString("bn-BD", {
-      dateStyle: "medium",
-      timeStyle: "short",
+    return d.toLocaleDateString("en-US", {
+      year: "numeric",
+      month: "short",
+      day: "numeric",
     });
-  };
+  }, []);
 
   // ------------------- DETAILS MODAL LOGIC -------------------
 
-  const openDetails = (id: number) => {
+  // Memoize handler functions
+  const openDetails = useCallback((id: number) => {
     setSelectedOrderId(id);
     setDetailOpen(true);
-  };
+  }, []);
+
+  const handleCloseDetail = useCallback(() => {
+    setDetailOpen(false);
+    setSelectedOrderId(null);
+    setOrderDetail(null);
+    setShipment(null);
+    setDetailError(null);
+  }, []);
+
+  // Memoize state setters to prevent unnecessary re-renders
+  const handlePageChange = useCallback((newPage: number) => {
+    setPage(newPage);
+  }, []);
+
+  const handleStatusFilterChange = useCallback((newStatus: string) => {
+    setStatusFilter(newStatus);
+    setPage(1); // Reset to first page when filter changes
+  }, []);
+
+  const handleSearchChange = useCallback((newSearch: string) => {
+    setSearch(newSearch);
+  }, []);
 
   useEffect(() => {
     if (!detailOpen || !selectedOrderId) return;
@@ -294,16 +345,8 @@ const OrderManagement = () => {
     loadDetails();
   }, [detailOpen, selectedOrderId]);
 
-  const handleCloseDetail = () => {
-    setDetailOpen(false);
-    setSelectedOrderId(null);
-    setOrderDetail(null);
-    setShipment(null);
-    setDetailError(null);
-  };
-
   // ---- UNIFIED SAVE: ORDER + SHIPMENT ----
-  const handleSaveAll = async () => {
+  const handleSaveAll = useCallback(async () => {
     if (!orderDetail) return;
 
     try {
@@ -349,6 +392,9 @@ const OrderManagement = () => {
             : o
         )
       );
+
+      // Clear cache to force refresh on next load
+      setOrdersCache(new Map());
 
       // 2) Create / Update Shipment
       let savedShipment: Shipment | null = shipment;
@@ -456,7 +502,10 @@ const OrderManagement = () => {
     } finally {
       setSaving(false);
     }
-  };
+  }, [orderDetail, editOrderStatus, editPaymentStatus, editTransactionId, shipment, editCourier, editTrackingNumber, editShipmentStatus, editExpectedDate, editDeliveredDate]);
+
+  // Memoize pagination data
+  const memoizedPagination = useMemo(() => pagination, [pagination]);
 
   // ------------------- RENDER -------------------
 

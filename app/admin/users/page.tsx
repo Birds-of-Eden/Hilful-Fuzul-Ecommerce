@@ -1,6 +1,6 @@
 "use client";
 
-import { useState, useEffect } from "react";
+import { useState, useEffect, useMemo, useCallback } from "react";
 import UserTable from "@/components/admin/users/UserTable";
 import UserFilters from "@/components/admin/users/UserFilters";
 import Pagination from "@/components/admin/users/Pagination";
@@ -58,8 +58,29 @@ export default function AdminUsersPage() {
     password: "",
     addresses: [""],
   });
+  const [usersCache, setUsersCache] = useState<Map<string, { users: User[], pagination: PaginationInfo }>>(new Map());
 
-  const fetchUsers = async (showRefresh = false) => {
+  // Memoize fetch function with caching
+  const fetchUsers = useCallback(async (showRefresh = false) => {
+    // Create cache key based on current filters and pagination
+    const cacheKey = JSON.stringify({
+      page: pagination.page,
+      limit: pagination.limit,
+      search: filters.search,
+      role: filters.role,
+    });
+
+    // Check cache first (unless refreshing)
+    if (!showRefresh && usersCache.has(cacheKey)) {
+      const cachedData = usersCache.get(cacheKey);
+      if (cachedData) {
+        setUsers(cachedData.users);
+        setPagination(cachedData.pagination);
+        setError("");
+        return;
+      }
+    }
+
     try {
       if (showRefresh) {
         setRefreshing(true);
@@ -81,6 +102,13 @@ export default function AdminUsersPage() {
       }
 
       const data = await response.json();
+      
+      // Update cache
+      setUsersCache(prev => new Map(prev).set(cacheKey, {
+        users: data.users,
+        pagination: data.pagination,
+      }));
+      
       setUsers(data.users);
       setPagination(data.pagination);
       setError("");
@@ -95,34 +123,54 @@ export default function AdminUsersPage() {
       setLoading(false);
       setRefreshing(false);
     }
-  };
+  }, [pagination.page, pagination.limit, filters.search, filters.role, usersCache]);
 
   useEffect(() => {
     fetchUsers();
-  }, [pagination.page, pagination.limit, filters]);
+  }, [fetchUsers]);
 
-  const handlePageChange = (page: number) => {
+  // Memoize handler functions to prevent unnecessary re-renders
+  const handlePageChange = useCallback((page: number) => {
     setPagination((prev) => ({ ...prev, page }));
-  };
+  }, []);
 
-  const handleSearchChange = (search: string) => {
+  const handleSearchChange = useCallback((search: string) => {
     setFilters((prev) => ({ ...prev, search }));
-    setPagination((prev) => ({ ...prev, page: 1 }));
-  };
+    setPagination((prev) => ({ ...prev, page: 1 })); // Reset to first page
+  }, []);
 
-  const handleRoleChange = (role: string) => {
+  const handleRoleChange = useCallback((role: string) => {
     setFilters((prev) => ({ ...prev, role }));
-    setPagination((prev) => ({ ...prev, page: 1 }));
-  };
+    setPagination((prev) => ({ ...prev, page: 1 })); // Reset to first page
+  }, []);
 
-  const handleResetFilters = () => {
+  const handleRefresh = useCallback(() => {
+    fetchUsers(true);
+  }, [fetchUsers]);
+
+  const handleUserUpdate = useCallback((userId: string, updates: Partial<User>) => {
+    setUsers((prev) =>
+      prev.map((user) => (user.id === userId ? { ...user, ...updates } : user))
+    );
+  }, []);
+
+  const handleUserDelete = useCallback((userId: string) => {
+    setUsers((prev) => prev.filter((user) => user.id !== userId));
+    setPagination((prev) => ({ ...prev, total: prev.total - 1 }));
+  }, []);
+
+  const handleResetFilters = useCallback(() => {
     setFilters({ search: "", role: "" });
     setPagination((prev) => ({ ...prev, page: 1 }));
-  };
+  }, []);
 
-  const handleRefresh = () => {
-    fetchUsers(true);
-  };
+  // Memoize filtered users to prevent unnecessary re-calculations
+  const filteredUsers = useMemo(() => {
+    return users; // Users are already filtered on the server side
+  }, [users]);
+
+  // Memoize pagination data
+  const paginationData = useMemo(() => pagination, [pagination]);
 
   const handleCreateUser = async (e: React.FormEvent) => {
     e.preventDefault();
@@ -181,17 +229,6 @@ export default function AdminUsersPage() {
     } finally {
       setCreating(false);
     }
-  };
-
-  const handleUserUpdate = (userId: string, updates: Partial<User>) => {
-    setUsers((prev) =>
-      prev.map((user) => (user.id === userId ? { ...user, ...updates } : user))
-    );
-  };
-
-  const handleUserDelete = (userId: string) => {
-    setUsers((prev) => prev.filter((user) => user.id !== userId));
-    setPagination((prev) => ({ ...prev, total: prev.total - 1 }));
   };
 
   if (loading && users.length === 0) {
@@ -510,7 +547,7 @@ export default function AdminUsersPage() {
           ) : (
             <>
               <UserTable
-                users={users}
+                users={filteredUsers}
                 onUserUpdate={handleUserUpdate}
                 onUserDelete={handleUserDelete}
               />
@@ -519,8 +556,8 @@ export default function AdminUsersPage() {
               {pagination.totalPages > 1 && (
                 <div className="p-6 border-t border-[#D1D8BE] bg-[#EEEFE0] bg-opacity-50">
                   <Pagination
-                    currentPage={pagination.page}
-                    totalPages={pagination.totalPages}
+                    currentPage={paginationData.page}
+                    totalPages={paginationData.totalPages}
                     onPageChange={handlePageChange}
                   />
                 </div>
