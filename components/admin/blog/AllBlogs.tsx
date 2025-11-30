@@ -1,7 +1,7 @@
 // components/blog/BlogList.tsx
 "use client";
 
-import { useState, useEffect } from "react";
+import { useState, useEffect, useMemo, useCallback } from "react";
 import Link from "next/link";
 import { generateSlug } from "@/lib/utils";
 
@@ -72,14 +72,28 @@ export default function AllBlogs() {
   const [loading, setLoading] = useState(true);
   const [page, setPage] = useState(1);
   const [totalPages, setTotalPages] = useState(1);
-  // Note: Public blogs might not need search or pagination initially,
-  // but I'm keeping the logic for robustness.
+  const [cache, setCache] = useState<Map<string, Blog[]>>(new Map());
+  const [paginationCache, setPaginationCache] = useState<Map<number, { blogs: Blog[], totalPages: number }>>(new Map());
 
-  const fetchBlogs = async () => {
+  // Memoize the fetch function to prevent unnecessary re-creations
+  const fetchBlogs = useCallback(async (pageNum: number) => {
+    const cacheKey = `page-${pageNum}`;
+    
+    // Check cache first
+    if (cache.has(cacheKey)) {
+      const cachedData = paginationCache.get(pageNum);
+      if (cachedData) {
+        setBlogs(cachedData.blogs);
+        setTotalPages(cachedData.totalPages);
+        setLoading(false);
+        return;
+      }
+    }
+
     try {
       setLoading(true);
       const params = new URLSearchParams({
-        page: page.toString(),
+        page: pageNum.toString(),
         limit: "10", // Showing 10 blogs per page
       });
 
@@ -91,6 +105,10 @@ export default function AllBlogs() {
       const data = isJson ? await response.json() : null;
 
       if (response.ok && data?.blogs) {
+        // Update cache
+        setCache(prev => new Map(prev).set(cacheKey, data.blogs));
+        setPaginationCache(prev => new Map(prev).set(pageNum, { blogs: data.blogs, totalPages: data.pagination?.pages || 1 }));
+        
         setBlogs(data.blogs);
         setTotalPages(data.pagination?.pages || 1);
       }
@@ -100,11 +118,80 @@ export default function AllBlogs() {
     } finally {
       setLoading(false);
     }
-  };
+  }, [cache, paginationCache]);
+
+  // Memoize formatFacebookTime function to prevent re-creation
+  const formatFacebookTime = useMemo(() => (date: string | Date): string => {
+    const now = new Date();
+    const past = new Date(date);
+
+    const diffMs = now.getTime() - past.getTime();
+    const seconds = Math.floor(diffMs / 1000);
+    const minutes = Math.floor(seconds / 60);
+    const hours = Math.floor(minutes / 60);
+    const days = Math.floor(hours / 24);
+
+    // ---- Facebook Short Rules ----
+    if (seconds < 60) return "Just now";
+    if (minutes < 60) return `${minutes}m`;
+    if (hours < 24) return `${hours}h`;
+
+    // ---- Yesterday ----
+    if (days === 1) {
+      return `Yesterday at ${past.toLocaleTimeString("en-US", {
+        hour: "numeric",
+        minute: "2-digit",
+      })}`;
+    }
+
+    // ---- Same Year → March 12 at 3:45 PM ----
+    if (past.getFullYear() === now.getFullYear()) {
+      return past.toLocaleDateString("en-US", {
+        month: "long",
+        day: "numeric",
+      }) + 
+      " at " +
+      past.toLocaleTimeString("en-US", {
+        hour: "numeric",
+        minute: "2-digit",
+      });
+    }
+
+    // ---- Previous Years → March 12, 2022 at 3:45 PM ----
+    return past.toLocaleDateString("en-US", {
+      month: "long",
+      day: "numeric",
+      year: "numeric",
+    }) + 
+    " at " +
+    past.toLocaleTimeString("en-US", {
+      hour: "numeric",
+      minute: "2-digit",
+    });
+  }, []);
+
+  // Memoize blog items to prevent unnecessary re-renders
+  const blogItems = useMemo(() => {
+    return blogs.map((blog) => ({
+      ...blog,
+      href: `/kitabghor/blogs/${blog.slug || generateSlug(blog.title)}`,
+      formattedDate: formatFacebookTime(blog.createdAt),
+    }));
+  }, [blogs, formatFacebookTime]);
+
+  // Memoize pagination buttons
+  const paginationButtons = useMemo(() => {
+    if (totalPages <= 1) return null;
+    
+    return Array.from({ length: totalPages }, (_, i) => i + 1).map((pageNum) => ({
+      pageNum,
+      isActive: page === pageNum,
+    }));
+  }, [totalPages, page]);
 
   useEffect(() => {
-    fetchBlogs();
-  }, [page]);
+    fetchBlogs(page);
+  }, [page, fetchBlogs]);
 
   if (loading) {
     return (
@@ -169,10 +256,10 @@ export default function AllBlogs() {
   }
 
   return (
-    <div className="min-h-screen bg-gradient-to-br from-emerald-50/30 via-white to-teal-50/20 py-12 px-4 sm:px-6 lg:px-8">
+    <main className="min-h-screen bg-gradient-to-br from-emerald-50/30 via-white to-teal-50/20 py-12 px-4 sm:px-6 lg:px-8">
       <div className="max-w-7xl mx-auto">
         {/* Enhanced Header */}
-        <div className="text-center mb-12 relative">
+        <header className="text-center mb-12 relative">
           <div className="absolute inset-0 overflow-hidden pointer-events-none">
             <div className="absolute top-0 left-1/4 w-32 h-32 bg-gradient-to-r from-emerald-400/20 to-teal-400/20 rounded-full blur-3xl"></div>
             <div className="absolute top-0 right-1/4 w-40 h-40 bg-gradient-to-r from-teal-400/20 to-emerald-400/20 rounded-full blur-3xl"></div>
@@ -188,94 +275,107 @@ export default function AllBlogs() {
             </div>
             <div className="h-1 w-32 bg-gradient-to-r from-emerald-600 to-teal-600 rounded-full mx-auto"></div>
           </div>
-        </div>
+        </header>
 
         {/* Enhanced Blog Grid */}
-        <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-8">
-          {blogs.map((blog) => (
-            <Link
-              key={blog.id}
-              href={`/kitabghor/blogs/${blog.slug || generateSlug(blog.title)}`}
-              className="group block"
-            >
-              <div className="bg-white/80 backdrop-blur-sm rounded-3xl shadow-xl hover:shadow-2xl transition-all duration-500 overflow-hidden border border-emerald-200/30 hover:border-emerald-400/50 transform hover:scale-105 hover:-translate-y-2">
-                {/* Image Section */}
-                <div className="relative h-48 overflow-hidden">
-                  {blog.image ? (
-                    <>
-                      <img
-                        src={blog.image}
-                        alt={blog.title}
-                        className="w-full h-full object-cover transition-transform duration-700 group-hover:scale-110"
-                      />
-                      <div className="absolute inset-0 bg-gradient-to-t from-black/20 via-transparent to-transparent opacity-0 group-hover:opacity-100 transition-opacity duration-500"></div>
-                    </>
-                  ) : (
-                    <div className="w-full h-full bg-gradient-to-br from-emerald-100 to-teal-100 flex items-center justify-center">
-                      <div className="text-center">
-                        <div className="w-16 h-16 bg-white/50 rounded-full flex items-center justify-center mx-auto mb-3">
-                          <span className="text-2xl">📝</span>
+        <section aria-label="ব্লগ পোস্ট সমূহ">
+          <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-8">
+            {blogItems.map((blog) => (
+              <article
+                key={blog.id}
+                className="group block"
+              >
+                <Link
+                  href={blog.href}
+                  aria-label={`পড়ুন: ${blog.title}`}
+                >
+                  <div className="bg-white/80 backdrop-blur-sm rounded-3xl shadow-xl hover:shadow-2xl transition-all duration-500 overflow-hidden border border-emerald-200/30 hover:border-emerald-400/50 transform hover:scale-105 hover:-translate-y-2">
+                    {/* Image Section */}
+                    <div className="relative h-48 overflow-hidden">
+                      {blog.image ? (
+                        <>
+                          <img
+                            src={blog.image}
+                            alt={blog.title}
+                            className="w-full h-full object-cover transition-transform duration-700 group-hover:scale-110"
+                            loading="lazy"
+                          />
+                          <div className="absolute inset-0 bg-gradient-to-t from-black/20 via-transparent to-transparent opacity-0 group-hover:opacity-100 transition-opacity duration-500"></div>
+                        </>
+                      ) : (
+                        <div className="w-full h-full bg-gradient-to-br from-emerald-100 to-teal-100 flex items-center justify-center">
+                          <div className="text-center">
+                            <div className="w-16 h-16 bg-white/50 rounded-full flex items-center justify-center mx-auto mb-3">
+                              <span className="text-2xl">📝</span>
+                            </div>
+                            <span className="text-emerald-600 font-medium">No Image</span>
+                          </div>
                         </div>
-                        <span className="text-emerald-600 font-medium">No Image</span>
+                      )}
+                      
+                      {/* Blog Badge */}
+                      <div className="absolute top-4 right-4">
+                        <span className="bg-gradient-to-r from-emerald-600 to-teal-600 text-white text-xs font-bold px-3 py-1.5 rounded-full shadow-lg">
+                          ব্লগ
+                        </span>
                       </div>
                     </div>
-                  )}
-                  
-                  {/* Blog Badge */}
-                  <div className="absolute top-4 right-4">
-                    <div className="bg-gradient-to-r from-emerald-600 to-teal-600 text-white text-xs font-bold px-3 py-1.5 rounded-full shadow-lg">
-                      ব্লগ
-                    </div>
-                  </div>
-                </div>
 
-                {/* Content Section */}
-                <div className="p-6">
-                  <h2 className="text-xl sm:text-2xl font-bold text-gray-900 mb-3 hover:text-emerald-600 transition-colors duration-300 line-clamp-2 group-hover:translate-x-1 transform">
-                    {blog.title}
-                  </h2>
-                  <p className="text-gray-600 line-clamp-3 mb-4 leading-relaxed">
-                    {blog.summary}
-                  </p>
-
-                  {/* Enhanced Meta Info */}
-                  <div className="flex items-center justify-between pt-4 border-t border-emerald-100">
-                    <div className="flex items-center gap-2">
-                      <div className="w-2 h-2 bg-gradient-to-r from-emerald-600 to-teal-600 rounded-full"></div>
-                      <p className="text-sm font-medium text-emerald-600">
-                        {formatFacebookTime(blog.createdAt)}
+                    {/* Content Section */}
+                    <div className="p-6">
+                      <header>
+                        <h2 className="text-xl sm:text-2xl font-bold text-gray-900 mb-3 hover:text-emerald-600 transition-colors duration-300 line-clamp-2 group-hover:translate-x-1 transform">
+                          {blog.title}
+                        </h2>
+                      </header>
+                      <p className="text-gray-600 line-clamp-3 mb-4 leading-relaxed">
+                        {blog.summary}
                       </p>
-                    </div>
-                    <div className="text-emerald-600 group-hover:translate-x-1 transition-transform duration-300">
-                      <svg className="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                        <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M9 5l7 7-7 7" />
-                      </svg>
+
+                      {/* Enhanced Meta Info */}
+                      <footer className="flex items-center justify-between pt-4 border-t border-emerald-100">
+                        <div className="flex items-center gap-2">
+                          <div className="w-2 h-2 bg-gradient-to-r from-emerald-600 to-teal-600 rounded-full"></div>
+                          <time dateTime={new Date(blog.createdAt).toISOString()} className="text-sm font-medium text-emerald-600">
+                            {blog.formattedDate}
+                          </time>
+                        </div>
+                        <div className="text-emerald-600 group-hover:translate-x-1 transition-transform duration-300">
+                          <svg className="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24" aria-hidden="true">
+                            <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M9 5l7 7-7 7" />
+                          </svg>
+                        </div>
+                      </footer>
                     </div>
                   </div>
-                </div>
-              </div>
-            </Link>
-          ))}
-        </div>
+                </Link>
+              </article>
+            ))}
+          </div>
+        </section>
 
         {/* Enhanced Pagination */}
-        {totalPages > 1 && (
-          <div className="flex justify-center items-center mt-16 gap-4">
+        {paginationButtons && (
+          <nav aria-label="ব্লগ পৃষ্ঠা সমূহ" className="flex justify-center items-center mt-16 gap-4">
             <button
               onClick={() => setPage(page - 1)}
               disabled={page === 1}
+              aria-label="পূর্ববর্তী পৃষ্ঠা"
               className="px-6 py-3 bg-gradient-to-r from-emerald-600 to-teal-600 text-white font-medium rounded-2xl hover:from-emerald-700 hover:to-teal-700 disabled:opacity-50 disabled:cursor-not-allowed transition-all duration-300 hover:scale-105 shadow-lg hover:shadow-xl"
             >
               পূর্ববর্তী
             </button>
             
-            <div className="flex items-center gap-2">
-              {Array.from({ length: totalPages }, (_, i) => i + 1).map((pageNum) => (
+            <div className="flex items-center gap-2" role="list">
+              {paginationButtons.map(({ pageNum, isActive }) => (
                 <button
                   key={pageNum}
                   onClick={() => setPage(pageNum)}
+                  aria-label={`পৃষ্ঠা ${pageNum}`}
+                  aria-current={isActive ? "page" : undefined}
+                  role="listitem"
                   className={`w-10 h-10 rounded-full font-medium transition-all duration-300 ${
-                    page === pageNum
+                    isActive
                       ? "bg-gradient-to-r from-emerald-600 to-teal-600 text-white shadow-lg"
                       : "bg-white/80 text-gray-700 hover:bg-emerald-100 border border-emerald-200"
                   }`}
@@ -288,13 +388,14 @@ export default function AllBlogs() {
             <button
               onClick={() => setPage(page + 1)}
               disabled={page === totalPages}
+              aria-label="পরবর্তী পৃষ্ঠা"
               className="px-6 py-3 bg-gradient-to-r from-emerald-600 to-teal-600 text-white font-medium rounded-2xl hover:from-emerald-700 hover:to-teal-700 disabled:opacity-50 disabled:cursor-not-allowed transition-all duration-300 hover:scale-105 shadow-lg hover:shadow-xl"
             >
               পরবর্তী
             </button>
-          </div>
+          </nav>
         )}
       </div>
-    </div>
+    </main>
   );
 }

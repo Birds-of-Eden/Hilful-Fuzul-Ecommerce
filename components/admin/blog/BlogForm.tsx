@@ -11,6 +11,7 @@ import dynamic from "next/dynamic";
 import { Label } from "@/components/ui/label";
 import { Upload } from "lucide-react";
 import { toast } from "sonner";
+import { generateSlug } from "@/lib/utils";
 
 interface Blog {
   id: number;
@@ -51,6 +52,9 @@ export default function BlogForm({ blog, onSuccess }: BlogFormProps) {
     author: "",
     image: "",
   });
+
+  // Generate slug from title
+  const slug = generateSlug(formData.title);
 
   useEffect(() => {
     setIsClient(true);
@@ -193,7 +197,7 @@ const handleImageFileChange = async (e: ChangeEvent<HTMLInputElement>) => {
       <div className="bg-white rounded-lg shadow">
         <div className="p-6 border-b border-gray-200">
           <h2 className="text-xl font-semibold text-gray-800">
-            {blog ? "Edit Blog" : "Create New Blog"}
+            {blog ? "Edit Blog" : "Create New Blog "}
           </h2>
         </div>
 
@@ -215,6 +219,16 @@ const handleImageFileChange = async (e: ChangeEvent<HTMLInputElement>) => {
               className="w-full px-3 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-blue-500"
               placeholder="Enter blog title"
             />
+            
+            {/* Slug Preview */}
+            <div className="mt-2 p-3 bg-gray-50 rounded-lg border border-gray-200">
+              <div className="flex items-center gap-2">
+                <span className="text-sm font-medium text-gray-600">Slug:</span>
+              </div>
+              <p className="text-xs text-gray-500 mt-1">
+                URL: /kitabghor/blogs/{slug}
+              </p>
+            </div>
           </div>
 
           <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
