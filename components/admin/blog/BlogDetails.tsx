@@ -20,10 +20,6 @@ interface Blog {
   updatedAt: string | Date;
 }
 
-// ----------------------------------------------------------------
-// 💡 Add Placeholder for Google AdSense
-// Replace the content inside this component with your actual AdSense code (e.g., <ins class="adsbygoogle" ... />>)
-// ----------------------------------------------------------------
 const AdPlaceholder = ({
   title,
   widthClass,
@@ -54,6 +50,177 @@ const AdPlaceholder = ({
 );
 // ----------------------------------------------------------------
 
+// ============= UPDATED UTILITY FUNCTIONS =============
+
+/**
+ * Process and clean blog summary for professional display
+ */
+const processBlogSummary = (summary: string, maxLength: number = 300): string => {
+  if (!summary) return "";
+
+  // Remove HTML tags
+  let cleanText = summary.replace(/<[^>]*>/g, " ");
+
+  // Normalize whitespace
+  cleanText = cleanText.replace(/\s+/g, " ").trim();
+
+  // If summary is within limit, return as is
+  if (cleanText.length <= maxLength) {
+    return cleanText;
+  }
+
+  // Truncate at the last complete sentence within limit
+  const truncated = cleanText.substring(0, maxLength);
+  const lastPeriod = truncated.lastIndexOf("।");
+  const lastExclamation = truncated.lastIndexOf("!");
+  const lastQuestion = truncated.lastIndexOf("?");
+
+  const lastSentenceEnd = Math.max(lastPeriod, lastExclamation, lastQuestion);
+
+  if (lastSentenceEnd > maxLength * 0.7) {
+    return cleanText.substring(0, lastSentenceEnd + 1);
+  }
+
+  // Otherwise, truncate at last complete word
+  const lastSpace = truncated.lastIndexOf(" ");
+  return cleanText.substring(0, lastSpace) + "...";
+};
+
+/**
+ * Extract key points from summary for bullet display
+ */
+const extractKeyPoints = (summary: string): string[] => {
+  if (!summary) return [];
+
+  const cleanText = summary.replace(/<[^>]*>/g, " ").replace(/\s+/g, " ").trim();
+
+  // Split by Bengali and English sentence endings
+  const sentences = cleanText.split(/[।!?.]+/).filter((s) => s.trim().length > 10);
+
+  // Return first 3 meaningful sentences as key points
+  return sentences
+    .slice(0, 3)
+    .map((s) => s.trim())
+    .filter(Boolean);
+};
+
+/**
+ * Calculate reading time based on word count
+ */
+const calculateReadingTime = (text: string): number => {
+  const wordCount = text.split(/\s+/).length;
+  // Average reading speed: 200 words per minute for Bengali
+  return Math.ceil(wordCount / 200);
+};
+
+// ============= PROFESSIONAL SUMMARY COMPONENT =============
+
+interface ProfessionalSummaryProps {
+  summary: string;
+  content?: string;
+}
+
+const ProfessionalSummary: React.FC<ProfessionalSummaryProps> = ({
+  summary,
+  content = "",
+}) => {
+  const processedSummary = processBlogSummary(summary, 300);
+  const keyPoints = extractKeyPoints(summary);
+  const readingTime = calculateReadingTime(content || summary);
+
+  return (
+    <section className="mb-8 overflow-hidden rounded-2xl border-2 border-[#D1D8BE] bg-gradient-to-br from-[#F4F8F7] via-white to-[#EEEFE0] shadow-lg">
+      {/* Header with Icon */}
+      <div className="bg-gradient-to-r from-[#0E4B4B] to-[#086666] px-6 py-4">
+        <div className="flex items-center gap-3">
+          <div className="flex h-10 w-10 items-center justify-center rounded-full bg-white/20 backdrop-blur-sm">
+            <svg
+              className="h-5 w-5 text-white"
+              fill="none"
+              stroke="currentColor"
+              viewBox="0 0 24 24"
+            >
+              <path
+                strokeLinecap="round"
+                strokeLinejoin="round"
+                strokeWidth={2}
+                d="M9 12h6m-6 4h6m2 5H7a2 2 0 01-2-2V5a2 2 0 012-2h5.586a1 1 0 01.707.293l5.414 5.414a1 1 0 01.293.707V19a2 2 0 01-2 2z"
+              />
+            </svg>
+          </div>
+          <h2 className="text-xl font-bold text-white">সারমর্ম</h2>
+        </div>
+      </div>
+
+      {/* Main Summary Content */}
+      <div className="p-6 space-y-4">
+        {/* Primary Summary Text */}
+        <div className="relative">
+          <div className="absolute -left-2 top-0 h-full w-1 bg-gradient-to-b from-[#0E4B4B] to-[#086666] rounded-full"></div>
+          <p className="pl-4 text-base leading-relaxed text-[#0D1414]">
+            {processedSummary}
+          </p>
+        </div>
+
+        {/* Key Points Section (if available) */}
+        {keyPoints.length > 1 && (
+          <div className="mt-6 space-y-3">
+            <h3 className="flex items-center gap-2 text-sm font-semibold text-[#0E4B4B]">
+              <svg
+                className="h-4 w-4"
+                fill="currentColor"
+                viewBox="0 0 20 20"
+              >
+                <path
+                  fillRule="evenodd"
+                  d="M6 2a1 1 0 00-1 1v1H4a2 2 0 00-2 2v10a2 2 0 002 2h12a2 2 0 002-2V6a2 2 0 00-2-2h-1V3a1 1 0 10-2 0v1H7V3a1 1 0 00-1-1zm0 5a1 1 0 000 2h8a1 1 0 100-2H6z"
+                  clipRule="evenodd"
+                />
+              </svg>
+              মূল বিষয়সমূহ
+            </h3>
+            <ul className="space-y-2">
+              {keyPoints.map((point, index) => (
+                <li key={index} className="flex items-start gap-3">
+                  <span className="mt-1 flex h-6 w-6 flex-shrink-0 items-center justify-center rounded-full bg-gradient-to-br from-[#0E4B4B] to-[#086666] text-xs font-bold text-white shadow">
+                    {index + 1}
+                  </span>
+                  <span className="flex-1 pt-0.5 text-sm leading-relaxed text-[#2D4A3C]">
+                    {point}
+                  </span>
+                </li>
+              ))}
+            </ul>
+          </div>
+        )}
+
+        {/* Reading Time Estimate */}
+        <div className="mt-6 flex items-center gap-4 border-t border-[#D1D8BE] pt-4">
+          <div className="flex items-center gap-2 text-sm text-[#819A91]">
+            <svg
+              className="h-4 w-4"
+              fill="none"
+              stroke="currentColor"
+              viewBox="0 0 24 24"
+            >
+              <path
+                strokeLinecap="round"
+                strokeLinejoin="round"
+                strokeWidth={2}
+                d="M12 8v4l3 3m6-3a9 9 0 11-18 0 9 9 0 0118 0z"
+              />
+            </svg>
+            <span>পড়ার সময়: প্রায় {readingTime} মিনিট</span>
+          </div>
+        </div>
+      </div>
+
+      {/* Bottom Accent */}
+      <div className="h-1 bg-gradient-to-r from-[#0E4B4B] via-[#086666] to-[#0E4B4B]"></div>
+    </section>
+  );
+};
+
 export default function BlogDetails() {
   const router = useRouter();
   const params = useParams<{ slug: string }>();
@@ -66,45 +233,48 @@ export default function BlogDetails() {
   const [blogCache, setBlogCache] = useState<Map<string, Blog>>(new Map());
 
   // Memoize the fetch function to prevent unnecessary re-creations
-  const fetchBlogDetails = useCallback(async (slug: string) => {
-    // Check cache first
-    if (blogCache.has(slug)) {
-      const cachedBlog = blogCache.get(slug);
-      if (cachedBlog) {
-        setBlog(cachedBlog);
+  const fetchBlogDetails = useCallback(
+    async (slug: string) => {
+      // Check cache first
+      if (blogCache.has(slug)) {
+        const cachedBlog = blogCache.get(slug);
+        if (cachedBlog) {
+          setBlog(cachedBlog);
+          setLoading(false);
+          return;
+        }
+      }
+
+      try {
+        setLoading(true);
+        setError(null);
+
+        // First try to fetch by slug
+        let response = await fetch(`/api/blog/slug/${slug}`);
+
+        // If slug-based fetch fails (404), try ID-based fetch for backward compatibility
+        if (!response.ok) {
+          response = await fetch(`/api/blog/${slug}`);
+        }
+
+        if (!response.ok) {
+          throw new Error("Failed to fetch blog");
+        }
+
+        const data = await response.json();
+
+        // Update cache
+        setBlogCache((prev) => new Map(prev).set(slug, data));
+        setBlog(data);
+      } catch (err) {
+        console.error("Error fetching blog details:", err);
+        setError("Failed to load blog. Please try again later.");
+      } finally {
         setLoading(false);
-        return;
       }
-    }
-
-    try {
-      setLoading(true);
-      setError(null);
-
-      // First try to fetch by slug
-      let response = await fetch(`/api/blog/slug/${slug}`);
-
-      // If slug-based fetch fails (404), try ID-based fetch for backward compatibility
-      if (!response.ok) {
-        response = await fetch(`/api/blog/${slug}`);
-      }
-
-      if (!response.ok) {
-        throw new Error("Failed to fetch blog");
-      }
-
-      const data = await response.json();
-      
-      // Update cache
-      setBlogCache(prev => new Map(prev).set(slug, data));
-      setBlog(data);
-    } catch (err) {
-      console.error("Error fetching blog details:", err);
-      setError("Failed to load blog. Please try again later.");
-    } finally {
-      setLoading(false);
-    }
-  }, [blogCache]);
+    },
+    [blogCache]
+  );
 
   // Generate SEO metadata - memoized to prevent unnecessary recalculations
   const seoData = useMemo(() => {
@@ -690,31 +860,6 @@ export default function BlogDetails() {
                     </time>
                   </div>
                 </div>
-
-                {/* Summary */}
-                {blog.summary && (
-                  <section className="mb-8 p-6 bg-gradient-to-r from-[#F4F8F7]/50 to-[#EEEFE0]/50 rounded-2xl border border-[#D1D8BE]">
-                    <h2 className="text-lg font-semibold text-[#0D1414] mb-3 flex items-center gap-2">
-                      <svg
-                        className="w-5 h-5 text-[#0E4B4B]"
-                        fill="none"
-                        stroke="currentColor"
-                        viewBox="0 0 24 24"
-                      >
-                        <path
-                          strokeLinecap="round"
-                          strokeLinejoin="round"
-                          strokeWidth={2}
-                          d="M13 16h-1v-4h-1m1-4h.01M21 12a9 9 0 11-18 0 9 9 0 0118 0z"
-                        />
-                      </svg>
-                      সারমর্ম
-                    </h2>
-                    <p className="text-[#0D1414] leading-relaxed">
-                      {blog.summary}
-                    </p>
-                  </section>
-                )}
 
                 {/* Main Content */}
                 <section

@@ -26,7 +26,7 @@ export default function RelatedBooks({ books }: RelatedBooksProps) {
         {books.map((book) => (
           <Card key={book.id} className="overflow-hidden">
             <Link href={`/kitabghor/books/${book.id}`}>
-              <div className="relative h-48 w-full">
+              <div className="relative w-full aspect-[3/4] sm:aspect-[4/5] lg:aspect-[3/4] max-w-[500px] mx-auto rounded-xl overflow-hidden bg-gray-50 group">
                 <Image
                   src={book.image}
                   alt={book.name}
