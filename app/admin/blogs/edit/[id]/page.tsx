@@ -17,6 +17,7 @@ interface BlogData {
   date: Date;
   author: string;
   image: string;
+  ads?: string | null;
   createdAt: Date;
   updatedAt: Date;
 }

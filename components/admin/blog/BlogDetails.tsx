@@ -10,6 +10,7 @@ import { Calendar, Clock, User, ArrowLeft, BookOpen } from "lucide-react";
 import { Button } from "@/components/ui/button";
 import { Skeleton } from "@/components/ui/skeleton";
 import RecentBlogs from "./RecentBlogs";
+import { TopSellingBooks } from "@/components/ecommarce/TopSellingBooks";
 
 interface Blog {
   id: number;
@@ -20,6 +21,7 @@ interface Blog {
   author: string;
   date: string | Date;
   image?: string;
+  ads?: string | null;
   createdAt: string | Date;
   updatedAt: string | Date;
 }
@@ -488,85 +490,274 @@ export default function BlogDetails() {
     );
   }
 
-  // Main Layout with SEO
+  // Main Layout
   return (
-    <div className="container max-w-5xl px-4 py-8 mx-auto">
-      <Button
-        variant="outline"
-        size="sm"
-        onClick={() => router.back()}
-        className="mb-8 gap-2"
-      >
-        <ArrowLeft className="h-4 w-4" />
-        ব্লগে ফিরে যান
-      </Button>
-
-      <article className="space-y-8">
-        <header className="space-y-6">
-          <div className="space-y-2">
-            <h1 className="text-3xl font-bold tracking-tight sm:text-4xl md:text-5xl">
-              {blog.title}
-            </h1>
-            <div className="flex flex-wrap items-center gap-4 text-sm text-muted-foreground">
-              <div className="flex items-center gap-2">
-                <User className="h-4 w-4" />
-                <span>{blog.author}</span>
-              </div>
-              <div className="flex items-center gap-2">
-                <Calendar className="h-4 w-4" />
-                <time dateTime={new Date(blog.date).toISOString()}>
-                  {format(new Date(blog.date), "MMMM d, yyyy")}
-                </time>
-              </div>
-            </div>
-          </div>
-
-          {blog.image && (
-            <div className="relative aspect-video overflow-hidden rounded-xl border bg-muted">
-              {isImageLoading && (
-                <Skeleton className="absolute inset-0 w-full h-full" />
-              )}
-              <img
-                src={blog.image}
-                alt={blog.title}
-                className={`w-full h-full object-cover transition-opacity duration-300 ${
-                  isImageLoading ? "opacity-0" : "opacity-100"
-                }`}
-                onLoad={() => setIsImageLoading(false)}
-                onError={() => setIsImageLoading(false)}
+    <div className="w-full">
+      {/* Add SEO Head */}
+      {seoData && (
+        <Head>
+          <title>{seoData.title}</title>
+          <meta name="description" content={seoData.description} />
+          <meta name="keywords" content={seoData.keywords.join(", ")} />
+          <link rel="canonical" href={seoData.canonical} />
+          
+          {/* Open Graph */}
+          <meta property="og:title" content={seoData.openGraph.title} />
+          <meta property="og:description" content={seoData.openGraph.description} />
+          <meta property="og:url" content={seoData.openGraph.url} />
+          <meta property="og:type" content={seoData.openGraph.type} />
+          <meta property="og:site_name" content={seoData.openGraph.siteName} />
+          <meta property="og:locale" content={seoData.openGraph.locale} />
+          <meta property="og:image" content={seoData.openGraph.images[0].url} />
+          <meta property="og:image:width" content="1200" />
+          <meta property="og:image:height" content="630" />
+          <meta property="og:image:alt" content={seoData.openGraph.title} />
+          
+          {/* Twitter */}
+          <meta name="twitter:card" content={seoData.twitter.card} />
+          <meta name="twitter:title" content={seoData.twitter.title} />
+          <meta name="twitter:description" content={seoData.twitter.description} />
+          <meta name="twitter:image" content={seoData.twitter.images[0]} />
+          <meta name="twitter:creator" content={seoData.twitter.creator} />
+          <meta name="twitter:site" content={seoData.twitter.site} />
+          
+          {/* Structured Data */}
+          {structuredData && (
+            <>
+              <script
+                type="application/ld+json"
+                dangerouslySetInnerHTML={{
+                  __html: JSON.stringify(structuredData.blogPosting),
+                }}
               />
-              {!isImageLoading && (
-                <div className="absolute inset-0 bg-gradient-to-t from-black/30 to-transparent" />
-              )}
-            </div>
+              <script
+                type="application/ld+json"
+                dangerouslySetInnerHTML={{
+                  __html: JSON.stringify(structuredData.breadcrumb),
+                }}
+              />
+            </>
           )}
-        </header>
+        </Head>
+      )}
 
-        <div className="grid gap-8 lg:grid-cols-[1fr_320px]">
-          <div className="space-y-8">
-            <ProfessionalSummary
-              summary={blog.summary}
-              content={blog.content || ""}
-            />
-
-            {blog.content && (
-              <div
-                className="prose prose-slate max-w-none dark:prose-invert prose-headings:font-semibold prose-h2:text-2xl prose-h2:font-bold prose-h2:mt-8 prose-h2:mb-4 prose-h3:text-xl prose-h3:font-semibold prose-h3:mt-6 prose-h3:mb-3 prose-p:text-foreground/90 prose-p:leading-relaxed prose-a:text-primary hover:prose-a:underline prose-ul:list-disc prose-ol:list-decimal prose-li:marker:text-primary prose-li:my-1"
-                dangerouslySetInnerHTML={{ __html: blog.content }}
-              />
+      {/* ======== Desktop Layout (3 Columns) ======== */}
+      <div className="hidden lg:block">
+        <div className="grid grid-cols-12 gap-6">
+          {/* Left Side: Blog-specific Image Ad or Top Selling Books */}
+          <div className="col-span-2 space-y-6 sticky top-56 mt-24 pl-10 h-fit">
+            {blog?.ads ? (
+              <div className="w-full h-96 border rounded-lg bg-muted flex items-center justify-center overflow-hidden">
+                <img
+                  src={blog.ads}
+                  alt="ব্লগ বিজ্ঞাপন"
+                  className="w-full h-full object-cover"
+                />
+              </div>
+            ) : (
+              <TopSellingBooks />
             )}
           </div>
 
-          <aside className="space-y-6">
-            <div className="lg:sticky lg:top-6">
-              <RelatedBlogsCard />
-              <div className="mt-6">
-                <RecentBlogs />
+          {/* Middle: Blog Content */}
+          <div className="col-span-7">
+            <div className="container max-w-5xl px-4 py-8 mx-auto">
+              <Button
+                variant="outline"
+                size="sm"
+                onClick={() => router.back()}
+                className="mb-8 gap-2"
+              >
+                <ArrowLeft className="h-4 w-4" />
+                ব্লগে ফিরে যান
+              </Button>
+
+              <article className="space-y-8">
+                <header className="space-y-6">
+                  <div className="space-y-2">
+                    <h1 className="text-3xl font-bold tracking-tight sm:text-4xl md:text-5xl">
+                      {blog.title}
+                    </h1>
+
+                    <div className="flex flex-wrap items-center gap-4 text-sm text-muted-foreground">
+                      <div className="flex items-center gap-2">
+                        <User className="h-4 w-4" />
+                        <span>{blog.author}</span>
+                      </div>
+
+                      <div className="flex items-center gap-2">
+                        <Calendar className="h-4 w-4" />
+                        <time dateTime={new Date(blog.date).toISOString()}>
+                          {format(new Date(blog.date), "MMMM d, yyyy")}
+                        </time>
+                      </div>
+                    </div>
+                  </div>
+
+                  {blog.image && (
+                    <div className="relative aspect-video overflow-hidden rounded-xl border bg-muted">
+                      {isImageLoading && (
+                        <Skeleton className="absolute inset-0 w-full h-full" />
+                      )}
+
+                      <img
+                        src={blog.image}
+                        alt={blog.title}
+                        className={`w-full h-full object-cover transition-opacity duration-300 ${
+                          isImageLoading ? "opacity-0" : "opacity-100"
+                        }`}
+                        onLoad={() => setIsImageLoading(false)}
+                        onError={() => setIsImageLoading(false)}
+                      />
+
+                      {!isImageLoading && (
+                        <div className="absolute inset-0 bg-gradient-to-t from-black/30 to-transparent" />
+                      )}
+                    </div>
+                  )}
+                </header>
+
+                <div className="grid gap-8">
+                  <div className="space-y-8">
+                    <ProfessionalSummary
+                      summary={blog.summary}
+                      content={blog.content || ""}
+                    />
+
+                    {blog.content && (
+                      <div
+                        className="prose prose-slate max-w-none dark:prose-invert
+                        prose-headings:font-semibold
+                        prose-h2:text-2xl prose-h2:font-bold prose-h2:mt-8 prose-h2:mb-4
+                        prose-h3:text-xl prose-h3:font-semibold prose-h3:mt-6 prose-h3:mb-3
+                        prose-p:text-foreground/90 prose-p:leading-relaxed
+                        prose-a:text-primary hover:prose-a:underline
+                        prose-ul:list-disc prose-ol:list-decimal
+                        prose-li:marker:text-primary prose-li:my-1"
+                        dangerouslySetInnerHTML={{ __html: blog.content }}
+                      />
+                    )}
+                  </div>
+                </div>
+              </article>
+            </div>
+          </div>
+
+          {/* Right Side: Related + Recent Blogs */}
+          <div className="col-span-3 space-y-6 sticky top-6 mt-60 h-fit">
+            <RelatedBlogsCard />
+            <div className="mt-6">
+              <RecentBlogs />
+            </div>
+          </div>
+        </div>
+      </div>
+
+      {/* ======== Mobile Layout ======== */}
+      <div className="lg:hidden">
+        <div className="container max-w-5xl px-4 py-8 mx-auto">
+          {/* 1. Blog Content (Top) */}
+          <Button
+            variant="outline"
+            size="sm"
+            onClick={() => router.back()}
+            className="mb-8 gap-2"
+          >
+            <ArrowLeft className="h-4 w-4" />
+            ব্লগে ফিরে যান
+          </Button>
+
+          <article className="space-y-8">
+            <header className="space-y-6">
+              <div className="space-y-2">
+                <h1 className="text-3xl font-bold tracking-tight sm:text-4xl">
+                  {blog.title}
+                </h1>
+
+                <div className="flex flex-wrap items-center gap-4 text-sm text-muted-foreground">
+                  <div className="flex items-center gap-2">
+                    <User className="h-4 w-4" />
+                    <span>{blog.author}</span>
+                  </div>
+
+                  <div className="flex items-center gap-2">
+                    <Calendar className="h-4 w-4" />
+                    <time dateTime={new Date(blog.date).toISOString()}>
+                      {format(new Date(blog.date), "MMMM d, yyyy")}
+                    </time>
+                  </div>
+                </div>
+              </div>
+
+              {blog.image && (
+                <div className="relative aspect-video overflow-hidden rounded-xl border bg-muted">
+                  {isImageLoading && (
+                    <Skeleton className="absolute inset-0 w-full h-full" />
+                  )}
+
+                  <img
+                    src={blog.image}
+                    alt={blog.title}
+                    className={`w-full h-full object-cover transition-opacity duration-300 ${
+                      isImageLoading ? "opacity-0" : "opacity-100"
+                    }`}
+                    onLoad={() => setIsImageLoading(false)}
+                    onError={() => setIsImageLoading(false)}
+                  />
+
+                  {!isImageLoading && (
+                    <div className="absolute inset-0 bg-gradient-to-t from-black/30 to-transparent" />
+                  )}
+                </div>
+              )}
+            </header>
+
+            <div className="grid gap-8">
+              <div className="space-y-8">
+                <ProfessionalSummary
+                  summary={blog.summary}
+                  content={blog.content || ""}
+                />
+
+                {blog.content && (
+                  <div
+                    className="prose prose-slate max-w-none dark:prose-invert
+                    prose-headings:font-semibold
+                    prose-h2:text-2xl prose-h2:font-bold prose-h2:mt-8 prose-h2:mb-4
+                    prose-h3:text-xl prose-h3:font-semibold prose-h3:mt-6 prose-h3:mb-3
+                    prose-p:text-foreground/90 prose-p:leading-relaxed
+                    prose-a:text-primary hover:prose-a:underline
+                    prose-ul:list-disc prose-ol:list-decimal
+                    prose-li:marker:text-primary prose-li:my-1"
+                    dangerouslySetInnerHTML={{ __html: blog.content }}
+                  />
+                )}
               </div>
             </div>
-          </aside>
+          </article>
+
+          {/* 2. Recent Blogs (Below Content) */}
+          <div className="mt-10">
+            <h2 className="text-2xl font-bold mb-6">সাম্প্রতিক ব্লগসমূহ</h2>
+            <RecentBlogs />
+          </div>
+
+          {/* 3. Mobile: Blog-specific Image Ad or Top Selling Books */}
+          <div className="mt-10 space-y-6">
+            {blog?.ads ? (
+              <div className="w-full h-56 border rounded-lg bg-muted flex items-center justify-center overflow-hidden">
+                <img
+                  src={blog.ads}
+                  alt="ব্লগ বিজ্ঞাপন"
+                  className="w-full h-full object-cover"
+                />
+              </div>
+            ) : (
+              <TopSellingBooks />
+            )}
+          </div>
         </div>
-      </article>
+      </div>
     </div>
   );
 }

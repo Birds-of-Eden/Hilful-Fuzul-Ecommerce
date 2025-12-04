@@ -61,7 +61,7 @@ export async function POST(request: NextRequest) {
     }
 
     const body = await request.json();
-    const { title, summary, content, date, author, image } = body;
+    const { title, summary, content, date, author, image, ads } = body;
 
     if (!title || !date || !author) {
       return NextResponse.json(
@@ -122,7 +122,8 @@ export async function POST(request: NextRequest) {
         content: content || '',
         date: new Date(date),
         author,
-        image: image || ''
+        image: image || '',
+        ads: ads ?? null,
       }
     });
 
