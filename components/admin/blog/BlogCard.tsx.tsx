@@ -3,6 +3,7 @@
 import { useState, useEffect } from "react";
 import Link from "next/link";
 import dynamic from 'next/dynamic';
+import { processBlogSummary } from "./summaryUtils";
 
 const BlogForm = dynamic(() => import('./BlogForm'), { ssr: false });
 
@@ -258,7 +259,7 @@ export default function BlogCard() {
                     {blog.title}
                   </h3>
                   <p className="text-[#2D4A3C]/70 text-sm line-clamp-2 mb-4 leading-relaxed">
-                    {blog.summary}
+                    {processBlogSummary(blog.summary, 160)}
                   </p>
                   
                   {/* Meta Information */}

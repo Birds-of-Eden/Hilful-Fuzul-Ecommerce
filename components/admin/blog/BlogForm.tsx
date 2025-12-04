@@ -47,6 +47,7 @@ export default function BlogForm({ blog, onSuccess }: BlogFormProps) {
 
   const [formData, setFormData] = useState({
     title: "",
+    summary: "",
     content: "",
     date: new Date().toISOString().split("T")[0],
     author: "",
@@ -67,6 +68,7 @@ export default function BlogForm({ blog, onSuccess }: BlogFormProps) {
 
       setFormData({
         title: blog.title || "",
+        summary: blog.summary || "",
         content: blog.content || "",
         date: blogDate.toISOString().split("T")[0],
         author: blog.author || "",
@@ -268,6 +270,19 @@ const handleImageFileChange = async (e: ChangeEvent<HTMLInputElement>) => {
                 className="w-full px-3 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-blue-500"
               />
             </div>
+          </div>
+
+          <div>
+            <label className="block text-sm font-medium text-gray-700 mb-2">
+              Summary (optional)
+            </label>
+            <textarea
+              name="summary"
+              value={formData.summary}
+              onChange={handleChange}
+              className="w-full px-3 py-2 border rounded-lg"
+              placeholder="Write summary or leave empty for auto summary"
+            />
           </div>
 
           {/* Content */}

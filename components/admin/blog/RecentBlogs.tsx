@@ -1,136 +1,173 @@
-// components/blog/RecentBlogs.tsx
+// components/admin/blog/RecentBlogs.tsx
 "use client";
 
 import { useState, useEffect } from "react";
 import Link from "next/link";
-import { generateSlug } from "@/lib/utils";
+import { Calendar, TrendingUp, Sparkles } from "lucide-react";
+import { format } from "date-fns";
+import { bn } from "date-fns/locale";
+import { Skeleton } from "@/components/ui/skeleton";
+import { processBlogSummary } from "./summaryUtils";
 
-interface Blog {
+interface RecentBlog {
   id: number;
-  slug?: string;
+  slug: string;
   title: string;
   summary: string;
+  date: string | Date;
   image?: string;
-  createdAt: string | Date;
 }
 
-// Helper function to format the date concisely (e.g., Nov 13, 2025)
-const formatDate = (date: string | Date): string => {
-  return new Date(date).toLocaleDateString("en-US", {
-    month: "short",
-    day: "numeric",
-    year: "numeric",
-  });
-};
+const RecentBlogSkeleton = () => (
+  <div className="flex flex-col gap-3 p-4 rounded-lg border bg-card animate-pulse">
+    <Skeleton className="h-32 w-full rounded-md" />
+    <Skeleton className="h-4 w-3/4" />
+    <Skeleton className="h-3 w-1/2" />
+  </div>
+);
 
 export default function RecentBlogs() {
-  const [blogs, setBlogs] = useState<Blog[]>([]);
+  const [recentBlogs, setRecentBlogs] = useState<RecentBlog[]>([]);
   const [loading, setLoading] = useState(true);
 
-  const fetchRecentBlogs = async () => {
-    try {
-      setLoading(true);
-      // Fetch only 3 recent blogs (page=1, limit=3)
-      const params = new URLSearchParams({
-        page: "1",
-        limit: "3",
-        // Assuming your API sorts by 'createdAt' descending by default
-        // If not, you might need a 'sort: 'newest'' parameter here
-      });
-
-      const response = await fetch(`/api/blog?${params}`);
-      const data = await response.json();
-
-      if (response.ok && data?.blogs) {
-        setBlogs(data.blogs);
-      }
-    } catch (error) {
-      console.error("Error fetching recent blogs:", error);
-    } finally {
-      setLoading(false);
-    }
-  };
-
   useEffect(() => {
+    const fetchRecentBlogs = async () => {
+      try {
+        const response = await fetch("/api/blog?limit=4&sort=latest");
+        if (!response.ok) throw new Error("Failed to fetch recent blogs");
+        
+        const data = await response.json();
+        setRecentBlogs(data.blogs || data);
+      } catch (error) {
+        console.error("Error fetching recent blogs:", error);
+      } finally {
+        setLoading(false);
+      }
+    };
+
     fetchRecentBlogs();
   }, []);
 
   if (loading) {
     return (
-      <div className="p-4 bg-white rounded-xl shadow-md">
-        <h2 className="text-xl font-bold text-gray-900 mb-4">
-          সাম্প্রতিক পোস্ট
-        </h2>
-        <div className="space-y-4">
-          {[1, 2, 3].map((i) => (
-            <div key={i} className="flex space-x-3 animate-pulse">
-              <div className="w-16 h-16 bg-gray-200 rounded-lg flex-shrink-0"></div>
-              <div className="flex-1 space-y-2 py-1">
-                <div className="h-4 bg-gray-200 rounded w-3/4"></div>
-                <div className="h-3 bg-gray-200 rounded w-1/2"></div>
-              </div>
+      <div className="rounded-xl border bg-card shadow-sm overflow-hidden">
+        <div className="bg-gradient-to-r from-orange-500/10 via-red-500/10 to-pink-500/10 p-5 border-b">
+          <div className="flex items-center gap-3">
+            <div className="flex h-10 w-10 items-center justify-center rounded-lg bg-gradient-to-br from-orange-500 to-red-500 shadow-md">
+              <TrendingUp className="h-5 w-5 text-white" />
             </div>
+            <h3 className="text-lg font-bold text-foreground flex items-center gap-2">
+              🔥 সাম্প্রতিক পোস্ট
+            </h3>
+          </div>
+        </div>
+        <div className="p-4 space-y-4">
+          {[1, 2, 3].map((i) => (
+            <RecentBlogSkeleton key={i} />
           ))}
         </div>
       </div>
     );
   }
 
-  if (blogs.length === 0) {
-    return null; // Or show a message if preferred
+  if (recentBlogs.length === 0) {
+    return null;
   }
 
   return (
-    <div className="p-4 bg-white rounded-2xl shadow-lg border border-gray-100">
-      <h2 className="text-xl font-extrabold text-gray-900 mb-5 border-b pb-2">
-        🔥 সাম্প্রতিক পোস্ট
-      </h2>
+    <div className="rounded-xl border bg-card shadow-sm overflow-hidden">
+      <div className="bg-gradient-to-r from-orange-500/10 via-red-500/10 to-pink-500/10 p-5 border-b">
+        <div className="flex items-center gap-3">
+          <div className="flex h-10 w-10 items-center justify-center rounded-lg bg-gradient-to-br from-orange-500 to-red-500 shadow-md animate-pulse">
+            <TrendingUp className="h-5 w-5 text-white" />
+          </div>
+          <h3 className="text-lg font-bold text-foreground flex items-center gap-2">
+            🔥 সাম্প্রতিক পোস্ট
+          </h3>
+        </div>
+      </div>
 
-      <div className="grid grid-cols-1 lg:grid-cols-3 gap-4">
-        {blogs.map((blog) => (
-          <Link
-            key={blog.id}
-            href={`/kitabghor/blogs/${blog.slug || generateSlug(blog.title)}`}
-            className="flex space-x-4 group hover:bg-gray-50 p-2 rounded-lg transition-colors duration-200 -mx-2"
-          >
-            {/* Image (Small Thumbnail) */}
-            <div className="w-20 h-20 flex-shrink-0 overflow-hidden rounded-lg">
-              {blog.image ? (
-                <img
-                  src={blog.image}
-                  alt={blog.title}
-                  className="w-full h-full object-cover group-hover:scale-105 transition-transform duration-300"
-                />
-              ) : (
-                <div className="w-full h-full bg-gray-200 flex items-center justify-center">
+      <div className="p-4">
+        <div className="space-y-4">
+          {recentBlogs.map((blog, index) => (
+            <Link
+              key={blog.id}
+              href={`/kitabghor/blogs/${blog.slug}`}
+              className="group block"
+            >
+              <article className="relative flex flex-col gap-3 p-4 rounded-lg border bg-card hover:bg-accent/50 hover:shadow-md transition-all duration-300 overflow-hidden">
+                {/* Hover Effect Gradient */}
+                <div className="absolute inset-0 bg-gradient-to-br from-primary/5 via-transparent to-transparent opacity-0 group-hover:opacity-100 transition-opacity duration-300" />
+                
+                {/* Badge for first post */}
+                {index === 0 && (
+                  <div className="absolute top-2 right-2 z-10">
+                    <span className="inline-flex items-center gap-1 bg-gradient-to-r from-orange-500 to-red-500 text-white text-xs font-bold px-2 py-1 rounded-full shadow-md">
+                      <Sparkles className="h-3 w-3" />
+                      নতুন
+                    </span>
+                  </div>
+                )}
+
+                {/* Image */}
+                {blog.image && (
+                  <div className="relative w-full h-32 rounded-md overflow-hidden bg-muted">
+                    <img
+                      src={blog.image}
+                      alt={blog.title}
+                      className="w-full h-full object-cover group-hover:scale-105 transition-transform duration-300"
+                    />
+                    <div className="absolute inset-0 bg-gradient-to-t from-black/40 to-transparent" />
+                  </div>
+                )}
+
+                {/* Content */}
+                <div className="relative space-y-2 flex-1">
+                  <h4 className="font-semibold text-sm leading-tight text-foreground group-hover:text-primary transition-colors line-clamp-2">
+                    {blog.title}
+                  </h4>
+                  
+                  <p className="text-xs text-muted-foreground line-clamp-2 leading-relaxed">
+                    {processBlogSummary(blog.summary, 120)}
+                  </p>
+
+                  <div className="flex items-center gap-2 text-xs text-muted-foreground pt-1">
+                    <Calendar className="h-3 w-3 text-primary" />
+                    <time dateTime={new Date(blog.date).toISOString()}>
+                      {format(new Date(blog.date), "d MMM, yyyy", { locale: bn })}
+                    </time>
+                  </div>
+                </div>
+
+                {/* Read More Indicator */}
+                <div className="relative flex items-center text-xs font-medium text-primary group-hover:gap-2 transition-all">
+                  <span>আরও পড়ুন</span>
                   <svg
-                    className="w-6 h-6 text-gray-400"
+                    className="h-3 w-3 transform group-hover:translate-x-1 transition-transform"
                     fill="none"
-                    stroke="currentColor"
                     viewBox="0 0 24 24"
+                    stroke="currentColor"
                   >
                     <path
                       strokeLinecap="round"
                       strokeLinejoin="round"
                       strokeWidth={2}
-                      d="M4 16l4.586-4.586a2 2 0 012.828 0L16 16m-2-2l1.586-1.586a2 2 0 012.828 0L20 14m-6-6h.01M6 20h12a2 2 0 002-2V6a2 2 0 00-2-2H6a2 2 0 00-2 2v12a2 2 0 002 2z"
+                      d="M9 5l7 7-7 7"
                     />
                   </svg>
                 </div>
-              )}
-            </div>
+              </article>
+            </Link>
+          ))}
+        </div>
 
-            {/* Content */}
-            <div className="flex-1 min-w-0">
-              <h3 className="text-base font-semibold text-gray-800 line-clamp-2 group-hover:text-blue-600 transition-colors duration-200">
-                {blog.title}
-              </h3>
-              <p className="text-xs text-gray-500 mt-1">
-                {formatDate(blog.createdAt)}
-              </p>
-            </div>
-          </Link>
-        ))}
+        {/* View All Link */}
+        <Link
+          href="/kitabghor/blogs"
+          className="mt-4 block text-center py-3 px-4 rounded-lg border border-dashed border-primary/30 bg-primary/5 hover:bg-primary/10 text-sm font-medium text-primary transition-all hover:border-solid"
+        >
+          সব ব্লগ দেখুন →
+        </Link>
       </div>
     </div>
   );

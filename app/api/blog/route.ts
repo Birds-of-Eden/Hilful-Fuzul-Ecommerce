@@ -70,12 +70,34 @@ export async function POST(request: NextRequest) {
       );
     }
 
-    const plainTextFromHtml = (html: string) =>
-      html?.replace(/<[^>]*>/g, ' ').replace(/\s+/g, ' ').trim();
+    function cleanSummary(text: string, maxLength: number = 300) {
+      if (!text) return "";
 
-    const computedSummary = summary && summary.trim().length > 0
-      ? summary
-      : (content ? plainTextFromHtml(content).slice(0, 300) : '');
+      let clean = text.replace(/<[^>]*>/g, " ").replace(/\s+/g, " ").trim();
+
+      if (clean.length <= maxLength) return clean;
+
+      const sentences = clean.split(/(?<=[।!?])/).map(s => s.trim()).filter(Boolean);
+
+      let final = "";
+      for (let s of sentences) {
+        if ((final + " " + s).trim().length <= maxLength) {
+          final += (final ? " " : "") + s;
+        } else break;
+      }
+
+      if (!final) {
+        const cut = clean.substring(0, maxLength);
+        return cut.substring(0, cut.lastIndexOf(" ")) + "...";
+      }
+
+      return final.trim();
+    }
+
+    const computedSummary =
+      summary && summary.trim().length > 0
+        ? summary.trim()
+        : cleanSummary(content || "");
 
     // Generate unique slug
     let slug = generateSlug(title);

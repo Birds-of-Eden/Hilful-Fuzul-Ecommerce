@@ -1,11 +1,15 @@
-// components/blog/BlogDetails.tsx
+// components/admin/blog/BlogDetails.tsx
 "use client";
 
 import { useState, useEffect, useMemo, useCallback } from "react";
 import { useParams, useRouter } from "next/navigation";
 import Link from "next/link";
 import Head from "next/head";
-import RecentBlogs from "./RecentBlogs"; // Assuming this is the correct path
+import { format } from "date-fns";
+import { Calendar, Clock, User, ArrowLeft, BookOpen } from "lucide-react";
+import { Button } from "@/components/ui/button";
+import { Skeleton } from "@/components/ui/skeleton";
+import RecentBlogs from "./RecentBlogs";
 
 interface Blog {
   id: number;
@@ -20,88 +24,88 @@ interface Blog {
   updatedAt: string | Date;
 }
 
-const AdPlaceholder = ({
-  title,
-  widthClass,
-}: {
-  title: string;
-  widthClass: string;
-}) => (
-  <div className={`${widthClass} h-full hidden lg:block`}>
-    <div className="sticky top-6 p-4 border border-dashed border-[#D1D8BE]/50 rounded-2xl bg-gradient-to-br from-[#F4F8F7]/30 to-white/50 backdrop-blur-sm h-[600px] flex items-center justify-center text-center text-sm text-[#819A91] shadow-lg">
-      <div className="space-y-2">
-        <svg
-          className="w-8 h-8 mx-auto text-[#819A91]"
-          fill="none"
-          stroke="currentColor"
-          viewBox="0 0 24 24"
-        >
-          <path
-            strokeLinecap="round"
-            strokeLinejoin="round"
-            strokeWidth={1.5}
-            d="M9 19v-6a2 2 0 00-2-2H5a2 2 0 00-2 2v6a2 2 0 002 2h2a2 2 0 002-2zm0 0V9a2 2 0 012-2h2a2 2 0 012 2v10m-6 0a2 2 0 002 2h2a2 2 0 002-2m0 0V5a2 2 0 012-2h2a2 2 0 012 2v14a2 2 0 01-2 2h-2a2 2 0 01-2-2z"
-          />
-        </svg>
-        <p className="font-medium">{title}</p>
+// ============= PROFESSIONAL RELATED BLOGS CARD =============
+const RelatedBlogsCard = () => (
+  <div className="sticky top-6 rounded-xl border bg-card text-card-foreground shadow-sm overflow-hidden">
+    <div className="bg-gradient-to-br from-primary/10 via-primary/5 to-transparent p-5 border-b">
+      <div className="flex items-center gap-3">
+        <div className="flex h-10 w-10 items-center justify-center rounded-lg bg-primary shadow-sm">
+          <BookOpen className="h-5 w-5 text-primary-foreground" />
+        </div>
+        <h3 className="text-lg font-semibold text-foreground">
+          সম্পর্কিত ব্লগ
+        </h3>
       </div>
+    </div>
+    <div className="p-5">
+      <p className="text-sm text-muted-foreground leading-relaxed">
+        এই বিষয়ে আরও পড়ুন এবং আপনার জ্ঞান বৃদ্ধি করুন।
+      </p>
     </div>
   </div>
 );
-// ----------------------------------------------------------------
 
 // ============= UPDATED UTILITY FUNCTIONS =============
 
 /**
  * Process and clean blog summary for professional display
+ * Best sentence-safe summary generator
  */
-const processBlogSummary = (summary: string, maxLength: number = 300): string => {
-  if (!summary) return "";
+const processBlogSummary = (text: string, maxLength: number = 400): string => {
+  if (!text) return "";
 
-  // Remove HTML tags
-  let cleanText = summary.replace(/<[^>]*>/g, " ");
+  // Remove HTML tags and normalize whitespace
+  let cleanText = text
+    .replace(/<[^>]*>/g, " ")
+    .replace(/\s+/g, " ")
+    .trim();
 
-  // Normalize whitespace
-  cleanText = cleanText.replace(/\s+/g, " ").trim();
+  if (cleanText.length <= maxLength) return cleanText;
 
-  // If summary is within limit, return as is
-  if (cleanText.length <= maxLength) {
-    return cleanText;
+  // Split into sentences using lookbehind for Bengali and English punctuation
+  const sentences = cleanText
+    .split(/(?<=[।!?])/)
+    .map((s) => s.trim())
+    .filter(Boolean);
+
+  let finalSummary = "";
+  for (let sentence of sentences) {
+    if ((finalSummary + " " + sentence).trim().length <= maxLength) {
+      finalSummary += (finalSummary ? " " : "") + sentence;
+    } else {
+      break;
+    }
   }
 
-  // Truncate at the last complete sentence within limit
-  const truncated = cleanText.substring(0, maxLength);
-  const lastPeriod = truncated.lastIndexOf("।");
-  const lastExclamation = truncated.lastIndexOf("!");
-  const lastQuestion = truncated.lastIndexOf("?");
-
-  const lastSentenceEnd = Math.max(lastPeriod, lastExclamation, lastQuestion);
-
-  if (lastSentenceEnd > maxLength * 0.7) {
-    return cleanText.substring(0, lastSentenceEnd + 1);
+  // If no sentence fits, fallback to clean truncation
+  if (!finalSummary) {
+    const truncated = cleanText.substring(0, maxLength);
+    const lastSpace = truncated.lastIndexOf(" ");
+    return truncated.substring(0, lastSpace) + "...";
   }
 
-  // Otherwise, truncate at last complete word
-  const lastSpace = truncated.lastIndexOf(" ");
-  return cleanText.substring(0, lastSpace) + "...";
+  return finalSummary.trim();
 };
 
 /**
  * Extract key points from summary for bullet display
+ * Improved key point extractor (now sentence-safe)
  */
 const extractKeyPoints = (summary: string): string[] => {
   if (!summary) return [];
 
-  const cleanText = summary.replace(/<[^>]*>/g, " ").replace(/\s+/g, " ").trim();
+  const cleanText = summary
+    .replace(/<[^>]*>/g, " ")
+    .replace(/\s+/g, " ")
+    .trim();
 
-  // Split by Bengali and English sentence endings
-  const sentences = cleanText.split(/[।!?.]+/).filter((s) => s.trim().length > 10);
-
-  // Return first 3 meaningful sentences as key points
-  return sentences
-    .slice(0, 3)
+  // Split into sentences using lookbehind for sentence endings
+  const sentences = cleanText
+    .split(/(?<=[।!?])/)
     .map((s) => s.trim())
-    .filter(Boolean);
+    .filter((s) => s.length > 8); // Filter out very short fragments
+
+  return sentences.slice(0, 3); // Return first 3 sentences as key points
 };
 
 /**
@@ -124,68 +128,55 @@ const ProfessionalSummary: React.FC<ProfessionalSummaryProps> = ({
   summary,
   content = "",
 }) => {
-  const processedSummary = processBlogSummary(summary, 300);
+  const processedSummary = processBlogSummary(summary, 400);
   const keyPoints = extractKeyPoints(summary);
   const readingTime = calculateReadingTime(content || summary);
 
   return (
-    <section className="mb-8 overflow-hidden rounded-2xl border-2 border-[#D1D8BE] bg-gradient-to-br from-[#F4F8F7] via-white to-[#EEEFE0] shadow-lg">
-      {/* Header with Icon */}
-      <div className="bg-gradient-to-r from-[#0E4B4B] to-[#086666] px-6 py-4">
+    <div className="rounded-xl border bg-gradient-to-br from-card via-card to-primary/5 text-card-foreground shadow-lg">
+      <div className="flex flex-col space-y-1.5 p-6 border-b bg-gradient-to-r from-primary/10 to-transparent">
         <div className="flex items-center gap-3">
-          <div className="flex h-10 w-10 items-center justify-center rounded-full bg-white/20 backdrop-blur-sm">
-            <svg
-              className="h-5 w-5 text-white"
-              fill="none"
-              stroke="currentColor"
-              viewBox="0 0 24 24"
-            >
-              <path
-                strokeLinecap="round"
-                strokeLinejoin="round"
-                strokeWidth={2}
-                d="M9 12h6m-6 4h6m2 5H7a2 2 0 01-2-2V5a2 2 0 012-2h5.586a1 1 0 01.707.293l5.414 5.414a1 1 0 01.293.707V19a2 2 0 01-2 2z"
-              />
-            </svg>
+          <div className="flex h-11 w-11 items-center justify-center rounded-lg bg-primary shadow-md">
+            <BookOpen className="h-6 w-6 text-primary-foreground" />
           </div>
-          <h2 className="text-xl font-bold text-white">সারমর্ম</h2>
+          <h2 className="text-2xl font-bold leading-none tracking-tight">
+            সারমর্ম
+          </h2>
         </div>
       </div>
 
-      {/* Main Summary Content */}
-      <div className="p-6 space-y-4">
-        {/* Primary Summary Text */}
-        <div className="relative">
-          <div className="absolute -left-2 top-0 h-full w-1 bg-gradient-to-b from-[#0E4B4B] to-[#086666] rounded-full"></div>
-          <p className="pl-4 text-base leading-relaxed text-[#0D1414]">
+      <div className="p-6 pt-5">
+        <div className="relative pl-5 border-l-4 border-primary/40 bg-muted/30 rounded-r-lg py-4 pr-4">
+          <p className="text-foreground/90 leading-relaxed text-base">
             {processedSummary}
           </p>
         </div>
 
-        {/* Key Points Section (if available) */}
-        {keyPoints.length > 1 && (
-          <div className="mt-6 space-y-3">
-            <h3 className="flex items-center gap-2 text-sm font-semibold text-[#0E4B4B]">
+        {keyPoints.length > 0 && (
+          <div className="mt-6 space-y-4 bg-muted/30 rounded-xl p-5">
+            <h3 className="flex items-center gap-2 text-base font-semibold text-foreground">
               <svg
-                className="h-4 w-4"
-                fill="currentColor"
-                viewBox="0 0 20 20"
+                className="h-5 w-5 text-primary"
+                fill="none"
+                viewBox="0 0 24 24"
+                stroke="currentColor"
               >
                 <path
-                  fillRule="evenodd"
-                  d="M6 2a1 1 0 00-1 1v1H4a2 2 0 00-2 2v10a2 2 0 002 2h12a2 2 0 002-2V6a2 2 0 00-2-2h-1V3a1 1 0 10-2 0v1H7V3a1 1 0 00-1-1zm0 5a1 1 0 000 2h8a1 1 0 100-2H6z"
-                  clipRule="evenodd"
+                  strokeLinecap="round"
+                  strokeLinejoin="round"
+                  strokeWidth={2}
+                  d="M9 5H7a2 2 0 00-2 2v12a2 2 0 002 2h10a2 2 0 002-2V7a2 2 0 00-2-2h-2M9 5a2 2 0 002 2h2a2 2 0 002-2M9 5a2 2 0 012-2h2a2 2 0 012 2"
                 />
               </svg>
               মূল বিষয়সমূহ
             </h3>
-            <ul className="space-y-2">
+            <ul className="space-y-3">
               {keyPoints.map((point, index) => (
-                <li key={index} className="flex items-start gap-3">
-                  <span className="mt-1 flex h-6 w-6 flex-shrink-0 items-center justify-center rounded-full bg-gradient-to-br from-[#0E4B4B] to-[#086666] text-xs font-bold text-white shadow">
+                <li key={index} className="flex items-start gap-3 group">
+                  <span className="mt-1 flex h-6 w-6 flex-shrink-0 items-center justify-center rounded-full bg-primary text-xs font-bold text-primary-foreground shadow-sm group-hover:scale-110 transition-transform">
                     {index + 1}
                   </span>
-                  <span className="flex-1 pt-0.5 text-sm leading-relaxed text-[#2D4A3C]">
+                  <span className="text-sm text-foreground/80 leading-relaxed pt-0.5">
                     {point}
                   </span>
                 </li>
@@ -193,33 +184,34 @@ const ProfessionalSummary: React.FC<ProfessionalSummaryProps> = ({
             </ul>
           </div>
         )}
-
-        {/* Reading Time Estimate */}
-        <div className="mt-6 flex items-center gap-4 border-t border-[#D1D8BE] pt-4">
-          <div className="flex items-center gap-2 text-sm text-[#819A91]">
-            <svg
-              className="h-4 w-4"
-              fill="none"
-              stroke="currentColor"
-              viewBox="0 0 24 24"
-            >
-              <path
-                strokeLinecap="round"
-                strokeLinejoin="round"
-                strokeWidth={2}
-                d="M12 8v4l3 3m6-3a9 9 0 11-18 0 9 9 0 0118 0z"
-              />
-            </svg>
-            <span>পড়ার সময়: প্রায় {readingTime} মিনিট</span>
-          </div>
-        </div>
       </div>
-
-      {/* Bottom Accent */}
-      <div className="h-1 bg-gradient-to-r from-[#0E4B4B] via-[#086666] to-[#0E4B4B]"></div>
-    </section>
+    </div>
   );
 };
+
+const LoadingSkeleton = () => (
+  <div className="space-y-8">
+    <Button variant="outline" size="sm" className="mb-6">
+      <ArrowLeft className="h-4 w-4 mr-2" />
+      পিছনে যান
+    </Button>
+
+    <div className="space-y-4">
+      <Skeleton className="h-8 w-3/4" />
+      <div className="flex items-center space-x-4">
+        <Skeleton className="h-4 w-32" />
+        <Skeleton className="h-4 w-24" />
+        <Skeleton className="h-4 w-20" />
+      </div>
+      <Skeleton className="h-64 w-full rounded-xl" />
+      <div className="space-y-2">
+        <Skeleton className="h-4 w-full" />
+        <Skeleton className="h-4 w-5/6" />
+        <Skeleton className="h-4 w-4/5" />
+      </div>
+    </div>
+  </div>
+);
 
 export default function BlogDetails() {
   const router = useRouter();
@@ -231,6 +223,7 @@ export default function BlogDetails() {
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState<string | null>(null);
   const [blogCache, setBlogCache] = useState<Map<string, Blog>>(new Map());
+  const [isImageLoading, setIsImageLoading] = useState(true);
 
   // Memoize the fetch function to prevent unnecessary re-creations
   const fetchBlogDetails = useCallback(
@@ -429,468 +422,151 @@ export default function BlogDetails() {
   }, [blogSlug, fetchBlogDetails]);
 
   // Loading and Error States (Enhanced)
-  if (loading) {
+  if (error) {
     return (
-      <>
-        <Head>
-          <title>লোড হচ্ছে... - কিতাবঘর</title>
-          <meta name="robots" content="noindex, nofollow" />
-        </Head>
-        <div className="min-h-screen bg-gradient-to-br from-[#F4F8F7] to-[#EEEFE0] py-12 px-4 sm:px-6 lg:px-8">
-          {/* Header Skeleton */}
-          <div className="mb-8">
-            <div className="flex items-center gap-4">
-              <div className="inline-flex items-center gap-3 px-6 py-3 bg-white/90 rounded-2xl shadow-lg border border-[#D1D8BE] w-32 h-12 animate-pulse"></div>
-              <div className="h-px bg-gradient-to-r from-[#D1D8BE] to-transparent flex-1"></div>
-            </div>
+      <div className="container max-w-5xl px-4 py-8 mx-auto">
+        <div className="rounded-lg border border-destructive/20 bg-destructive/5 p-8 text-center">
+          <div className="mx-auto flex h-12 w-12 items-center justify-center rounded-full bg-destructive/10">
+            <svg
+              className="h-6 w-6 text-destructive"
+              fill="none"
+              viewBox="0 0 24 24"
+              stroke="currentColor"
+            >
+              <path
+                strokeLinecap="round"
+                strokeLinejoin="round"
+                strokeWidth={2}
+                d="M12 8v4m0 4h.01M21 12a9 9 0 11-18 0 9 9 0 0118 0z"
+              />
+            </svg>
           </div>
-
-          {/* Three-Column Grid Skeleton */}
-          <div className="grid grid-cols-1 lg:grid-cols-[200px_1fr_200px] xl:grid-cols-[250px_1fr_250px] gap-6 lg:gap-8">
-            {/* Left Ad Column Skeleton */}
-            <div className="hidden lg:block">
-              <div className="sticky top-6 p-4 border border-dashed border-[#D1D8BE]/50 rounded-2xl bg-gradient-to-br from-[#F4F8F7]/30 to-white/50 h-[600px] flex items-center justify-center animate-pulse">
-                <div className="text-center text-[#819A91]">
-                  <svg
-                    className="w-8 h-8 mx-auto mb-2"
-                    fill="none"
-                    stroke="currentColor"
-                    viewBox="0 0 24 24"
-                  >
-                    <path
-                      strokeLinecap="round"
-                      strokeLinejoin="round"
-                      strokeWidth={1.5}
-                      d="M9 19v-6a2 2 0 00-2-2H5a2 2 0 00-2 2v6a2 2 0 002 2h2a2 2 0 002-2zm0 0V9a2 2 0 012-2h2a2 2 0 012 2v10m-6 0a2 2 0 002 2h2a2 2 0 002-2m0 0V5a2 2 0 012-2h2a2 2 0 012 2v14a2 2 0 01-2 2h-2a2 2 0 01-2-2z"
-                    />
-                  </svg>
-                  <p className="text-sm">Advertisement</p>
-                </div>
-              </div>
-            </div>
-
-            {/* Center Content Column Skeleton */}
-            <div className="lg:col-span-1">
-              <div className="bg-white/90 rounded-3xl shadow-2xl overflow-hidden border border-[#D1D8BE] mb-8">
-                {/* Blog Header Skeleton */}
-                <div className="relative">
-                  {/* Blog Image Skeleton */}
-                  <div className="h-96 lg:h-[500px] w-full overflow-hidden">
-                    <div className="w-full h-full bg-gradient-to-br from-gray-200 to-gray-300 animate-pulse"></div>
-
-                    {/* Blog Badge Skeleton */}
-                    <div className="absolute top-6 right-6">
-                      <div className="bg-gray-300 text-gray-300 text-sm font-bold px-4 py-2 rounded-full w-20 h-8 animate-pulse"></div>
-                    </div>
-                  </div>
-
-                  {/* Title Overlay Skeleton */}
-                  <div className="absolute bottom-0 left-0 right-0 p-8 bg-gradient-to-t from-black/80 to-transparent">
-                    <div className="h-12 bg-gray-300 rounded-lg w-3/4 mb-4 animate-pulse"></div>
-                  </div>
-                </div>
-
-                {/* Content Body Skeleton */}
-                <div className="p-8 md:p-12 lg:p-16">
-                  {/* Meta Info Skeleton */}
-                  <div className="flex flex-wrap items-center gap-6 mb-8 pb-6 border-b border-[#D1D8BE]">
-                    <div className="flex items-center gap-3">
-                      <div className="w-10 h-10 bg-gray-300 rounded-full animate-pulse"></div>
-                      <div>
-                        <div className="h-4 bg-gray-300 rounded w-20 mb-1 animate-pulse"></div>
-                        <div className="h-3 bg-gray-200 rounded w-12 animate-pulse"></div>
-                      </div>
-                    </div>
-                    <div className="flex items-center gap-2">
-                      <div className="w-5 h-5 bg-gray-300 rounded animate-pulse"></div>
-                      <div className="h-4 bg-gray-300 rounded w-24 animate-pulse"></div>
-                    </div>
-                    <div className="flex items-center gap-2">
-                      <div className="w-5 h-5 bg-gray-300 rounded animate-pulse"></div>
-                      <div className="h-4 bg-gray-300 rounded w-20 animate-pulse"></div>
-                    </div>
-                  </div>
-
-                  {/* Summary Skeleton */}
-                  <div className="mb-8 p-6 bg-gradient-to-r from-[#F4F8F7]/50 to-[#EEEFE0]/50 rounded-2xl border border-[#D1D8BE]">
-                    <div className="h-6 bg-gray-300 rounded w-24 mb-3 animate-pulse"></div>
-                    <div className="h-4 bg-gray-300 rounded mb-2 animate-pulse"></div>
-                    <div className="h-4 bg-gray-300 rounded w-5/6 animate-pulse"></div>
-                  </div>
-
-                  {/* Main Content Skeleton */}
-                  <div className="space-y-4">
-                    <div className="h-4 bg-gray-300 rounded animate-pulse"></div>
-                    <div className="h-4 bg-gray-300 rounded animate-pulse"></div>
-                    <div className="h-4 bg-gray-300 rounded w-5/6 animate-pulse"></div>
-                    <div className="h-4 bg-gray-300 rounded animate-pulse"></div>
-                    <div className="h-4 bg-gray-300 rounded w-4/6 animate-pulse"></div>
-                    <div className="h-4 bg-gray-300 rounded animate-pulse"></div>
-                    <div className="h-4 bg-gray-300 rounded w-3/4 animate-pulse"></div>
-                  </div>
-                </div>
-              </div>
-            </div>
-
-            {/* Right Ad Column Skeleton */}
-            <div className="hidden lg:block">
-              <div className="sticky top-6 p-4 border border-dashed border-[#D1D8BE]/50 rounded-2xl bg-gradient-to-br from-[#F4F8F7]/30 to-white/50 h-[600px] flex items-center justify-center animate-pulse">
-                <div className="text-center text-[#819A91]">
-                  <svg
-                    className="w-8 h-8 mx-auto mb-2"
-                    fill="none"
-                    stroke="currentColor"
-                    viewBox="0 0 24 24"
-                  >
-                    <path
-                      strokeLinecap="round"
-                      strokeLinejoin="round"
-                      strokeWidth={1.5}
-                      d="M9 19v-6a2 2 0 00-2-2H5a2 2 0 00-2 2v6a2 2 0 002 2h2a2 2 0 002-2zm0 0V9a2 2 0 012-2h2a2 2 0 012 2v10m-6 0a2 2 0 002 2h2a2 2 0 002-2m0 0V5a2 2 0 012-2h2a2 2 0 012 2v14a2 2 0 01-2 2h-2a2 2 0 01-2-2z"
-                    />
-                  </svg>
-                  <p className="text-sm">Advertisement</p>
-                </div>
-              </div>
-            </div>
-          </div>
-
-          {/* Recent Blogs Skeleton */}
-          <div className="mt-12">
-            <div className="max-w-7xl mx-auto">
-              <div className="h-8 bg-gray-300 rounded w-48 mb-6 animate-pulse"></div>
-              <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
-                {Array.from({ length: 3 }, (_, i) => (
-                  <div
-                    key={i}
-                    className="bg-white/90 rounded-2xl shadow-lg p-6 animate-pulse"
-                  >
-                    <div className="h-32 bg-gray-300 rounded-lg mb-4"></div>
-                    <div className="h-6 bg-gray-300 rounded w-3/4 mb-2"></div>
-                    <div className="h-4 bg-gray-300 rounded w-full mb-2"></div>
-                    <div className="h-4 bg-gray-300 rounded w-5/6"></div>
-                  </div>
-                ))}
-              </div>
-            </div>
+          <h2 className="mt-4 text-xl font-semibold text-foreground">
+            কিছু একটা সমস্যা হয়েছে
+          </h2>
+          <p className="mt-2 text-muted-foreground">{error}</p>
+          <div className="mt-6">
+            <Button
+              variant="outline"
+              onClick={() => router.back()}
+              className="gap-2"
+            >
+              <ArrowLeft className="h-4 w-4" />
+              পিছনে যান
+            </Button>
           </div>
         </div>
-      </>
+      </div>
     );
   }
 
-  if (error || !blog) {
+  if (loading) {
     return (
-      <>
-        <Head>
-          <title>ব্লগ পাওয়া যায়নি - কিতাবঘর</title>
-          <meta name="robots" content="noindex, nofollow" />
-        </Head>
-        <div className="min-h-screen bg-gradient-to-br from-[#F4F8F7] to-[#EEEFE0] flex justify-center items-center p-4">
-          <div className="text-center p-12 bg-white/90 backdrop-blur-sm rounded-3xl shadow-2xl border border-[#D1D8BE] max-w-md">
-            <div className="w-20 h-20 bg-gradient-to-r from-[#C0704D]/20 to-[#A85D3F]/20 rounded-full flex items-center justify-center mx-auto mb-6">
-              <svg
-                className="w-10 h-10 text-[#C0704D]"
-                fill="none"
-                stroke="currentColor"
-                viewBox="0 0 24 24"
-              >
-                <path
-                  strokeLinecap="round"
-                  strokeLinejoin="round"
-                  strokeWidth={2}
-                  d="M12 8v4m0 4h.01M21 12a9 9 0 11-18 0 9 9 0 0118 0z"
-                />
-              </svg>
-            </div>
-            <h3 className="text-2xl font-bold text-[#0D1414] mb-3">
-              ত্রুটি ঘটেছে!
-            </h3>
-            <p className="text-[#2D4A3C]/70 leading-relaxed mb-6">
-              {error || "ব্লগটি খুঁজে পাওয়া যায়নি।"}
-            </p>
-            <button
-              onClick={() => router.push("/kitabghor/blogs")}
-              className="px-6 py-3 bg-gradient-to-r from-[#0E4B4B] to-[#086666] text-white font-medium rounded-2xl hover:from-[#0A3A3A] hover:to-[#065252] transition-all duration-300 hover:scale-105 shadow-lg hover:shadow-xl"
-            >
-              সব ব্লগ দেখুন
-            </button>
-          </div>
+      <div className="container max-w-5xl px-4 py-8 mx-auto">
+        <LoadingSkeleton />
+      </div>
+    );
+  }
+
+  // Early return if blog is null
+  if (!blog) {
+    return (
+      <div className="container max-w-5xl px-4 py-8 mx-auto">
+        <div className="text-center py-12">
+          <p className="text-muted-foreground">No blog post found.</p>
+          <Button
+            variant="outline"
+            size="sm"
+            onClick={() => router.back()}
+            className="mt-4 gap-2"
+          >
+            <ArrowLeft className="h-4 w-4" />
+            Back to Blogs
+          </Button>
         </div>
-      </>
+      </div>
     );
   }
 
   // Main Layout with SEO
   return (
-    <>
-      {/* SEO Meta Tags */}
-      <Head>
-        <title>{seoData?.title}</title>
-        <meta name="description" content={seoData?.description} />
-        <meta name="keywords" content={seoData?.keywords?.join(", ")} />
-        <meta name="author" content={blog.author} />
-        <meta name="publisher" content="কিতাবঘর - হিলফুল ফুজুল" />
-        <meta name="robots" content="index, follow" />
-        <link rel="canonical" href={seoData?.canonical} />
+    <div className="container max-w-5xl px-4 py-8 mx-auto">
+      <Button
+        variant="outline"
+        size="sm"
+        onClick={() => router.back()}
+        className="mb-8 gap-2"
+      >
+        <ArrowLeft className="h-4 w-4" />
+        ব্লগে ফিরে যান
+      </Button>
 
-        {/* Open Graph */}
-        <meta property="og:title" content={seoData?.openGraph?.title} />
-        <meta
-          property="og:description"
-          content={seoData?.openGraph?.description}
-        />
-        <meta property="og:url" content={seoData?.openGraph?.url} />
-        <meta property="og:type" content={seoData?.openGraph?.type} />
-        <meta property="og:site_name" content={seoData?.openGraph?.siteName} />
-        <meta property="og:locale" content={seoData?.openGraph?.locale} />
-        <meta
-          property="og:image"
-          content={seoData?.openGraph?.images?.[0]?.url}
-        />
-        <meta
-          property="og:image:width"
-          content={seoData?.openGraph?.images?.[0]?.width?.toString()}
-        />
-        <meta
-          property="og:image:height"
-          content={seoData?.openGraph?.images?.[0]?.height?.toString()}
-        />
-        <meta
-          property="og:image:alt"
-          content={seoData?.openGraph?.images?.[0]?.alt}
-        />
-        <meta
-          property="article:published_time"
-          content={seoData?.openGraph?.article?.publishedTime}
-        />
-        <meta
-          property="article:modified_time"
-          content={seoData?.openGraph?.article?.modifiedTime}
-        />
-        <meta property="article:author" content={blog.author} />
-        <meta
-          property="article:tag"
-          content={seoData?.openGraph?.article?.tags?.join(", ")}
-        />
-
-        {/* Twitter Card */}
-        <meta name="twitter:card" content={seoData?.twitter?.card} />
-        <meta name="twitter:title" content={seoData?.twitter?.title} />
-        <meta
-          name="twitter:description"
-          content={seoData?.twitter?.description}
-        />
-        <meta name="twitter:image" content={seoData?.twitter?.images?.[0]} />
-        <meta name="twitter:creator" content={seoData?.twitter?.creator} />
-        <meta name="twitter:site" content={seoData?.twitter?.site} />
-
-        {/* Additional SEO */}
-        <meta name="theme-color" content="#0E4B4B" />
-        <meta name="msapplication-TileColor" content="#0E4B4B" />
-        <meta name="application-name" content="কিতাবঘর" />
-        <meta name="apple-mobile-web-app-title" content="কিতাবঘর" />
-        <meta name="apple-mobile-web-app-capable" content="yes" />
-        <meta name="mobile-web-app-capable" content="yes" />
-      </Head>
-
-      {/* Structured Data */}
-      {structuredData && (
-        <>
-          <script
-            type="application/ld+json"
-            dangerouslySetInnerHTML={{
-              __html: JSON.stringify(structuredData.blogPosting),
-            }}
-          />
-
-          {/* Breadcrumb Schema */}
-          <script
-            type="application/ld+json"
-            dangerouslySetInnerHTML={{
-              __html: JSON.stringify(structuredData.breadcrumb),
-            }}
-          />
-        </>
-      )}
-
-      <main className="min-h-screen bg-gradient-to-br from-[#F4F8F7] to-[#EEEFE0] py-12 px-4 sm:px-6 lg:px-8">
-        {/* Enhanced Header */}
-        <header className="mb-8">
-          <nav className="flex items-center gap-4">
-            <Link
-              href="/kitabghor/blogs"
-              className="inline-flex items-center gap-3 px-6 py-3 bg-white/90 backdrop-blur-sm rounded-2xl shadow-lg hover:shadow-xl transition-all duration-300 hover:scale-105 border border-[#D1D8BE] text-[#0E4B4B] hover:text-[#086666] font-medium"
-            >
-              <svg
-                className="w-5 h-5"
-                fill="none"
-                stroke="currentColor"
-                viewBox="0 0 24 24"
-              >
-                <path
-                  strokeLinecap="round"
-                  strokeLinejoin="round"
-                  strokeWidth={2}
-                  d="M10 19l-7-7m0 0l7-7m-7 7h18"
-                />
-              </svg>
-              <span>ব্লগ সমূহ</span>
-            </Link>
-            <div className="h-px bg-gradient-to-r from-[#D1D8BE] to-transparent flex-1"></div>
-          </nav>
-        </header>
-
-        {/* Three-Column Grid for Ad Layout on large screens */}
-        <div className="grid grid-cols-1 lg:grid-cols-[200px_1fr_200px] xl:grid-cols-[250px_1fr_250px] gap-6 lg:gap-8">
-          {/* 1. Left Ad Column (Hidden on mobile) */}
-          <AdPlaceholder
-            title="Google Ad (Left Banner)"
-            widthClass="lg:w-[200px] xl:w-[250px]"
-          />
-
-          {/* 2. Center Content Column */}
-          <article className="lg:col-span-1">
-            <div className="bg-white/90 backdrop-blur-sm rounded-3xl shadow-2xl overflow-hidden border border-[#D1D8BE] mb-8">
-              {/* Blog Header */}
-              <header className="relative">
-                {/* Blog Image */}
-                <div className="h-96 lg:h-[500px] w-full overflow-hidden">
-                  {blog.image ? (
-                    <>
-                      <img
-                        src={blog.image}
-                        alt={blog.title}
-                        className="w-full h-full object-cover transition-transform duration-700 hover:scale-105"
-                        loading="eager"
-                      />
-                      <div className="absolute inset-0 bg-gradient-to-t from-black/30 via-transparent to-transparent"></div>
-                    </>
-                  ) : (
-                    <div className="w-full h-full bg-gradient-to-br from-[#EEEFE0] to-[#D1D8BE] flex items-center justify-center">
-                      <div className="text-center">
-                        <div className="w-20 h-20 bg-white/50 rounded-full flex items-center justify-center mx-auto mb-4">
-                          <span className="text-3xl">📝</span>
-                        </div>
-                        <span className="text-[#819A91] font-medium">
-                          No Image Available
-                        </span>
-                      </div>
-                    </div>
-                  )}
-
-                  {/* Blog Badge */}
-                  <div className="absolute top-6 right-6">
-                    <span className="bg-gradient-to-r from-[#0E4B4B] to-[#086666] text-white text-sm font-bold px-4 py-2 rounded-full shadow-lg backdrop-blur-sm">
-                      ব্লগ পোস্ট
-                    </span>
-                  </div>
-                </div>
-
-                {/* Title Overlay */}
-                <div className="absolute bottom-0 left-0 right-0 p-8 bg-gradient-to-t from-black/80 to-transparent">
-                  <h1 className="text-3xl md:text-4xl lg:text-5xl font-bold text-white mb-4 leading-tight">
-                    {blog.title}
-                  </h1>
-                </div>
-              </header>
-
-              {/* Content Body */}
-              <div className="p-8 md:p-12 lg:p-16">
-                {/* Enhanced Meta Info */}
-                <div className="flex flex-wrap items-center gap-6 text-sm text-[#2D4A3C]/70 mb-8 pb-6 border-b border-[#D1D8BE]">
-                  <div className="flex items-center gap-3">
-                    <div className="w-10 h-10 bg-gradient-to-r from-[#0E4B4B] to-[#086666] rounded-full flex items-center justify-center text-white font-bold">
-                      {blog.author?.charAt(0)?.toUpperCase() || "A"}
-                    </div>
-                    <div>
-                      <p className="font-semibold text-[#0D1414]">
-                        {blog.author}
-                      </p>
-                      <p className="text-xs text-[#2D4A3C]/50">লেখক</p>
-                    </div>
-                  </div>
-                  <div className="flex items-center gap-2">
-                    <svg
-                      className="w-5 h-5 text-[#0E4B4B]"
-                      fill="none"
-                      stroke="currentColor"
-                      viewBox="0 0 24 24"
-                    >
-                      <path
-                        strokeLinecap="round"
-                        strokeLinejoin="round"
-                        strokeWidth={2}
-                        d="M8 7V3m8 4V3m-9 8h10M5 21h14a2 2 0 002-2V7a2 2 0 00-2-2H5a2 2 0 00-2 2v12a2 2 0 002 2z"
-                      />
-                    </svg>
-                    <time
-                      dateTime={new Date(blog.date).toISOString()}
-                      className="font-medium"
-                    >
-                      {new Date(blog.date).toLocaleDateString("bn-BD", {
-                        year: "numeric",
-                        month: "long",
-                        day: "numeric",
-                      })}
-                    </time>
-                  </div>
-                  <div className="flex items-center gap-2">
-                    <svg
-                      className="w-5 h-5 text-[#0E4B4B]"
-                      fill="none"
-                      stroke="currentColor"
-                      viewBox="0 0 24 24"
-                    >
-                      <path
-                        strokeLinecap="round"
-                        strokeLinejoin="round"
-                        strokeWidth={2}
-                        d="M12 8v4l3 3m6-3a9 9 0 11-18 0 9 9 0 0118 0z"
-                      />
-                    </svg>
-                    <time
-                      dateTime={new Date(blog.createdAt).toISOString()}
-                      className="font-medium"
-                    >
-                      {new Date(blog.createdAt).toLocaleTimeString("bn-BD", {
-                        hour: "2-digit",
-                        minute: "2-digit",
-                      })}
-                    </time>
-                  </div>
-                </div>
-
-                {/* Main Content */}
-                <section
-                  className="prose prose-lg max-w-none text-[#0D1414] leading-relaxed"
-                  dangerouslySetInnerHTML={{
-                    __html: blog.content || "<p>সম্পূর্ণ লেখাটি এখানে নেই।</p>",
-                  }}
-                ></section>
+      <article className="space-y-8">
+        <header className="space-y-6">
+          <div className="space-y-2">
+            <h1 className="text-3xl font-bold tracking-tight sm:text-4xl md:text-5xl">
+              {blog.title}
+            </h1>
+            <div className="flex flex-wrap items-center gap-4 text-sm text-muted-foreground">
+              <div className="flex items-center gap-2">
+                <User className="h-4 w-4" />
+                <span>{blog.author}</span>
+              </div>
+              <div className="flex items-center gap-2">
+                <Calendar className="h-4 w-4" />
+                <time dateTime={new Date(blog.date).toISOString()}>
+                  {format(new Date(blog.date), "MMMM d, yyyy")}
+                </time>
               </div>
             </div>
-          </article>
+          </div>
 
-          {/* 3. Right Ad/Sidebar Column (Hidden on mobile) */}
-          <aside className="lg:col-span-1">
-            <div className="space-y-8">
-              {/* Ad Placeholder (Right) */}
-              <AdPlaceholder
-                title="Advertisement"
-                widthClass="lg:w-[200px] xl:w-[250px]"
+          {blog.image && (
+            <div className="relative aspect-video overflow-hidden rounded-xl border bg-muted">
+              {isImageLoading && (
+                <Skeleton className="absolute inset-0 w-full h-full" />
+              )}
+              <img
+                src={blog.image}
+                alt={blog.title}
+                className={`w-full h-full object-cover transition-opacity duration-300 ${
+                  isImageLoading ? "opacity-0" : "opacity-100"
+                }`}
+                onLoad={() => setIsImageLoading(false)}
+                onError={() => setIsImageLoading(false)}
               />
+              {!isImageLoading && (
+                <div className="absolute inset-0 bg-gradient-to-t from-black/30 to-transparent" />
+              )}
+            </div>
+          )}
+        </header>
+
+        <div className="grid gap-8 lg:grid-cols-[1fr_320px]">
+          <div className="space-y-8">
+            <ProfessionalSummary
+              summary={blog.summary}
+              content={blog.content || ""}
+            />
+
+            {blog.content && (
+              <div
+                className="prose prose-slate max-w-none dark:prose-invert prose-headings:font-semibold prose-h2:text-2xl prose-h2:font-bold prose-h2:mt-8 prose-h2:mb-4 prose-h3:text-xl prose-h3:font-semibold prose-h3:mt-6 prose-h3:mb-3 prose-p:text-foreground/90 prose-p:leading-relaxed prose-a:text-primary hover:prose-a:underline prose-ul:list-disc prose-ol:list-decimal prose-li:marker:text-primary prose-li:my-1"
+                dangerouslySetInnerHTML={{ __html: blog.content }}
+              />
+            )}
+          </div>
+
+          <aside className="space-y-6">
+            <div className="lg:sticky lg:top-6">
+              <RelatedBlogsCard />
+              <div className="mt-6">
+                <RecentBlogs />
+              </div>
             </div>
           </aside>
         </div>
-
-        {/* Recent Blogs - Below the post for all devices */}
-        <section className="mt-12">
-          <div className="max-w-7xl mx-auto">
-            <RecentBlogs />
-          </div>
-        </section>
-      </main>
-    </>
+      </article>
+    </div>
   );
 }
