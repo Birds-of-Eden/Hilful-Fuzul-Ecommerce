@@ -78,14 +78,35 @@ export async function PATCH(request: NextRequest, { params }: RouteParams) {
     }
 
     const id = Number(params.id);
-    if (Number.isNaN(id)) {
+    if (Number.isNaN(id) || id <= 0) {
       return NextResponse.json(
         { error: "Invalid shipment id" },
         { status: 400 }
       );
     }
 
-    const body = await request.json();
+    // Check if shipment exists
+    const existingShipment = await prisma.shipment.findUnique({
+      where: { id },
+    });
+
+    if (!existingShipment) {
+      return NextResponse.json(
+        { error: "Shipment not found" },
+        { status: 404 }
+      );
+    }
+
+    let body: any = {};
+    try {
+      body = await request.json();
+    } catch (jsonError) {
+      return NextResponse.json(
+        { error: "Invalid JSON in request body" },
+        { status: 400 }
+      );
+    }
+
     const {
       courier,
       trackingNumber,
