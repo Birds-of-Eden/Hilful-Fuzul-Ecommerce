@@ -28,7 +28,7 @@ function guessContentType(ext: string) {
 /* ---------------- POST (UPLOAD) ---------------- */
 export async function POST(
   req: Request,
-  { params }: { params: { slug: string[] } }
+  { params }: { params: Promise<{ slug: string[] }> }
 ) {
   try {
     // Get params (must be awaited in Next 15 dynamic routes)
@@ -75,7 +75,7 @@ export async function POST(
 /* ---------------- GET (SERVE FILE) ---------------- */
 export async function GET(
   req: Request,
-  { params }: { params: { slug: string[] } }
+  { params }: { params: Promise<{ slug: string[] }> }
 ) {
   try {
     const { slug } = await params;

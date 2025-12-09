@@ -1,5 +1,5 @@
 import * as React from "react";
-import { Input, InputProps } from "./input";
+import { Input } from "./input";
 import { Label } from "./label";
 
 type LabeledInputProps = {
@@ -11,7 +11,7 @@ type LabeledInputProps = {
   type?: string;
   className?: string;
   required?: boolean;
-} & Omit<InputProps, 'id' | 'value' | 'onChange'>;
+} & Omit<React.ComponentProps<"input">, 'id' | 'value' | 'onChange'>;
 
 export function LabeledInput({ 
   label, 

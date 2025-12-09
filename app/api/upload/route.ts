@@ -28,25 +28,13 @@ function guessContentType(ext: string) {
   }
 }
 
-export async function GET(_req: Request, ctx: { params: { slug: string[] } }) {
+export async function GET(_req: Request, ctx: { params: Promise<{}> }) {
   try {
-    const rel = ctx.params.slug.join("/");
-
-    if (rel.includes("..")) {
-      return NextResponse.json({ error: "Bad path" }, { status: 400 });
-    }
-
-    const filePath = path.join(uploadsRoot, rel);
-    const data = await fs.readFile(filePath);
-    const ext = path.extname(filePath).toLowerCase();
-
-    return new NextResponse(new Uint8Array(data), {
-      status: 200,
-      headers: {
-        "Content-Type": guessContentType(ext),
-        "Cache-Control": "public, max-age=31536000, immutable",
-      },
-    });
+    // This endpoint doesn't serve files directly, use /api/upload/[...slug] instead
+    return NextResponse.json(
+      { error: "Use /api/upload/[...slug] to retrieve files" },
+      { status: 400 }
+    );
   } catch (err) {
     return NextResponse.json(
       { error: "Failed to fetch file" },

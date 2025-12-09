@@ -6,7 +6,7 @@ import { prisma } from "@/lib/prisma";
 import { ShipmentStatus } from "@prisma/client";
 
 interface RouteParams {
-  params: { id: string };
+  params: Promise<{ id: string }>;
 }
 
 // GET /api/shipments/:id
@@ -19,7 +19,8 @@ export async function GET(_req: NextRequest, { params }: RouteParams) {
 
     const userId = (session.user as any).id as string;
     const role = (session.user as any).role as string | undefined;
-    const id = Number(params.id);
+    const { id: idStr } = await params;
+    const id = Number(idStr);
 
     if (Number.isNaN(id)) {
       return NextResponse.json(
@@ -69,6 +70,7 @@ export async function GET(_req: NextRequest, { params }: RouteParams) {
 // }
 export async function PATCH(request: NextRequest, { params }: RouteParams) {
   try {
+    const { id: idStr } = await params;
     const session = await getServerSession(authOptions);
     const role = (session?.user as any)?.role as string | undefined;
 
@@ -77,7 +79,7 @@ export async function PATCH(request: NextRequest, { params }: RouteParams) {
       return NextResponse.json({ error: "Forbidden" }, { status: 403 });
     }
 
-    const id = Number(params.id);
+    const id = Number(idStr);
     if (Number.isNaN(id) || id <= 0) {
       return NextResponse.json(
         { error: "Invalid shipment id" },

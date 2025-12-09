@@ -7,10 +7,11 @@ import { Input } from "@/components/ui/input";
 import { Button } from "@/components/ui/button";
 import { Label } from "@/components/ui/label";
 import { toast } from "sonner";
-import { Zap, Upload, X, FileText, Image as ImageIcon, Trash2 } from "lucide-react";
+import { Zap, Upload, X, FileText, Image as ImageIcon } from "lucide-react";
 import Image from "next/image";
 
 interface ProductForm {
+  id?: string | number;
   name: string;
   slug: string;
   description: string;
@@ -35,7 +36,7 @@ interface Entity {
 interface ProductAddModalProps {
   open: boolean;
   onClose: () => void;
-  onSubmit: (idOrData: any, data?: any) => Promise<void>;
+  onSubmit: (idOrData: string | number | Omit<ProductForm, 'id'>, data?: Omit<ProductForm, 'id'>) => Promise<void>;
   editing?: ProductForm | null;
   writers: Entity[];
   publishers: Entity[];
@@ -176,37 +177,59 @@ export default function ProductAddModal({
   const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
     setLoading(true);
-
     try {
-      const payload = {
-        ...form,
-        price: Number(form.price),
-        original_price: Number(form.original_price) || null,
-        discount: Number(form.discount) || 0,
-        stock: Number(form.stock) || 0,
-        writerId: form.writerId || null,
-        publisherId: form.publisherId || null,
-        categoryId: Number(form.categoryId),
-        // Include the file uploads
-        image: form.image,
-        gallery: form.gallery,
-        pdf: form.pdf,
-      };
-
-      if (editing) {
-        // When editing, pass the product ID and payload to match updateProduct(id, data)
-        await onSubmit((editing as any).id, payload);
-      } else {
-        // When creating, only send the payload to match createProduct(data)
-        await onSubmit(payload);
-      }
-
-      toast.success(editing ? "Product Updated!" : "Product Added!");
+      await onSubmit(editing?.id ?? form, form);
       onClose();
-    } catch (err) {
-      toast.error("Something went wrong!");
+    } catch (error) {
+      console.error('Error submitting product:', error);
+      toast.error("Failed to save product");
     } finally {
       setLoading(false);
+    }
+  };
+
+  const handleImageUpload = async (e: React.ChangeEvent<HTMLInputElement>) => {
+    if (!e.target.files?.[0]) return;
+    setUploading({ ...uploading, mainImage: true });
+    try {
+      const url = await handleUpload(e.target.files[0], 'products');
+      setForm({ ...form, image: url });
+    } catch (error) {
+      const errorMessage = error instanceof Error ? error.message : 'Failed to upload image';
+      toast.error(errorMessage);
+    } finally {
+      setUploading({ ...uploading, mainImage: false });
+    }
+  };
+
+  const handleGalleryUpload = async (e: React.ChangeEvent<HTMLInputElement>) => {
+    if (!e.target.files?.length) return;
+    setUploading({ ...uploading, gallery: true });
+    try {
+      const files = Array.from(e.target.files);
+      const urls = await Promise.all(
+        files.map((file) => handleUpload(file, 'products/gallery'))
+      );
+      setForm({ ...form, gallery: [...form.gallery, ...urls] });
+    } catch (error) {
+      const errorMessage = error instanceof Error ? error.message : 'Failed to upload gallery images';
+      toast.error(errorMessage);
+    } finally {
+      setUploading({ ...uploading, gallery: false });
+    }
+  };
+
+  const handlePdfUpload = async (e: React.ChangeEvent<HTMLInputElement>) => {
+    if (!e.target.files?.[0]) return;
+    setUploading({ ...uploading, pdf: true });
+    try {
+      const url = await handleUpload(e.target.files[0], 'products/pdf');
+      setForm({ ...form, pdf: url });
+    } catch (error) {
+      const errorMessage = error instanceof Error ? error.message : 'Failed to upload PDF';
+      toast.error(errorMessage);
+    } finally {
+      setUploading({ ...uploading, pdf: false });
     }
   };
 
@@ -362,21 +385,7 @@ export default function ProductAddModal({
                 type="file"
                 className="sr-only"
                 accept="image/*"
-                onChange={async (e: React.ChangeEvent<HTMLInputElement>) => {
-                  const file = e.target.files?.[0];
-                  if (!file) return;
-
-                  try {
-                    setUploading(prev => ({ ...prev, mainImage: true }));
-                    const url = await handleUpload(file, "products");
-                    setForm((prev) => ({ ...prev, image: url }));
-                    toast.success("Main image uploaded successfully");
-                  } catch (error: any) {
-                    toast.error(error.message || "Error uploading image");
-                  } finally {
-                    setUploading(prev => ({ ...prev, mainImage: false }));
-                  }
-                }}
+                onChange={handleImageUpload}
               />
             </label>
           )}
@@ -418,36 +427,7 @@ export default function ProductAddModal({
               className="sr-only"
               accept="image/*"
               multiple
-              onChange={async (e: React.ChangeEvent<HTMLInputElement>) => {
-                const files = Array.from(e.target.files || []);
-                if (files.length === 0) return;
-
-                try {
-                  setUploading(prev => ({ ...prev, gallery: true }));
-                  const uploaded: string[] = [];
-                  
-                  for (const file of files) {
-                    try {
-                      const url = await handleUpload(file, "products/gallery");
-                      uploaded.push(url);
-                    } catch (error: any) {
-                      toast.error(`Error uploading ${file.name}: ${error.message}`);
-                    }
-                  }
-
-                  if (uploaded.length > 0) {
-                    setForm(prev => ({
-                      ...prev,
-                      gallery: [...prev.gallery, ...uploaded]
-                    }));
-                    toast.success(`Added ${uploaded.length} image(s) to gallery`);
-                  }
-                } catch (error: any) {
-                  toast.error(error.message || "Error uploading gallery images");
-                } finally {
-                  setUploading(prev => ({ ...prev, gallery: false }));
-                }
-              }}
+              onChange={handleGalleryUpload}
             />
           </label>
         </div>
@@ -486,21 +466,7 @@ export default function ProductAddModal({
                 type="file"
                 className="sr-only"
                 accept="application/pdf"
-                onChange={async (e: React.ChangeEvent<HTMLInputElement>) => {
-                  const file = e.target.files?.[0];
-                  if (!file) return;
-
-                  try {
-                    setUploading(prev => ({ ...prev, pdf: true }));
-                    const url = await handleUpload(file, "products/pdf");
-                    setForm(prev => ({ ...prev, pdf: url }));
-                    toast.success("PDF uploaded successfully");
-                  } catch (error: any) {
-                    toast.error(error.message || "Error uploading PDF");
-                  } finally {
-                    setUploading(prev => ({ ...prev, pdf: false }));
-                  }
-                }}
+                onChange={handlePdfUpload}
               />
             </label>
           )}

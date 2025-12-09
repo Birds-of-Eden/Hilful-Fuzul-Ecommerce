@@ -40,43 +40,29 @@ export async function getCalanderEventTimes(
 }
 
 export async function getGoogleAuthClient(userId: string) {
-  const userWithGoogleAccessToken = await db.users.findUnique({
-    where: {
-      id: userId,
-    },
-    include: {
-      accounts: {
-        where: {
-          providerId: "google",
-          accessToken: {
-            not: null,
-          },
-        },
-        select: {
-          providerId: true,
-          accessToken: true,
-        },
-      },
-    },
-  });
-
-  if (
-    !userWithGoogleAccessToken?.accounts &&
-    !userWithGoogleAccessToken?.accounts.length
-  ) {
-    throw new Error("No Google account linked to this user");
+  // Ensure the user exists
+  const user = await db.user.findUnique({ where: { id: userId } });
+  if (!user) {
+    throw new Error("User not found");
   }
 
-  //   Initialize OAuth2 Client
+  // Prefer an explicit per-user stored token if you add one to the schema.
+  // For now, use an environment variable for the Google access token.
+  const accessToken = process.env.GOOGLE_ACCESS_TOKEN;
+  if (!accessToken) {
+    throw new Error(
+      "No Google access token available. Set `GOOGLE_ACCESS_TOKEN` or store tokens per-user in the database."
+    );
+  }
+
+  // Initialize OAuth2 Client
   const client = new google.auth.OAuth2(
     process.env.GOOGLE_CLIENT_ID,
     process.env.GOOGLE_CLIENT_SECRET,
     process.env.GOOGLE_REDIRECT_URI
   );
 
-  client.setCredentials({
-    access_token: userWithGoogleAccessToken.accounts[0].accessToken,
-  });
+  client.setCredentials({ access_token: accessToken });
 
   return client;
 }

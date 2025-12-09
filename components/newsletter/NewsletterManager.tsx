@@ -58,6 +58,7 @@ export default function NewsletterManagement() {
         throw new Error("Failed to fetch newsletters");
       }
     } catch (error) {
+      console.error("Failed to fetch newsletters:", error);
       showToast("Error", "Failed to fetch newsletters", "destructive");
     } finally {
       setLoading(false);
@@ -96,6 +97,7 @@ export default function NewsletterManagement() {
         throw new Error("Failed to save newsletter");
       }
     } catch (error) {
+      console.error("Failed to save newsletter:", error);
       showToast("Error", "Failed to save newsletter", "destructive");
     }
   };
@@ -115,6 +117,7 @@ export default function NewsletterManagement() {
         throw new Error(result.error || "Failed to send newsletter");
       }
     } catch (error) {
+      console.error("Failed to send newsletter:", error);
       showToast(
         "Error",
         error instanceof Error ? error.message : "Failed to send newsletter",
@@ -140,6 +143,7 @@ export default function NewsletterManagement() {
         throw new Error("Failed to delete newsletter");
       }
     } catch (error) {
+      console.error("Failed to delete newsletter:", error);
       showToast("Error", "Failed to delete newsletter", "destructive");
     } finally {
       setDeletingId(null);

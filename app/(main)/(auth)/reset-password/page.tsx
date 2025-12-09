@@ -73,7 +73,7 @@ export default function ResetPasswordPage() {
       setTimeout(() => {
         router.push("/signin");
       }, 2000);
-    } catch (err) {
+    } catch {
       setError("নেটওয়ার্ক ত্রুটি। আবার চেষ্টা করুন।");
       setLoading(false);
     }
