@@ -70,7 +70,8 @@ export async function POST(req: Request) {
         original_price: body.original_price
           ? Number(body.original_price)
           : null,
-        discount: body.discount || 0,
+        // Ensure discount is always an Int (or 0) for Prisma
+        discount: body.discount ? Number(body.discount) : 0,
         stock: Number(body.stock),
         available: body.available,
 

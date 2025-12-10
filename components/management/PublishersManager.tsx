@@ -28,7 +28,10 @@ interface PublishersManagerProps {
   publishers: Publisher[];
   loading: boolean;
   onCreate: (data: { name: string; image?: string }) => Promise<void>;
-  onUpdate: (id: number, data: { name: string; image?: string }) => Promise<void>;
+  onUpdate: (
+    id: number,
+    data: { name: string; image?: string }
+  ) => Promise<void>;
   onDelete: (id: number) => Promise<void>;
 }
 
@@ -109,7 +112,7 @@ export default function PublishersManager({
       await onDelete(deletingId); // wait for soft delete API
       toast.success("প্রকাশকটি সফলভাবে ডিলিট করা হয়েছে");
     } catch (error) {
-      console.error('Error deleting publisher:', error);
+      console.error("Error deleting publisher:", error);
       toast.error("ডিলিট করতে সমস্যা হয়েছে");
     } finally {
       setDeleteModalOpen(false);
@@ -182,18 +185,30 @@ export default function PublishersManager({
       {/* Publishers Grid */}
       {loading ? (
         <p className="text-center text-lg mt-20">লোড হচ্ছে...</p>
+      ) : filtered.length === 0 ? (
+        <div className="col-span-full text-center py-12">
+          <BookOpen className="h-16 w-16 text-gray-300 mx-auto mb-4" />
+          <h3 className="text-lg font-medium text-gray-700">
+            কোন প্রকাশক পাওয়া যায়নি
+          </h3>
+          <p className="text-gray-500 mt-1 mb-6">
+            একটি নতুন প্রকাশক যোগ করতে নিচের বাটনে ক্লিক করুন
+          </p>
+          <Button onClick={openAdd} className="bg-[#2C4A3B] text-white">
+            <Plus className="h-4 w-4 mr-1" /> নতুন প্রকাশক যোগ করুন
+          </Button>
+        </div>
       ) : (
         <div className="grid grid-cols-1 md:grid-cols-3 xl:grid-cols-4 gap-6">
           {filtered.map((pub) => (
             <Card key={pub.id} className="rounded-2xl shadow bg-white">
-              <div className="h-48 bg-gray-100 rounded-t-2xl overflow-hidden flex itemsCenter justify-center">
+              <div className="h-48 bg-gray-100 rounded-t-2xl overflow-hidden flex items-center justify-center relative">
                 {pub.image ? (
                   <Image
                     src={pub.image}
                     alt={`${pub.name}'s logo`}
                     fill
-                    className="object-cover"
-                    sizes="(max-width: 768px) 100vw, (max-width: 1200px) 50vw, 33vw"
+                    className="object-cover p-3"
                   />
                 ) : (
                   <Users className="h-16 w-16 text-gray-400" />
@@ -237,7 +252,7 @@ export default function PublishersManager({
           <div className="bg-white rounded-2xl shadow-xl w-full max-w-md">
             <div className="p-6 border-b">
               <h2 className="text-2xl font-bold">
-                {editing ? "прকাশক আপডেট" : "নতুন প্রকাশক"}
+                {editing ? "প্রকাশক আপডেট" : "নতুন প্রকাশক"}
               </h2>
             </div>
 
