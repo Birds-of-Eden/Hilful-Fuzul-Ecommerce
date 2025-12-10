@@ -15,6 +15,7 @@ export async function GET(
        where: { id, deleted: false },
       include: {
         products: {
+          where: { deleted: false },
           include: {
             writer: true, // writer table relation dhore nilam
           },

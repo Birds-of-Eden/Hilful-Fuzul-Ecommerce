@@ -354,7 +354,7 @@ export default function ProductManager({
                 key={p.id}
                 className="group bg-white/80 rounded-2xl shadow-lg hover:shadow-2xl transition"
               >
-                <div className="relative h-48">
+                <div className="relative w-full aspect-[3/4] sm:aspect-[4/5] lg:aspect-[3/4] max-w-[500px] mx-auto rounded-xl overflow-hidden bg-gray-50 group">
                   {p.image ? (
                     <Image
                       src={p.image}

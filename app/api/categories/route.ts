@@ -9,13 +9,15 @@ export async function GET() {
       where: { deleted: false },
       orderBy: { id: "desc" },
       include: {
-        _count: { select: { products: true } },
+        products: {
+          where: { deleted: false },
+        },
       },
     });
 
     const formatted = categories.map((c) => ({
       ...c,
-      productCount: c._count.products,
+      productCount: c.products.length,
     }));
 
     return NextResponse.json(formatted);
