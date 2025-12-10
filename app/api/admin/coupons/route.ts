@@ -4,11 +4,14 @@ import { prisma } from "@/lib/prisma";
 export async function GET() {
   try {
     const coupons = await prisma.coupon.findMany({
-      orderBy: { createdAt: 'desc' }
+      orderBy: { createdAt: "desc" },
     });
     return NextResponse.json(coupons);
-  } catch (error) {
-    return NextResponse.json({ error: "Failed to fetch coupons" }, { status: 500 });
+  } catch {
+    return NextResponse.json(
+      { error: "Failed to fetch coupons" },
+      { status: 500 },
+    );
   }
 }
 

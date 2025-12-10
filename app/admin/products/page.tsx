@@ -10,9 +10,9 @@ interface Product {
   price: number;
   stock: number;
   image?: string;
-  writer?: any;
-  publisher?: any;
-  category?: any;
+  writer?: Writer;
+  publisher?: Publisher;
+  category?: Category;
 }
 
 interface Writer {
@@ -52,10 +52,10 @@ export default function ProductsPage() {
       const publishersCacheKey = "all";
       const categoriesCacheKey = "all";
 
-      let productsData = productsCache.get(productsCacheKey);
-      let writersData = writersCache.get(writersCacheKey);
-      let publishersData = publishersCache.get(publishersCacheKey);
-      let categoriesData = categoriesCache.get(categoriesCacheKey);
+      const productsData = productsCache.get(productsCacheKey);
+      const writersData = writersCache.get(writersCacheKey);
+      const publishersData = publishersCache.get(publishersCacheKey);
+      const categoriesData = categoriesCache.get(categoriesCacheKey);
 
       // If all data is cached, use cached data
       if (productsData && writersData && publishersData && categoriesData) {
@@ -97,7 +97,7 @@ export default function ProductsPage() {
   }, [loadAll]);
 
   // Memoize CRUD operations
-  const createProduct = useCallback(async (data: any) => {
+  const createProduct = useCallback(async (data: unknown) => {
     const res = await fetch("/api/products", {
       method: "POST",
       headers: { "Content-Type": "application/json" },
@@ -116,7 +116,7 @@ export default function ProductsPage() {
     });
   }, []);
 
-  const updateProduct = useCallback(async (id: number, data: any) => {
+  const updateProduct = useCallback(async (id: number, data: unknown) => {
     try {
       const res = await fetch(`/api/products/${id}`, {
         method: "PUT",

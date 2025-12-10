@@ -310,9 +310,8 @@ export default function OrdersPage() {
                       className="flex gap-4 mb-4 last:mb-0 pb-4 last:pb-0 border-b last:border-b-0 border-dashed border-[#5FA3A3]/20"
                     >
                       <div className="w-16 h-20 flex-shrink-0 bg-[#F4F8F7] border border-[#5FA3A3]/30 rounded-xl overflow-hidden flex items-center justify-center">
-                        {item.image ? (
-                          // eslint-disable-next-line @next/next/no-img-element
-                          <img
+                          {item.image ? (
+                            <img
                             src={item.image}
                             alt={item.name}
                             className="w-full h-full object-cover"

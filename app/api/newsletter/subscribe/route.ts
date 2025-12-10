@@ -18,9 +18,9 @@ export async function POST(req: Request) {
 
     const resendEmail = email.trim().toLowerCase(); // ইমেইল কেস-ইনসেনসিটিভ করার জন্য
 
-    let resendContact;
+    let resendContact: unknown;
     let isAlreadyInResend = false;
-    let resendError = null;
+    let resendError: string | null = null;
 
     // Only try Resend if configured
     if (process.env.RESEND_API_KEY && process.env.RESEND_AUDIENCE_ID) {

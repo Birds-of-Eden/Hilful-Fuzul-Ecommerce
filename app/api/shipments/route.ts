@@ -3,7 +3,14 @@ import { NextRequest, NextResponse } from "next/server";
 import { getServerSession } from "next-auth/next";
 import { authOptions } from "@/lib/auth";
 import { prisma } from "@/lib/prisma";
-import { ShipmentStatus } from "@prisma/client";
+
+type ShipmentStatus =
+  | "PENDING"
+  | "IN_TRANSIT"
+  | "OUT_FOR_DELIVERY"
+  | "DELIVERED"
+  | "RETURNED"
+  | "CANCELLED";
 
 // GET /api/shipments
 // - admin: all shipments (pagination + optional status/orderId filter)
@@ -35,9 +42,16 @@ export async function GET(request: NextRequest) {
 
     // optional filter: status
     if (statusParam) {
-      if (
-        !Object.values(ShipmentStatus).includes(statusParam as ShipmentStatus)
-      ) {
+      const validShipmentStatuses: ShipmentStatus[] = [
+        "PENDING",
+        "IN_TRANSIT",
+        "OUT_FOR_DELIVERY",
+        "DELIVERED",
+        "RETURNED",
+        "CANCELLED",
+      ];
+
+      if (!validShipmentStatuses.includes(statusParam as ShipmentStatus)) {
         return NextResponse.json(
           { error: "Invalid shipment status filter" },
           { status: 400 }
@@ -166,9 +180,18 @@ export async function POST(request: NextRequest) {
     }
 
     // status validate
-    let shipmentStatus: ShipmentStatus = ShipmentStatus.PENDING;
+    let shipmentStatus: ShipmentStatus = "PENDING";
     if (status) {
-      if (!Object.values(ShipmentStatus).includes(status as ShipmentStatus)) {
+      const validShipmentStatuses: ShipmentStatus[] = [
+        "PENDING",
+        "IN_TRANSIT",
+        "OUT_FOR_DELIVERY",
+        "DELIVERED",
+        "RETURNED",
+        "CANCELLED",
+      ];
+
+      if (!validShipmentStatuses.includes(status as ShipmentStatus)) {
         return NextResponse.json(
           { error: "Invalid shipment status" },
           { status: 400 }

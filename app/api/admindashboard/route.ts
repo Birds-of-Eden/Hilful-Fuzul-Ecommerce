@@ -194,13 +194,13 @@ export async function GET(request: NextRequest) {
       totalRevenue: currentRevenue,
       pendingOrders,
       lowStockProducts,
-      recentOrders: recentOrders.map(order => ({
+      recentOrders: recentOrders.map((order: any) => ({
         id: order.id,
         grandTotal: Number(order.grand_total),
         status: order.status,
         user: order.user
       })),
-      topProducts: topProducts.map(product => ({
+      topProducts: topProducts.map((product: any) => ({
         id: product.id,
         name: product.name,
         price: Number(product.price),

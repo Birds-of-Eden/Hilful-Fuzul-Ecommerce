@@ -56,17 +56,43 @@ export async function PUT(
     }
 
     // Only allow fields in your schema
-    const { title, summary, date, author, image, ads } = await req.json();
+    const {
+      title,
+      summary,
+      date,
+      author,
+      image,
+      ads,
+    }: {
+      title?: string;
+      summary?: string;
+      date?: string;
+      author?: string;
+      image?: string;
+      ads?: string | null;
+    } = await req.json();
 
     // Generate new slug if title is being updated
-    let updateData: any = {
-      summary: typeof summary === "string" && summary.trim().length > 0
-        ? summary
-        : existingBlog.summary,
+    const updateData: {
+      title?: string;
+      slug?: string;
+      summary: string;
+      date: Date;
+      author: string;
+      image: string;
+      ads: string | null;
+    } = {
+      summary:
+        typeof summary === "string" && summary.trim().length > 0
+          ? summary
+          : existingBlog.summary,
       date: date ? new Date(date) : existingBlog.date,
       author: author ?? existingBlog.author,
       image: image ?? existingBlog.image,
-      ads: typeof ads === "string" && ads.trim().length > 0 ? ads.trim() : existingBlog.ads,
+      ads:
+        typeof ads === "string" && ads.trim().length > 0
+          ? ads.trim()
+          : existingBlog.ads,
     };
 
     if (title && title !== existingBlog.title) {

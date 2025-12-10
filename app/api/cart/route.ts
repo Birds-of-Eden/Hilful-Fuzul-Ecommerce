@@ -5,10 +5,11 @@ import { authOptions } from '@/lib/auth';
 import { prisma } from '@/lib/prisma';
 
 // GET cart items - Logged in user only
-export async function GET(_request: NextRequest) {
+export async function GET() {
   try {
     const session = await getServerSession(authOptions);
-    const userId = (session?.user as any)?.id as string | undefined;
+    const user = session?.user as { id?: string } | undefined;
+    const userId = user?.id;
 
     if (!userId) {
       return NextResponse.json({ error: 'Unauthorized' }, { status: 401 });
@@ -37,7 +38,8 @@ export async function GET(_request: NextRequest) {
 export async function POST(request: NextRequest) {
   try {
     const session = await getServerSession(authOptions);
-    const userId = (session?.user as any)?.id as string | undefined;
+    const user = session?.user as { id?: string } | undefined;
+    const userId = user?.id;
 
     if (!userId) {
       return NextResponse.json({ error: 'Unauthorized' }, { status: 401 });
@@ -102,10 +104,11 @@ export async function POST(request: NextRequest) {
 }
 
 // CLEAR cart - Logged in user only
-export async function DELETE(_request: NextRequest) {
+export async function DELETE() {
   try {
     const session = await getServerSession(authOptions);
-    const userId = (session?.user as any)?.id as string | undefined;
+    const user = session?.user as { id?: string } | undefined;
+    const userId = user?.id;
 
     if (!userId) {
       return NextResponse.json({ error: 'Unauthorized' }, { status: 401 });

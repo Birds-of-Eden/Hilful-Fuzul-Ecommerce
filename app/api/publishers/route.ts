@@ -30,7 +30,7 @@ export async function GET() {
       },
     });
 
-    const formatted = publishers.map((p) => ({
+    const formatted = publishers.map((p: any) => ({
       ...p,
       productCount: p._count.products,
     }));

@@ -1,10 +1,5 @@
 import { NextRequest, NextResponse } from "next/server";
 
-// Resend API configuration
-const RESEND_API_KEY = process.env.RESEND_API_KEY;
-const RESEND_FROM_EMAIL =
-  process.env.RESEND_FROM_EMAIL || "onboarding@resend.dev";
-
 // Recipient emails - in testing mode, only send to the verified email
 const getRecipientEmails = () => {
   const isProductionMode = process.env.NODE_ENV === "production" && process.env.RESEND_DOMAIN_VERIFIED === "true";
@@ -123,7 +118,11 @@ ${message}
 }
 
 // Resend email service
-async function sendEmailWithResend(emailContent: any, replyTo: string, recipients: string[]) {
+async function sendEmailWithResend(
+  emailContent: { subject: string; html: string; text?: string },
+  replyTo: string,
+  recipients: string[]
+) {
   try {
     const response = await fetch("https://api.resend.com/emails", {
       method: "POST",

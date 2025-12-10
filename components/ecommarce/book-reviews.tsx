@@ -103,9 +103,8 @@ export default function BookReviews({ bookId }: BookReviewsProps) {
   };
 
   useEffect(() => {
-    void fetchReviews();
-    // eslint-disable-next-line react-hooks/exhaustive-deps
-  }, [bookId]);
+      void fetchReviews();
+    }, [bookId]);
 
   // ✅ রিভিউ সাবমিট → API POST
   const handleSubmitReview = async () => {

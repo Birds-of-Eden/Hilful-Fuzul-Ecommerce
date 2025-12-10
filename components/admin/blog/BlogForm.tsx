@@ -340,8 +340,7 @@ export default function BlogForm({ blog, onSuccess }: BlogFormProps) {
 
           {/* Preview */}
           {formData.image && (
-            <div className="mb-3 flex items-center gap-4">
-              {/* eslint-disable-next-line @next/next/no-img-element */}
+              <div className="mb-3 flex items-center gap-4">
               <img
                 src={formData.image}
                 alt="Blog featured"

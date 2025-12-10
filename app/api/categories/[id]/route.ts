@@ -41,7 +41,7 @@ export async function GET(
     console.error(error);
     return NextResponse.json(
       { error: "Failed to fetch category" },
-      { status: 500 }
+      { status: 500 },
     );
   }
 }
@@ -61,10 +61,10 @@ export async function PUT(
     });
 
     return NextResponse.json(category);
-  } catch (error) {
+  } catch {
     return NextResponse.json(
       { error: "Failed to update category" },
-      { status: 500 }
+      { status: 500 },
     );
   }
 }
@@ -87,7 +87,7 @@ export async function DELETE(
     console.error("Soft delete category error:", error);
     return NextResponse.json(
       { error: "Failed to delete category" },
-      { status: 500 }
+      { status: 500 },
     );
   }
 }

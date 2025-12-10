@@ -28,7 +28,7 @@ function guessContentType(ext: string) {
   }
 }
 
-export async function GET(_req: Request, ctx: { params: Promise<{}> }) {
+export async function GET(_req: Request, ctx: { params: Promise<Record<string, never>> }) {
   try {
     // This endpoint doesn't serve files directly, use /api/upload/[...slug] instead
     return NextResponse.json(

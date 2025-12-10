@@ -18,14 +18,14 @@ export async function GET() {
     });
 
     const cleaned = products
-      .map((p) => ({
+      .map((p: any) => ({
         ...p,
         writer: p.writer?.deleted ? null : p.writer,
         publisher: p.publisher?.deleted ? null : p.publisher,
         category: p.category?.deleted ? null : p.category,
       }))
       .filter(
-        (p) =>
+        (p: any) =>
           p.writer !== null &&
           p.publisher !== null &&
           p.category !== null

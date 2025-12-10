@@ -15,16 +15,16 @@ export async function GET() {
       },
     });
 
-    const formatted = categories.map((c) => ({
+    const formatted = categories.map((c: any) => ({
       ...c,
       productCount: c.products.length,
     }));
 
     return NextResponse.json(formatted);
-  } catch (error) {
+  } catch {
     return NextResponse.json(
       { error: "Failed to fetch categories" },
-      { status: 500 }
+      { status: 500 },
     );
   }
 }
@@ -38,10 +38,10 @@ export async function POST(req: Request) {
     });
 
     return NextResponse.json(category);
-  } catch (error) {
+  } catch {
     return NextResponse.json(
       { error: "Failed to create category" },
-      { status: 500 }
+      { status: 500 },
     );
   }
 }

@@ -30,7 +30,7 @@ export async function POST(request: Request) {
 
     // Format the response
     const ratingsMap = productIds.reduce((acc, productId) => {
-      const rating = ratings.find(r => r.productId === productId);
+      const rating = ratings.find((r: any) => r.productId === productId);
       acc[String(productId)] = {
         averageRating: rating?._avg.rating || 0,
         totalReviews: rating?._count.rating || 0

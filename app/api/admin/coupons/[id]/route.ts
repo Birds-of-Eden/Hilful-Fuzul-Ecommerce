@@ -48,7 +48,10 @@ export async function DELETE(req: Request, { params }: { params: Promise<{ id: s
     });
 
     return NextResponse.json({ message: "Coupon deleted successfully" });
-  } catch (error) {
-    return NextResponse.json({ error: "Failed to delete coupon" }, { status: 500 });
+  } catch {
+    return NextResponse.json(
+      { error: "Failed to delete coupon" },
+      { status: 500 },
+    );
   }
 }

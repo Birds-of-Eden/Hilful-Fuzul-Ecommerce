@@ -33,7 +33,13 @@ interface UserDetail {
   name: string | null;
   role: string;
   phone: string | null;
-  address: any;
+  address: {
+    addresses?: string[];
+    address_1?: string;
+    address_2?: string;
+    address_3?: string;
+    [key: string]: unknown;
+  } | null;
   banned: boolean | null;
   banReason: string | null;
   banExpires: number | null;
@@ -92,7 +98,12 @@ export default function UserDetailPage() {
 
           const normalizedUser: UserDetail = {
             ...userData,
-            orders: (userData.orders ?? []).map((order: any) => ({
+            orders: (userData.orders ?? []).map((order: {
+              id: number;
+              status: string;
+              grand_total: number | string;
+              order_date: Date;
+            }) => ({
               id: order.id,
               status: order.status,
               grandTotal: Number(order.grand_total),
@@ -101,11 +112,16 @@ export default function UserDetailPage() {
           };
 
           // Normalize addresses array from Json
-          const rawAddress = userData.address || {};
+          const rawAddress = (userData.address || {}) as {
+            addresses?: unknown;
+            address_1?: string;
+            address_2?: string;
+            address_3?: string;
+          };
           let addresses: string[] = [];
           if (Array.isArray(rawAddress.addresses)) {
             addresses = rawAddress.addresses.filter(
-              (a: any) => typeof a === "string" && a.trim().length > 0
+              (a): a is string => typeof a === "string" && a.trim().length > 0
             );
           } else {
             if (rawAddress.address_1) addresses.push(rawAddress.address_1);
@@ -176,7 +192,12 @@ export default function UserDetailPage() {
 
         const normalizedUser: UserDetail = {
           ...updatedUser,
-          orders: (updatedUser.orders ?? []).map((order: any) => ({
+          orders: (updatedUser.orders ?? []).map((order: {
+            id: number;
+            status: string;
+            grand_total: number | string;
+            order_date: Date;
+          }) => ({
             id: order.id,
             status: order.status,
             grandTotal: Number(order.grand_total),

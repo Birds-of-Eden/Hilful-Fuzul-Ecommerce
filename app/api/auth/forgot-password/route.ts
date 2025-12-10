@@ -145,10 +145,14 @@ export async function POST(req: Request) {
       success: true,
       message: "If an account exists with this email, a reset link has been sent."
     });
-  } catch (error: any) {
-    console.error("Forgot password SMTP Error:", error.message);
+  } catch (error: unknown) {
+    const message =
+      error instanceof Error && error.message
+        ? error.message
+        : "Unknown error";
+    console.error("Forgot password SMTP Error:", message);
     return NextResponse.json(
-      { error: "Failed to process request", details: error.message },
+      { error: "Failed to process request", details: message },
       { status: 500 }
     );
   }

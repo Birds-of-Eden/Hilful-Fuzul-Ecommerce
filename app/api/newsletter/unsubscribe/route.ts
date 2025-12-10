@@ -9,7 +9,7 @@ async function handleUnsubscribe(email: string) {
     const resendEmail = email.trim().toLowerCase();
 
     let isResendUpdated = false;
-    let resendError = null;
+    let resendError: string | null = null;
 
     // Only try Resend if configured
     if (process.env.RESEND_API_KEY && process.env.RESEND_AUDIENCE_ID) {

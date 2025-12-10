@@ -67,15 +67,22 @@ interface Shipment {
   createdAt?: string;
 }
 
+interface Pagination {
+  page: number;
+  limit: number;
+  total: number;
+  pages: number;
+}
+
 const OrderManagement = () => {
   const [orders, setOrders] = useState<Order[]>([]);
-  const [pagination, setPagination] = useState<any | null>(null);
+  const [pagination, setPagination] = useState<Pagination | null>(null);
   const [page, setPage] = useState(1);
   const [statusFilter, setStatusFilter] = useState<string>("ALL");
   const [search, setSearch] = useState("");
   const [loading, setLoading] = useState(false);
   const [error, setError] = useState<string | null>(null);
-  const [ordersCache, setOrdersCache] = useState<Map<string, { orders: Order[], pagination: any }>>(new Map());
+  const [ordersCache, setOrdersCache] = useState<Map<string, { orders: Order[]; pagination: Pagination | null }>>(new Map());
 
   // details modal states
   const [detailOpen, setDetailOpen] = useState(false);
@@ -152,8 +159,12 @@ const OrderManagement = () => {
       
       setOrders(data.orders || []);
       setPagination(data.pagination || null);
-    } catch (err: any) {
-      setError(err?.message || "Failed to load orders");
+    } catch (err: unknown) {
+      const message =
+        err instanceof Error && err.message
+          ? err.message
+          : "Failed to load orders";
+      setError(message);
     } finally {
       setLoading(false);
     }
@@ -255,20 +266,6 @@ const OrderManagement = () => {
     setDetailError(null);
   }, []);
 
-  // Memoize state setters to prevent unnecessary re-renders
-  const handlePageChange = useCallback((newPage: number) => {
-    setPage(newPage);
-  }, []);
-
-  const handleStatusFilterChange = useCallback((newStatus: string) => {
-    setStatusFilter(newStatus);
-    setPage(1); // Reset to first page when filter changes
-  }, []);
-
-  const handleSearchChange = useCallback((newSearch: string) => {
-    setSearch(newSearch);
-  }, []);
-
   useEffect(() => {
     if (!detailOpen || !selectedOrderId) return;
 
@@ -335,8 +332,12 @@ const OrderManagement = () => {
         } else {
           setShipment(null);
         }
-      } catch (err: any) {
-        setDetailError(err?.message || "Failed to load details");
+        } catch (err: unknown) {
+        const message =
+          err instanceof Error && err.message
+            ? err.message
+            : "Failed to load details";
+        setDetailError(message);
       } finally {
         setDetailLoading(false);
       }
@@ -496,16 +497,13 @@ const OrderManagement = () => {
 
       // 4) Success modal দেখাও
       setSuccessMessage("অর্ডার ও শিপমেন্ট তথ্য সফলভাবে আপডেট হয়েছে ✅");
-      setSuccessOpen(true);
-    } catch (err: any) {
+        setSuccessOpen(true);
+        } catch (err: any) {
       alert(err?.message || "আপডেট করতে সমস্যা হয়েছে");
     } finally {
       setSaving(false);
     }
   }, [orderDetail, editOrderStatus, editPaymentStatus, editTransactionId, shipment, editCourier, editTrackingNumber, editShipmentStatus, editExpectedDate, editDeliveredDate]);
-
-  // Memoize pagination data
-  const memoizedPagination = useMemo(() => pagination, [pagination]);
 
   // ------------------- RENDER -------------------
 
@@ -949,7 +947,6 @@ const OrderManagement = () => {
                       <div className="flex flex-col gap-4 sm:flex-row sm:items-start">
                         {/* Preview Card */}
                         <div className="w-full max-w-xs overflow-hidden rounded-xl border border-gray-200 bg-white shadow-sm">
-                          {/* eslint-disable-next-line @next/next/no-img-element */}
                           <img
                             src={orderDetail.image}
                             alt="Payment screenshot"

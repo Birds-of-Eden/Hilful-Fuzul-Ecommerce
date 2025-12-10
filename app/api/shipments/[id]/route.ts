@@ -3,7 +3,6 @@ import { NextRequest, NextResponse } from "next/server";
 import { getServerSession } from "next-auth/next";
 import { authOptions } from "@/lib/auth";
 import { prisma } from "@/lib/prisma";
-import { ShipmentStatus } from "@prisma/client";
 
 interface RouteParams {
   params: Promise<{ id: string }>;
@@ -124,13 +123,22 @@ export async function PATCH(request: NextRequest, { params }: RouteParams) {
     if (trackingNumber !== undefined) data.trackingNumber = trackingNumber;
 
     if (status !== undefined) {
-      if (!Object.values(ShipmentStatus).includes(status as ShipmentStatus)) {
+      const validShipmentStatuses = [
+        "PENDING",
+        "IN_TRANSIT",
+        "OUT_FOR_DELIVERY",
+        "DELIVERED",
+        "RETURNED",
+        "CANCELLED",
+      ] as const;
+
+      if (!validShipmentStatuses.includes(status)) {
         return NextResponse.json(
           { error: "Invalid shipment status" },
           { status: 400 }
         );
       }
-      data.status = status as ShipmentStatus;
+      data.status = status;
     }
 
     if (shippedAt !== undefined) {

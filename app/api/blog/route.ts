@@ -73,14 +73,14 @@ export async function POST(request: NextRequest) {
     function cleanSummary(text: string, maxLength: number = 300) {
       if (!text) return "";
 
-      let clean = text.replace(/<[^>]*>/g, " ").replace(/\s+/g, " ").trim();
+      const clean = text.replace(/<[^>]*>/g, " ").replace(/\s+/g, " ").trim();
 
       if (clean.length <= maxLength) return clean;
 
       const sentences = clean.split(/(?<=[।!?])/).map(s => s.trim()).filter(Boolean);
 
-      let final = "";
-      for (let s of sentences) {
+        let final = "";
+        for (const s of sentences) {
         if ((final + " " + s).trim().length <= maxLength) {
           final += (final ? " " : "") + s;
         } else break;

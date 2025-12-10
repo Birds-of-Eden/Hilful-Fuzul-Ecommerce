@@ -33,8 +33,8 @@ export async function DELETE(request: Request) {
       message: 'File deleted successfully' 
     });
     
-  } catch (error: any) {
-    if (error.code === 'ENOENT') {
+  } catch (error: unknown) {
+    if (error instanceof Error && (error as NodeJS.ErrnoException).code === 'ENOENT') {
       // File not found, but we'll still return success since the goal is to have the file deleted
       return NextResponse.json({ 
         success: true,
@@ -47,7 +47,7 @@ export async function DELETE(request: Request) {
       { 
         success: false,
         error: 'Failed to delete file',
-        details: error.message 
+        details: error instanceof Error ? error.message : 'Unknown error' 
       },
       { status: 500 }
     );

@@ -92,7 +92,7 @@ export default function ReturnsPolicyPage() {
               <div className="space-y-4">
                 <div className="flex items-start space-x-3">
                   <div className="w-2 h-2 bg-red-600 rounded-full mt-2 flex-shrink-0"></div>
-                  <p className="text-[#0D1414]">ব্যবহারের痕迹 থাকলে</p>
+                  <p className="text-[#0D1414]">ব্যবহারের থাকলে</p>
                 </div>
                 <div className="flex items-start space-x-3">
                   <div className="w-2 h-2 bg-red-600 rounded-full mt-2 flex-shrink-0"></div>

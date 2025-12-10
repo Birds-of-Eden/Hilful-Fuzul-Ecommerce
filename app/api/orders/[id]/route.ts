@@ -3,7 +3,6 @@ import { NextRequest, NextResponse } from "next/server";
 import { getServerSession } from "next-auth/next";
 import { authOptions } from "@/lib/auth";
 import { prisma } from "@/lib/prisma";
-import { OrderStatus, PaymentStatus } from "@prisma/client";
 
 // GET /api/orders/:id
 export async function GET(
@@ -84,27 +83,34 @@ export async function PATCH(
     const data: any = {};
 
     if (status) {
-      if (!Object.values(OrderStatus).includes(status as OrderStatus)) {
+      const validOrderStatuses = [
+        "PENDING",
+        "CONFIRMED",
+        "PROCESSING",
+        "SHIPPED",
+        "DELIVERED",
+        "CANCELLED",
+      ] as const;
+
+      if (!validOrderStatuses.includes(status)) {
         return NextResponse.json(
           { error: "Invalid order status" },
           { status: 400 }
         );
       }
-      data.status = status as OrderStatus;
+      data.status = status;
     }
 
     if (paymentStatus) {
-      if (
-        !Object.values(PaymentStatus).includes(
-          paymentStatus as PaymentStatus
-        )
-      ) {
+      const validPaymentStatuses = ["UNPAID", "PAID"] as const;
+
+      if (!validPaymentStatuses.includes(paymentStatus)) {
         return NextResponse.json(
           { error: "Invalid payment status" },
           { status: 400 }
         );
       }
-      data.paymentStatus = paymentStatus as PaymentStatus;
+      data.paymentStatus = paymentStatus;
     }
 
     if (transactionId !== undefined) {

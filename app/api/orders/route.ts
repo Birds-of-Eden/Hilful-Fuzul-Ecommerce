@@ -3,7 +3,6 @@ import { NextRequest, NextResponse } from "next/server";
 import { getServerSession } from "next-auth/next";
 import { authOptions } from "@/lib/auth";
 import { prisma } from "@/lib/prisma";
-import { OrderStatus, PaymentStatus } from "@prisma/client";
 
 // GET /api/orders
 // - admin: all orders (with pagination & optional status filter)
@@ -34,13 +33,22 @@ export async function GET(request: NextRequest) {
 
     if (statusParam) {
       // status must match enum values
-      if (!Object.values(OrderStatus).includes(statusParam as OrderStatus)) {
+      const validOrderStatuses = [
+        "PENDING",
+        "CONFIRMED",
+        "PROCESSING",
+        "SHIPPED",
+        "DELIVERED",
+        "CANCELLED",
+      ] as const;
+
+      if (!validOrderStatuses.includes(statusParam as (typeof validOrderStatuses)[number])) {
         return NextResponse.json(
           { error: "Invalid status filter" },
           { status: 400 }
         );
       }
-      where.status = statusParam as OrderStatus;
+      where.status = statusParam;
     }
 
     const [orders, total] = await Promise.all([
@@ -170,7 +178,7 @@ export async function POST(request: NextRequest) {
     let subtotal = 0;
 
     const orderItemsData = items.map((item: any) => {
-      const product = products.find((p) => p.id === item.productId);
+      const product = products.find((p: any) => p.id === item.productId);
       if (!product) {
         throw new Error(`Product not found: ${item.productId}`);
       }
@@ -196,13 +204,11 @@ export async function POST(request: NextRequest) {
     const grand_total = subtotal + shipping_cost;
 
     // payment_method থেকে paymentStatus ঠিক করা
-    const paymentStatus: PaymentStatus =
-      payment_method === "CashOnDelivery"
-        ? PaymentStatus.UNPAID
-        : PaymentStatus.PAID;
+    const paymentStatus =
+      payment_method === "CashOnDelivery" ? "UNPAID" : "PAID";
 
     // Use a transaction to ensure stock is decremented atomically
-    const created = await prisma.$transaction(async (tx) => {
+    const created = await prisma.$transaction(async (tx: any) => {
       // 1) For each ordered item, ensure sufficient stock and decrement
       for (const it of items) {
         const pid = Number(it.productId);
@@ -237,7 +243,7 @@ export async function POST(request: NextRequest) {
           total: subtotal,
           shipping_cost,
           grand_total,
-          status: OrderStatus.PENDING,
+          status: "PENDING",
           paymentStatus,
           transactionId: transactionId ?? null,
           image: image ?? null,

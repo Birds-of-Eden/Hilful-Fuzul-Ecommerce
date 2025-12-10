@@ -179,7 +179,13 @@ export default function Hero({ interval = 6000 }) {
   const onPointerUp = (e: React.PointerEvent) => {
     if (startX.current == null) return;
     const dx = e.clientX - startX.current;
-    if (Math.abs(dx) > 40) dx < 0 ? next() : prev();
+    if (Math.abs(dx) > 40) {
+      if (dx < 0) {
+        next();
+      } else {
+        prev();
+      }
+    }
     startX.current = null;
   };
 
