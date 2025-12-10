@@ -13,6 +13,14 @@ interface Category {
   updatedAt: string;
 }
 
+interface CategoryCreatePayload {
+  name: string;
+}
+
+interface CategoryUpdatePayload {
+  name: string;
+}
+
 export default function CategoriesPage() {
   const [categories, setCategories] = useState<Category[]>([]);
   const [loading, setLoading] = useState(true);
@@ -52,7 +60,7 @@ export default function CategoriesPage() {
   }, [fetchCategories]);
 
   // Memoize CRUD operations
-  const handleCreate = useCallback(async (payload: any) => {
+  const handleCreate = useCallback(async (payload: CategoryCreatePayload) => {
     const res = await fetch("/api/categories", {
       method: "POST",
       headers: { "Content-Type": "application/json" },
@@ -70,7 +78,7 @@ export default function CategoriesPage() {
     });
   }, []);
 
-  const handleUpdate = useCallback(async (id: number, payload: any) => {
+  const handleUpdate = useCallback(async (id: number, payload: CategoryUpdatePayload) => {
     const res = await fetch(`/api/categories/${id}`, {
       method: "PUT",
       headers: { "Content-Type": "application/json" },

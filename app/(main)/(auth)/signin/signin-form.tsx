@@ -67,10 +67,10 @@ const SigninForm = () => {
         "Invalid credentials. Please check your email and password.";
       setFormError(message);
       toast.error(message);
-    } catch (err: any) {
+    } catch (err: unknown) {
       toast.dismiss(dismiss);
       const message =
-        err?.message || "Something went wrong while signing in.";
+        (err instanceof Error ? err.message : String(err)) || "Something went wrong while signing in.";
       setFormError(message);
       toast.error(message);
     }

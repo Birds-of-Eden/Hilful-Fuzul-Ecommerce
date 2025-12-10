@@ -1,6 +1,7 @@
 "use client";
 
 import { useState } from "react";
+import Image from "next/image";
 import { Card, CardContent } from "@/components/ui/card";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
@@ -16,17 +17,32 @@ import {
 } from "lucide-react";
 import { toast } from "sonner";
 
+interface Publisher {
+  id: number;
+  name: string;
+  image?: string;
+  productCount?: number;
+}
+
+interface PublishersManagerProps {
+  publishers: Publisher[];
+  loading: boolean;
+  onCreate: (data: { name: string; image?: string }) => Promise<void>;
+  onUpdate: (id: number, data: { name: string; image?: string }) => Promise<void>;
+  onDelete: (id: number) => Promise<void>;
+}
+
 export default function PublishersManager({
-  publishers,
-  loading,
+  publishers = [],
+  loading = false,
   onCreate,
   onUpdate,
   onDelete,
-}: any) {
+}: PublishersManagerProps) {
   const [modalOpen, setModalOpen] = useState(false);
   const [deleteModalOpen, setDeleteModalOpen] = useState(false);
   const [deletingId, setDeletingId] = useState<number | null>(null);
-  const [editing, setEditing] = useState<any>(null);
+  const [editing, setEditing] = useState<Publisher | null>(null);
   const [submitting, setSubmitting] = useState(false);
   const [searchTerm, setSearchTerm] = useState("");
 
@@ -35,7 +51,7 @@ export default function PublishersManager({
     image: "",
   });
 
-  const filtered = publishers?.filter((pub: any) =>
+  const filtered = publishers.filter((pub) =>
     pub.name?.toLowerCase().includes(searchTerm.toLowerCase())
   );
 
@@ -45,7 +61,7 @@ export default function PublishersManager({
     setModalOpen(true);
   };
 
-  const openEdit = (pub: any) => {
+  const openEdit = (pub: Publisher) => {
     setEditing(pub);
     setForm({
       name: pub.name,
@@ -92,7 +108,8 @@ export default function PublishersManager({
     try {
       await onDelete(deletingId); // wait for soft delete API
       toast.success("প্রকাশকটি সফলভাবে ডিলিট করা হয়েছে");
-    } catch (err) {
+    } catch (error) {
+      console.error('Error deleting publisher:', error);
       toast.error("ডিলিট করতে সমস্যা হয়েছে");
     } finally {
       setDeleteModalOpen(false);
@@ -167,11 +184,17 @@ export default function PublishersManager({
         <p className="text-center text-lg mt-20">লোড হচ্ছে...</p>
       ) : (
         <div className="grid grid-cols-1 md:grid-cols-3 xl:grid-cols-4 gap-6">
-          {filtered.map((pub: any) => (
+          {filtered.map((pub) => (
             <Card key={pub.id} className="rounded-2xl shadow bg-white">
               <div className="h-48 bg-gray-100 rounded-t-2xl overflow-hidden flex itemsCenter justify-center">
                 {pub.image ? (
-                  <img src={pub.image} className="w-full h-full object-cover" />
+                  <Image
+                    src={pub.image}
+                    alt={`${pub.name}'s logo`}
+                    fill
+                    className="object-cover"
+                    sizes="(max-width: 768px) 100vw, (max-width: 1200px) 50vw, 33vw"
+                  />
                 ) : (
                   <Users className="h-16 w-16 text-gray-400" />
                 )}
@@ -233,7 +256,7 @@ export default function PublishersManager({
                 <Input
                   type="file"
                   accept="image/*"
-                  onChange={async (e: any) => {
+                  onChange={async (e: React.ChangeEvent<HTMLInputElement>) => {
                     const file = e.target.files?.[0];
                     if (!file) return;
 
@@ -284,19 +307,22 @@ export default function PublishersManager({
                       toast.success("Upload complete!", {
                         id: "upload-publisher",
                       });
-                    } catch (err) {
-                      console.error("Publisher image upload error:", err);
+                    } catch (error) {
+                      console.error("Publisher image upload error:", error);
                       toast.error("Upload failed!", { id: "upload-publisher" });
                     }
                   }}
                 />
 
                 {form.image && (
-                  <img
-                    src={form.image}
-                    className="w-20 h-20 mt-3 rounded-lg border object-cover"
-                    alt="Publisher image preview"
-                  />
+                  <div className="relative w-20 h-20 mt-3">
+                    <Image
+                      src={form.image}
+                      alt="Publisher preview"
+                      fill
+                      className="rounded-lg border object-cover"
+                    />
+                  </div>
                 )}
               </div>
             </div>

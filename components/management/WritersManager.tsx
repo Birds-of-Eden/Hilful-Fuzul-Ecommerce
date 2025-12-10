@@ -1,6 +1,7 @@
 "use client";
 
 import { useState } from "react";
+import Image from "next/image";
 import { Card, CardContent } from "@/components/ui/card";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
@@ -16,15 +17,32 @@ import {
 } from "lucide-react";
 import { toast } from "sonner";
 
+interface Writer {
+  id: number;
+  name: string;
+  image?: string;
+  _count?: {
+    products: number;
+  };
+}
+
+interface WritersManagerProps {
+  writers: Writer[];
+  loading: boolean;
+  onCreate: (writer: { name: string; image?: string }) => Promise<void>;
+  onUpdate: (id: number, writer: { name: string; image?: string }) => Promise<void>;
+  onDelete: (id: number) => Promise<void>;
+}
+
 export default function WritersManager({
-  writers,
-  loading,
+  writers = [],
+  loading = false,
   onCreate,
   onUpdate,
   onDelete,
-}: any) {
+}: WritersManagerProps) {
   const [modalOpen, setModalOpen] = useState(false);
-  const [editing, setEditing] = useState<any>(null);
+  const [editing, setEditing] = useState<Writer | null>(null);
   const [submitting, setSubmitting] = useState(false);
   const [searchTerm, setSearchTerm] = useState("");
 
@@ -33,7 +51,7 @@ export default function WritersManager({
     image: "",
   });
 
-  const filteredWriters = writers?.filter((writer: any) =>
+  const filteredWriters = writers.filter((writer) =>
     writer.name.toLowerCase().includes(searchTerm.toLowerCase())
   );
 
@@ -43,7 +61,7 @@ export default function WritersManager({
     setModalOpen(true);
   };
 
-  const openEditModal = (writer: any) => {
+  const openEditModal = (writer: Writer) => {
     setEditing(writer);
     setForm({
       name: writer.name,
@@ -172,16 +190,19 @@ export default function WritersManager({
           </div>
         ) : (
           <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 xl:grid-cols-4 gap-6">
-            {filteredWriters?.map((writer: any) => (
+            {filteredWriters.map((writer) => (
               <Card
                 key={writer.id}
                 className="group bg-gradient-to-br from-white to-[#EEEFE0] rounded-2xl shadow-lg hover:shadow-2xl transition"
               >
                 <div className="relative h-48">
                   {writer.image ? (
-                    <img
+                    <Image
                       src={writer.image}
-                      className="h-full w-full object-cover rounded-t-2xl group-hover:scale-110 transition"
+                      alt={`${writer.name}'s profile`}
+                      fill
+                      className="object-cover rounded-t-2xl group-hover:scale-110 transition"
+                      sizes="(max-width: 768px) 100vw, (max-width: 1200px) 50vw, 33vw"
                     />
                   ) : (
                     <div className="h-full w-full bg-[#819A91] flex items-center justify-center">
@@ -333,19 +354,23 @@ export default function WritersManager({
                       toast.success("ছবি আপলোড সম্পন্ন!", {
                         id: "upload-writer",
                       });
-                    } catch (err) {
-                      console.error("Writer image upload error:", err);
+                    } catch (error) {
+                      console.error('Error in form submission:', error);
+                      console.error("Writer image upload error:", error);
                       toast.error("ছবি আপলোড ব্যর্থ!", { id: "upload-writer" });
                     }
                   }}
                 />
 
                 {form.image && (
-                  <img
-                    src={form.image}
-                    className="mt-3 w-24 h-24 object-cover rounded-lg border"
-                    alt="Uploaded preview"
-                  />
+                  <div className="relative mt-3 w-24 h-24">
+                    <Image
+                      src={form.image}
+                      alt="Uploaded preview"
+                      fill
+                      className="object-cover rounded-lg border"
+                    />
+                  </div>
                 )}
               </div>
             </div>

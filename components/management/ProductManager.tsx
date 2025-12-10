@@ -1,10 +1,10 @@
 "use client";
 
-import { useState, useEffect } from "react";
+import { useState } from "react";
 import { Card, CardContent } from "@/components/ui/card";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
-import { Label } from "@/components/ui/label";
+import Image from "next/image";
 import {
   AlertDialog,
   AlertDialogAction,
@@ -43,7 +43,7 @@ export default function ProductManager({
   const [deleteModalOpen, setDeleteModalOpen] = useState(false);
   const [deletingProduct, setDeletingProduct] = useState<any>(null);
   const [isDeleting, setIsDeleting] = useState(false);
-  const [editing, setEditing] = useState(null);
+  const [editing, setEditing] = useState<any>(null);
 
   const filtered = products
     ?.filter((p: any) => p.name.toLowerCase().includes(search.toLowerCase()))
@@ -130,7 +130,7 @@ export default function ProductManager({
     try {
       const urlObj = new URL(url);
       return urlObj.pathname; // Returns path like "/upload/products/filename.jpg"
-    } catch (e) {
+    } catch (error) {
       // If it's not a full URL, return as is (might be a relative path already)
       return url.startsWith("/") ? url : `/${url}`;
     }
@@ -145,8 +145,8 @@ export default function ProductManager({
             <AlertDialogHeader>
               <AlertDialogTitle>Are you sure?</AlertDialogTitle>
               <AlertDialogDescription>
-                This will permanently delete the product "
-                {deletingProduct?.name}" and all its associated files (images,
+                This will permanently delete the product &quot;
+                {deletingProduct?.name}&quot; and all its associated files (images,
                 PDFs, etc.). This action cannot be undone.
               </AlertDialogDescription>
             </AlertDialogHeader>
@@ -356,8 +356,11 @@ export default function ProductManager({
               >
                 <div className="relative h-48">
                   {p.image ? (
-                    <img
+                    <Image
                       src={p.image}
+                      alt={p.name || 'Product image'}
+                      width={400}
+                      height={200}
                       className="h-full w-full object-cover rounded-t-2xl group-hover:scale-110 transition"
                     />
                   ) : (

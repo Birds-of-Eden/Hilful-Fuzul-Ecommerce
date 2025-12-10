@@ -9,7 +9,7 @@ import { prisma } from '@/lib/prisma';
 // quantity <= 0 hole item delete kore dei
 export async function PATCH(
   request: NextRequest,
-  { params }: { params: { id: string } }
+  { params }: { params: Promise<{ id: string }> }
 ) {
   try {
     const session = await getServerSession(authOptions);
@@ -19,7 +19,8 @@ export async function PATCH(
       return NextResponse.json({ error: 'Unauthorized' }, { status: 401 });
     }
 
-    const cartItemId = Number(params.id);
+    const { id } = await params;
+    const cartItemId = Number(id);
     if (Number.isNaN(cartItemId)) {
       return NextResponse.json(
         { error: 'Invalid cart item id' },
@@ -66,7 +67,7 @@ export async function PATCH(
 // DELETE single item - Logged in user only
 export async function DELETE(
   _request: NextRequest,
-  { params }: { params: { id: string } }
+  { params }: { params: Promise<{ id: string }> }
 ) {
   try {
     const session = await getServerSession(authOptions);
@@ -76,7 +77,8 @@ export async function DELETE(
       return NextResponse.json({ error: 'Unauthorized' }, { status: 401 });
     }
 
-    const cartItemId = Number(params.id);
+    const { id } = await params;
+    const cartItemId = Number(id);
     if (Number.isNaN(cartItemId)) {
       return NextResponse.json(
         { error: 'Invalid cart item id' },

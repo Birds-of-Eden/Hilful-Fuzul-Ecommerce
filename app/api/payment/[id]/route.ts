@@ -6,14 +6,15 @@ const prisma = new PrismaClient();
 // UPDATE payment
 export async function PUT(
   request: NextRequest,
-  { params }: { params: { id: string } }
+  { params }: { params: Promise<{ id: string }> }
 ) {
   try {
     const body = await request.json();
     const { paymentGatewayData } = body;
+    const { id } = await params;
 
     const payment = await prisma.payment.update({
-      where: { id: parseInt(params.id) },
+      where: { id: parseInt(id) },
       data: {
         paymentGatewayData,
         updatedAt: new Date(),
@@ -33,11 +34,12 @@ export async function PUT(
 // DELETE payment
 export async function DELETE(
   request: NextRequest,
-  { params }: { params: { id: string } }
+  { params }: { params: Promise<{ id: string }> }
 ) {
   try {
+    const { id } = await params;
     await prisma.payment.delete({
-      where: { id: parseInt(params.id) },
+      where: { id: parseInt(id) },
     });
 
     return NextResponse.json({ message: 'Payment deleted successfully' });

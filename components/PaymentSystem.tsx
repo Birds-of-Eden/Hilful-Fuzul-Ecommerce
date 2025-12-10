@@ -6,7 +6,7 @@ import { Input } from "@/components/ui/input";
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 import { Label } from "@/components/ui/label";
 import { Dialog, DialogContent, DialogHeader, DialogTitle } from "@/components/ui/dialog";
-import { Plus, Trash2, Edit, Save, X, Copy, Check } from "lucide-react";
+import { Plus, Trash2, Edit, Save, Copy, Check } from "lucide-react";
 import { toast } from "sonner";
 
 interface PaymentGatewayData {
@@ -42,6 +42,7 @@ export default function PaymentGatewayManager() {
         setPayments(data.payments || []);
       }
     } catch (error) {
+      console.error("Failed to fetch payments:", error);
       toast.error("Failed to fetch payments");
     } finally {
       setLoading(false);
@@ -88,6 +89,7 @@ export default function PaymentGatewayManager() {
       toast.success("Copied to clipboard!");
       setTimeout(() => setCopiedIndex(null), 2000);
     } catch (err) {
+      console.error("Failed to copy to clipboard:", err);
       toast.error("Failed to copy");
     }
   };
@@ -129,6 +131,7 @@ export default function PaymentGatewayManager() {
         toast.error("Failed to create payment gateway");
       }
     } catch (error) {
+      console.error("Failed to create payment gateway:", error);
       toast.error("Failed to create payment gateway");
     }
   };
@@ -170,6 +173,7 @@ export default function PaymentGatewayManager() {
         toast.error("Failed to update payment gateway");
       }
     } catch (error) {
+      console.error("Failed to update payment gateway:", error);
       toast.error("Failed to update payment gateway");
     }
   };
@@ -192,6 +196,7 @@ export default function PaymentGatewayManager() {
         toast.error("Failed to delete payment gateway");
       }
     } catch (error) {
+      console.error("Failed to delete payment gateway:", error);
       toast.error("Failed to delete payment gateway");
     }
   };

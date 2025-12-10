@@ -140,8 +140,6 @@ export default function WritersPage() {
       onCreate={handleCreate}
       onUpdate={handleUpdate}
       onDelete={handleDelete}
-      WriterCardSkeleton={WriterCardSkeleton}
-      WritersGridSkeleton={WritersGridSkeleton}
     />
   );
 }

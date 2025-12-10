@@ -3,7 +3,7 @@
 import { useState, useEffect, useCallback } from "react";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
-import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
+import { Card, CardContent } from "@/components/ui/card";
 import { Dialog, DialogContent, DialogHeader, DialogTitle, DialogTrigger } from "@/components/ui/dialog";
 import { Label } from "@/components/ui/label";
 import { toast } from "@/hooks/use-toast";
@@ -53,6 +53,7 @@ export default function SubscriberManagement() {
         throw new Error("Failed to fetch subscribers");
       }
     } catch (error) {
+      console.error("Failed to fetch subscribers:", error);
       showToast("Error", "Failed to fetch subscribers", "destructive");
     } finally {
       setLoading(false);

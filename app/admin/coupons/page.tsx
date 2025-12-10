@@ -21,7 +21,7 @@ import {
 } from "@/components/ui/select";
 import { Checkbox } from "@/components/ui/checkbox";
 import { toast } from "@/hooks/use-toast";
-import { Plus, Edit, Trash2, Calendar, Tag } from "lucide-react";
+import { Plus, Edit, Trash2, Tag } from "lucide-react";
 
 interface Coupon {
   id: string;
@@ -65,7 +65,7 @@ export default function CouponManagement() {
         const data = await response.json();
         setCoupons(data);
       }
-    } catch (error) {
+    } catch {
       toast({
         title: "Error",
         description: "Failed to fetch coupons",
@@ -112,7 +112,7 @@ export default function CouponManagement() {
       } else {
         throw new Error("Failed to save coupon");
       }
-    } catch (error) {
+    } catch {
       toast({
         title: "Error",
         description: "Failed to save coupon",
@@ -134,7 +134,7 @@ export default function CouponManagement() {
       } else {
         throw new Error("Failed to delete coupon");
       }
-    } catch (error) {
+    } catch {
       toast({
         title: "Error",
         description: "Failed to delete coupon",

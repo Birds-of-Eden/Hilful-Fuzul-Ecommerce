@@ -137,8 +137,6 @@ export default function PublishersPage() {
       onCreate={onCreate}
       onUpdate={onUpdate}
       onDelete={onDelete}
-      PublisherCardSkeleton={PublisherCardSkeleton}
-      PublishersGridSkeleton={PublishersGridSkeleton}
     />
   );
 }

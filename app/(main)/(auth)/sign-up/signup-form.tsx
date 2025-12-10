@@ -77,9 +77,9 @@ const SignupForm = () => {
 
       toast.success("Account created! You're now signed in.");
       router.push("/admin/");
-    } catch (err: any) {
+    } catch (err: unknown) {
       toast.dismiss(loadingId);
-      const msg = err?.message || "Something went wrong";
+      const msg = (err instanceof Error ? err.message : String(err)) || "Something went wrong";
       setFormError(msg);
       toast.error(msg);
     }
