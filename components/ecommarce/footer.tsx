@@ -165,7 +165,7 @@ export default function Footer() {
             {/* Social Links */}
             <div className="flex gap-3">
               <a
-                href="https://birdsofeden.me/"
+                href="https://www.facebook.com/HilfulfujulPublications/"
                 target="_blank"
                 rel="noopener noreferrer"
                 aria-label="Facebook"
@@ -176,34 +176,6 @@ export default function Footer() {
                   className="rounded-xl bg-[#5FA3A3] hover:bg-[#0E4B4B] text-[#F4F8F7] hover:scale-110 transition-all duration-300 border-0"
                 >
                   <Facebook className="h-5 w-5" />
-                </Button>
-              </a>
-              <a
-                href="https://birdsofeden.me/"
-                target="_blank"
-                rel="noopener noreferrer"
-                aria-label="Instagram"
-              >
-                <Button
-                  variant="ghost"
-                  size="icon"
-                  className="rounded-xl bg-[#5FA3A3] hover:bg-[#0E4B4B] text-[#F4F8F7] hover:scale-110 transition-all duration-300 border-0"
-                >
-                  <Instagram className="h-5 w-5" />
-                </Button>
-              </a>
-              <a
-                href="https://birdsofeden.me/"
-                target="_blank"
-                rel="noopener noreferrer"
-                aria-label="Twitter"
-              >
-                <Button
-                  variant="ghost"
-                  size="icon"
-                  className="rounded-xl bg-[#5FA3A3] hover:bg-[#0E4B4B] text-[#F4F8F7] hover:scale-110 transition-all duration-300 border-0"
-                >
-                  <Twitter className="h-5 w-5" />
                 </Button>
               </a>
             </div>
