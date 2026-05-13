@@ -56,6 +56,7 @@ interface Product {
     name: string;
   };
   image: string;
+  gallery?: string[];
   description: string;
   stock: number;
   modelUrl?: string;
@@ -81,6 +82,7 @@ export default function BookDetail() {
   const [relatedBooks, setRelatedBooks] = useState<Product[]>([]);
   const [showModel, setShowModel] = useState(false);
   const [showPdf, setShowPdf] = useState(false);
+  const [activeImage, setActiveImage] = useState<string | null>(null);
   const [quantity, setQuantity] = useState(1);
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState<string | null>(null);
@@ -111,6 +113,7 @@ export default function BookDetail() {
 
         const data = await res.json();
         setBook(data);
+        setActiveImage(data?.image ?? null);
 
         // 2) fetch related books separately if needed
         if (data.category) {
@@ -293,7 +296,7 @@ export default function BookDetail() {
             <div className="bg-white rounded-2xl shadow-lg p-6 border-0">
               <div className="relative w-full aspect-[3/4] sm:aspect-[4/5] lg:aspect-[3/4] max-w-[500px] mx-auto rounded-xl overflow-hidden bg-gray-50 group">
                 <Image
-                  src={book.image}
+                  src={activeImage || book.image}
                   alt={book.name}
                   fill
                   className="object-contain transition-transform duration-700 group-hover:scale-105"
@@ -318,6 +321,40 @@ export default function BookDetail() {
                   {book.stock} পিস উপলব্ধ
                 </div>
               </div>
+
+              {/* Gallery Thumbnails */}
+              {Array.isArray(book.gallery) && book.gallery.length > 0 && (
+                <div className="mt-5">
+                  <div className="grid grid-cols-5 sm:grid-cols-6 gap-2">
+                    {[book.image, ...book.gallery]
+                      .filter(Boolean)
+                      .map((src, idx) => {
+                        const isActive = (activeImage || book.image) === src;
+                        return (
+                          <button
+                            key={`${src}-${idx}`}
+                            type="button"
+                            onClick={() => setActiveImage(src)}
+                            className={`relative aspect-square rounded-lg overflow-hidden border transition ${
+                              isActive
+                                ? "border-[#0E4B4B] ring-2 ring-[#0E4B4B]/30"
+                                : "border-[#5FA3A3]/30 hover:border-[#0E4B4B]/50"
+                            }`}
+                            aria-label={`View image ${idx + 1}`}
+                          >
+                            <Image
+                              src={src}
+                              alt={`${book.name} gallery ${idx + 1}`}
+                              fill
+                              className="object-cover"
+                              sizes="80px"
+                            />
+                          </button>
+                        );
+                      })}
+                  </div>
+                </div>
+              )}
 
               {/* Action Buttons */}
               <div className="mt-6 grid grid-cols-2 gap-3">

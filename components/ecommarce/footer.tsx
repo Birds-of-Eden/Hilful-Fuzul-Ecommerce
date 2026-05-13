@@ -1,8 +1,9 @@
 "use client";
 
 import Link from "next/link";
-import { useState } from "react";
+import { useEffect, useState } from "react";
 import { useSession } from "next-auth/react";
+// import type { SiteSetting } from "@/types/site-setting";
 import {
   Facebook,
   Instagram,
@@ -22,12 +23,49 @@ import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
 import { toast } from "sonner";
 
+ type SiteSetting = {
+  id?: string;
+  siteTitle: string;
+  footerTagline: string;
+  description: string;
+  phone: string;
+  email: string;
+  address: string;
+  facebookUrl?: string | null;
+  twitterUrl?: string | null;
+  instagramUrl?: string | null;
+  linkedinUrl?: string | null;
+  youtubeUrl?: string | null;
+  copyrightText?: string;
+  logo?: string | null;
+  favicon?: string | null;
+  createdAt?: string;
+  updatedAt?: string;
+};
+
 export default function Footer() {
   const currentYear = new Date().getFullYear();
   const { data: session, status } = useSession();
   const [email, setEmail] = useState("");
   const [isSubscribing, setIsSubscribing] = useState(false);
+  const [settings, setSettings] = useState<SiteSetting | null>(null);
   const isAuthenticated = status === "authenticated";
+
+  useEffect(() => {
+    const loadSettings = async () => {
+      try {
+        const res = await fetch("/api/site-settings", { cache: "no-store" });
+        if (!res.ok) return;
+
+        const data = await res.json();
+        setSettings(data);
+      } catch (error) {
+        console.error("Failed to load footer settings:", error);
+      }
+    };
+
+    loadSettings();
+  }, []);
 
   const handleSubscribe = async (e: React.FormEvent) => {
     e.preventDefault();
@@ -106,18 +144,17 @@ export default function Footer() {
                   </div>
                   <div>
                     <h3 className="text-2xl font-bold text-[#F4F8F7]">
-                      কিতাবঘর
+                      {settings?.siteTitle || "হিলফুল-ফুযুল প্রকাশনী"}
                     </h3>
                     <p className="text-white text-sm">
-                      জ্ঞানের আলো ছড়িয়ে দেয়া
+                      {settings?.footerTagline || "জ্ঞানের আলো ছড়িয়ে দেয়া"}
                     </p>
                   </div>
                 </div>
               </Link>
-              <p className="text-[#ffffff] leading-relaxed max-w-md">
-                কিতাবঘর হলো একটি পূর্ণাঙ্গ অনলাইন বুকস্টোর যেখানে আপনি ইসলামিক
-                বই কিনতে পারবেন কিংবা PDF পড়তে পারবেন। জ্ঞানের আলো ছড়িয়ে
-                দেয়ার লক্ষ্যে আমরা নিরলসভাবে কাজ করে যাচ্ছি।
+              <p className="text-[#ffffff] leading-relaxed max-w-md whitespace-pre-line">
+                {settings?.description ||
+                  "হিলফুল-ফুযুল প্রকাশনী হলো একটি পূর্ণাঙ্গ অনলাইন বুকস্টোর যেখানে আপনি ইসলামিক বই কিনতে পারবেন কিংবা PDF পড়তে পারবেন। জ্ঞানের আলো ছড়িয়ে দেয়ার লক্ষ্যে আমরা নিরলসভাবে কাজ করে যাচ্ছি।"}
               </p>
             </div>
 
@@ -130,7 +167,7 @@ export default function Footer() {
                 <div>
                   <p className="text-sm text-white">কল করুন</p>
                   <p className="font-semibold text-[#F4F8F7]">
-                    +88-01842781978
+                    {settings?.phone || "+88-01842781978"}
                   </p>
                 </div>
               </div>
@@ -142,7 +179,7 @@ export default function Footer() {
                 <div>
                   <p className="text-sm text-white">ইমেইল করুন</p>
                   <p className="font-semibold text-[#F4F8F7]">
-                    islamidawainstitute@gmail.com
+                    {settings?.email || "islamidawainstitute@gmail.com"}
                   </p>
                 </div>
               </div>
@@ -153,10 +190,8 @@ export default function Footer() {
                 </div>
                 <div>
                   <p className="text-sm text-white">ঠিকানা</p>
-                  <p className="font-semibold text-[#F4F8F7] leading-relaxed">
-                    গ্রীন রোড, ঢাকা-১২১৫
-                    <br />
-                    বাংলাদেশ
+                  <p className="font-semibold text-[#F4F8F7] leading-relaxed whitespace-pre-line">
+                    {settings?.address || "গ্রীন রোড, ঢাকা-১২১৫\nবাংলাদেশ"}
                   </p>
                 </div>
               </div>
@@ -164,20 +199,22 @@ export default function Footer() {
 
             {/* Social Links */}
             <div className="flex gap-3">
-              <a
-                href="https://www.facebook.com/HilfulfujulPublications/"
-                target="_blank"
-                rel="noopener noreferrer"
-                aria-label="Facebook"
-              >
-                <Button
-                  variant="ghost"
-                  size="icon"
-                  className="rounded-xl bg-[#5FA3A3] hover:bg-[#0E4B4B] text-[#F4F8F7] hover:scale-110 transition-all duration-300 border-0"
+              {settings?.facebookUrl && (
+                <a
+                  href={settings.facebookUrl}
+                  target="_blank"
+                  rel="noopener noreferrer"
+                  aria-label="Facebook"
                 >
-                  <Facebook className="h-5 w-5" />
-                </Button>
-              </a>
+                  <Button
+                    variant="ghost"
+                    size="icon"
+                    className="rounded-xl bg-[#5FA3A3] hover:bg-[#0E4B4B] text-[#F4F8F7] hover:scale-110 transition-all duration-300 border-0"
+                  >
+                    <Facebook className="h-5 w-5" />
+                  </Button>
+                </a>
+              )}
             </div>
           </div>
 
@@ -298,7 +335,9 @@ export default function Footer() {
           <div className="flex flex-col md:flex-row justify-between items-center gap-4">
             <div className="flex items-center gap-2 text-white">
               <Copyright className="h-4 w-4" />
-              <span>{currentYear} কিতাবঘর। সর্বস্বত্ব সংরক্ষিত।</span>
+              <span>
+                {currentYear} {settings?.siteTitle || "কিতাবঘর"}। সর্বস্বত্ব সংরক্ষিত।
+              </span>
             </div>
 
             <div className="flex items-center gap-6 text-sm text-white">

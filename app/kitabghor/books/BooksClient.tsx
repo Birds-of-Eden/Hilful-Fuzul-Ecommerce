@@ -23,12 +23,12 @@ import { useSession } from "@/lib/auth-client";
 interface Product {
   id: number;
   name: string;
-  category: { id: number; name: string };
+  category?: { id: number; name: string } | null;
   price: number;
   original_price: number;
   discount: number;
-  writer: { name: string };
-  publisher: { name: string };
+  writer?: { name: string } | null;
+  publisher?: { name: string } | null;
   image: string;
   stock?: number;
 }
@@ -412,7 +412,7 @@ const AllBooksPage = memo(function AllBooksPage() {
                           {/* Author */}
                           <p className="text-xs sm:text-sm text-[#5FA3A3] mb-2 sm:mb-3 flex items-center">
                             <span className="w-1 h-1 bg-[#0E4B4B] rounded-full mr-1 sm:mr-2"></span>
-                            {book.writer.name}
+                            {book.writer?.name ?? "Unknown"}
                           </p>
 
                           {/* Price */}

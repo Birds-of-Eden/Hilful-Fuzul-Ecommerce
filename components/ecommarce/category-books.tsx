@@ -9,6 +9,7 @@ import { useCart } from "@/components/ecommarce/CartContext";
 import { useWishlist } from "@/components/ecommarce/WishlistContext";
 import { toast } from "sonner";
 import { useSession } from "next-auth/react";
+import { BookCard } from "./BookCard";
 
 // Skeleton Loader Component
 const BookCardSkeleton = () => (
@@ -93,6 +94,12 @@ interface Product {
   stock?: number;
   available?: boolean;
   deleted?: boolean;
+  // Preorder (UI alias + Prisma field fallback)
+  isPreOrder?: boolean;
+  preOrderEndDate?: string | Date | null;
+  preOrderDiscount?: number | null;
+  isPreorder?: boolean;
+  preorderEndAt?: string | Date | null;
 }
 
 interface RatingInfo {
@@ -116,7 +123,7 @@ export default function CategoryBooks({
   // Use shared data if provided, otherwise fall back to local fetching
   const [localProducts, setLocalProducts] = useState<Product[]>([]);
   const [localRatings, setLocalRatings] = useState<Record<string, RatingInfo>>(
-    {}
+    {},
   );
   const [loadingProducts, setLoadingProducts] = useState(!allProducts);
 
@@ -142,7 +149,7 @@ export default function CategoryBooks({
         if (!res.ok) {
           console.error(
             "Failed to fetch products for CategoryBooks:",
-            res.statusText
+            res.statusText,
           );
           setLocalProducts([]);
           return;
@@ -204,7 +211,7 @@ export default function CategoryBooks({
             : products.filter(
                 (product: Product) =>
                   product.category &&
-                  String(product.category.id) === String(category.id)
+                  String(product.category.id) === String(category.id),
               );
 
         const displayBooks = categoryBooks.slice(0, 8);
@@ -213,8 +220,8 @@ export default function CategoryBooks({
           new Set(
             displayBooks
               .map((b) => Number(b.id))
-              .filter((id) => !!id && !Number.isNaN(id))
-          )
+              .filter((id) => !!id && !Number.isNaN(id)),
+          ),
         );
 
         if (ids.length === 0) {
@@ -227,7 +234,7 @@ export default function CategoryBooks({
             try {
               const res = await fetch(
                 `/api/reviews?productId=${id}&page=1&limit=1`,
-                { cache: "force-cache" }
+                { cache: "force-cache" },
               );
 
               if (!res.ok) {
@@ -244,7 +251,7 @@ export default function CategoryBooks({
               console.error("Error fetching rating for product:", id, err);
               return { id, avg: 0, total: 0 };
             }
-          })
+          }),
         );
 
         const map: Record<string, RatingInfo> = {};
@@ -439,176 +446,35 @@ export default function CategoryBooks({
       <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-8">
         {displayBooks.map((book: Product, index) => {
           const ratingInfo = reviewRatings[String(book.id)];
-          const avgRating = ratingInfo?.averageRating ?? 0;
-          const reviewCount = ratingInfo?.totalReviews ?? 0;
-
+          const isWishlisted = isInWishlist(book.id);
           const isBestseller = index % 3 === 0;
           const isNew = index % 4 === 0;
-          const isWishlisted = isInWishlist(book.id);
 
           return (
-            <Card
+            <BookCard
               key={book.id}
-              className="group overflow-hidden border-0 shadow-sm hover:shadow-2xl transition-all duration-500 bg-gradient-to-br from-white to-[#F4F8F7] rounded-2xl relative"
-            >
-              {/* Badges */}
-              <div className="absolute top-3 left-3 z-10 flex flex-col gap-2">
-                {book.discount > 0 && (
-                  <div className="bg-gradient-to-r from-[#C0704D] to-[#A85D3F] text-white text-xs font-bold px-3 py-1 rounded-full shadow-lg">
-                    {book.discount}% ছাড়
-                  </div>
-                )}
-                {isBestseller && (
-                  <div className="bg-gradient-to-r from-[#C0704D] to-[#A85D3F] text-white text-xs font-bold px-3 py-1 rounded-full shadow-lg">
-                    বেস্টসেলার
-                  </div>
-                )}
-                {isNew && (
-                  <div className="bg-gradient-to-r from-[#5FA3A3] to-[#0E4B4B] text-white text-xs font-bold px-3 py-1 rounded-full shadow-lg">
-                    নতুন
-                  </div>
-                )}
-              </div>
-
-              {/* Wishlist Button */}
-              <button
-                onClick={(e) => {
-                  e.preventDefault();
-                  void toggleWishlist(book);
-                }}
-                className={`absolute top-3 right-3 z-10 p-2 rounded-full backdrop-blur-sm transition-all duration-300 ${
-                  isWishlisted
-                    ? "bg-red-500/20 text-red-500"
-                    : "bg-white/80 text-[#5FA3A3] hover:bg-red-500/20 hover:text-red-500"
-                }`}
-                aria-label={
-                  isWishlisted ? "Remove from wishlist" : "Add to wishlist"
-                }
-              >
-                <Heart
-                  className={`h-5 w-5 transition-all ${
-                    isWishlisted
-                      ? "scale-110 fill-current"
-                      : "group-hover:scale-110"
-                  }`}
-                />
-              </button>
-
-              {/* Book Image */}
-              <Link href={`/kitabghor/books/${book.id}`}>
-                <div className="relative w-full overflow-hidden bg-white p-4">
-                  <div className="relative aspect-[3/4] w-full">
-                    <Image
-                      src={book.image || "/placeholder.svg"}
-                      alt={book.name}
-                      fill
-                      className="object-contain transition-transform duration-700 group-hover:scale-105"
-                      sizes="(max-width: 768px) 100vw, (max-width: 1200px) 50vw, 25vw"
-                    />
-                  </div>
-                  {/* Overlay */}
-                  <div className="absolute inset-0 bg-gradient-to-t from-black/10 via-transparent to-transparent opacity-0 group-hover:opacity-100 transition-opacity duration-300" />
-
-                  {/* Quick View */}
-                  <div className="absolute inset-0 flex items-center justify-center opacity-0 group-hover:opacity-100 transition-all duration-300">
-                    <div className="bg-white/90 backdrop-blur-sm rounded-full p-3 transform translate-y-4 group-hover:translate-y-0 transition-transform duration-300">
-                      <BookOpen className="h-6 w-6 text-[#0E4B4B]" />
-                    </div>
-                  </div>
-                </div>
-              </Link>
-              
-              <CardContent className="p-5">
-                {/* Rating */}
-                <div className="flex items-center gap-1 mb-3 min-h-[20px]">
-                  {reviewCount > 0 ? (
-                    <>
-                      <div className="flex">
-                        {[1, 2, 3, 4, 5].map((star) => (
-                          <Star
-                            key={star}
-                            className={`h-3 w-3 ${
-                              star <= Math.round(avgRating)
-                                ? "fill-[#C0704D] text-[#C0704D]"
-                                : "text-gray-300"
-                            }`}
-                          />
-                        ))}
-                      </div>
-                      <span className="text-xs text-[#5FA3A3] ml-1">
-                        ({avgRating.toFixed(1)} · {reviewCount} রিভিউ)
-                      </span>
-                    </>
-                  ) : (
-                    <span className="text-xs text-[#5FA3A3]">
-                      এখনও কোন রিভিউ নেই
-                    </span>
-                  )}
-                </div>
-
-                {/* Book Title */}
-                <Link href={`/kitabghor/books/${book.id}`}>
-                  <h4 className="font-bold text-lg mb-2 text-[#0D1414] hover:text-[#0E4B4B] duration-300 line-clamp-2 leading-tight group-hover:translate-x-1 transition-transform">
-                    {book.name}
-                  </h4>
-                </Link>
-
-                {/* Author */}
-                <p className="text-sm text-[#5FA3A3] mb-3 flex items-center">
-                  <span className="w-1 h-1 bg-[#0E4B4B] rounded-full mr-2"></span>
-                  {book.writer?.name || "Unknown Author"}
-                </p>
-
-                {/* Price */}
-                <div className="flex items-center justify-between mb-3">
-                  <div className="flex items-baseline gap-2">
-                    <span className="font-bold text-xl text-[#0E4B4B]">
-                      ৳{book.price}
-                    </span>
-                    {book.discount > 0 && (
-                      <span className="text-sm text-[#5FA3A3] line-through">
-                        ৳{book.original_price}
-                      </span>
-                    )}
-                  </div>
-                  {book.stock === 0 ? (
-                    <div className="text-xs font-semibold bg-rose-600 text-white px-2 py-1 rounded-full">
-                      Stock Out
-                    </div>
-                  ) : (
-                    book.discount > 0 && (
-                      <div className="text-xs font-semibold bg-[#C0704D] text-white px-2 py-1 rounded-full">
-                        সাশ্রয় করুন
-                      </div>
-                    )
-                  )}
-                </div>
-              </CardContent>
-
-              <CardFooter className="p-5 pt-0">
-                <Button
-                  disabled={book.stock === 0}
-                  className={`w-full rounded-xl py-6 text-white font-semibold border-0 shadow-md transition-all duration-300
-              =${
-                book.stock === 0
-                  ? "bg-gray-400 cursor-not-allowed opacity-60"
-                  : "bg-gradient-to-r from-[#C0704D] to-[#A85D3F] hover:from-[#0E4B4B] hover:to-[#5FA3A3] hover:shadow-lg hover:scale-105 group/btn"
-              }`}
-                  onClick={(e) => {
-                    e.preventDefault();
-                    if (book.stock !== 0) {
-                      handleAddToCart(book);
-                    }
-                  }}
-                >
-                  <ShoppingCart className="mr-2 h-4 w-4 group-hover/btn:scale-110 transition-transform" />
-                  {book.stock === 0 ? "স্টক শেষ" : "কার্টে যোগ করুন"}
-                </Button>
-              </CardFooter>
-
-              {/* Hover Effect Border */}
-              <div className="absolute inset-0 rounded-2xl border-2 border-transparent group-hover:border-[#0E4B4B]/20 transition-all duration-500 pointer-events-none"></div>
-            </Card>
+              book={{
+                ...book,
+                isPreOrder: Boolean(
+                  (book as any).isPreOrder ?? (book as any).isPreorder
+                ),
+                preOrderEndDate:
+                  (book as any).preOrderEndDate ?? (book as any).preorderEndAt,
+                preOrderDiscount:
+                  (book as any).preOrderDiscount ??
+                  (Boolean((book as any).isPreOrder ?? (book as any).isPreorder)
+                    ? Number((book as any).discount ?? 0)
+                    : 0),
+              }}
+              ratingInfo={ratingInfo}
+              isWishlisted={isWishlisted}
+              onWishlistToggle={toggleWishlist}
+              onAddToCart={handleAddToCart}
+              variant="default"
+              showBadges={true}
+              showRating={true}
+              showAuthor={true}
+            />
           );
         })}
       </div>

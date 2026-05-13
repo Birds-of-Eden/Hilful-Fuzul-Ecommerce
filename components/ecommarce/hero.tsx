@@ -4,6 +4,7 @@ import { useEffect, useRef, useState } from "react";
 import Image from "next/image";
 import Link from "next/link";
 import { Button } from "@/components/ui/button";
+import PreorderHeroPanel from "@/components/ecommarce/PreorderHeroPanel";
 
 // Skeleton Loader Components
 const HeroSkeleton = () => (
@@ -246,10 +247,11 @@ export default function Hero({ interval = 6000 }) {
             <div className="absolute inset-0 bg-gradient-to-t from-[#0E4B4B]/60 via-transparent to-transparent" />
           </div>
 
-          {/* Content */}
-          <div className="relative z-10 h-full flex items-center">
-            <div className="container mx-auto px-6 md:px-12">
-              <div className="max-w-2xl">
+           {/* Content */}
+           <div className="relative z-10 h-full flex items-center">
+             <div className="container mx-auto px-6 md:px-12">
+              <div className="grid items-center gap-10 lg:grid-cols-[1fr_420px]">
+                <div className="max-w-2xl">
                 {/* Badge */}
                 {hero.badge && (
                   <div className="inline-flex items-center px-4 py-2 rounded-full bg-[#C0704D] text-[#F4F8F7] text-sm font-semibold mb-6 shadow-lg">
@@ -320,6 +322,8 @@ export default function Hero({ interval = 6000 }) {
                     </>
                   )}
                 </div>
+                </div>
+                <PreorderHeroPanel />
               </div>
             </div>
           </div>

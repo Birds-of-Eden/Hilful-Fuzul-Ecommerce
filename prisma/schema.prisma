@@ -45,7 +45,7 @@ model Writer {
   products  Product[]
   createdAt DateTime  @default(now())
   updatedAt DateTime  @updatedAt
-  deleted   Boolean  @default(false)
+  deleted   Boolean   @default(false)
 }
 
 model Publisher {
@@ -55,7 +55,7 @@ model Publisher {
   products  Product[]
   createdAt DateTime  @default(now())
   updatedAt DateTime  @updatedAt
-  deleted   Boolean  @default(false)
+  deleted   Boolean   @default(false)
 }
 
 model Category {
@@ -64,7 +64,7 @@ model Category {
   products  Product[]
   createdAt DateTime  @default(now())
   updatedAt DateTime  @updatedAt
-  deleted   Boolean  @default(false)
+  deleted   Boolean   @default(false)
 }
 
 model Product {
@@ -81,6 +81,12 @@ model Product {
   stock          Int      @default(0)
   available      Boolean  @default(true)
 
+  isPreorder      Boolean   @default(false)
+  preorderNote    String?
+  preorderStartAt DateTime?
+  preorderEndAt   DateTime?
+  releaseDate     DateTime?
+
   image   String?
   gallery String[]
   pdf     String?
@@ -96,7 +102,7 @@ model Product {
   wishlist   Wishlist[]
   reviews    Review[]
   cartItems  CartItem[]
-  deleted    Boolean  @default(false)
+  deleted    Boolean     @default(false)
 
   createdAt DateTime @default(now())
   updatedAt DateTime @updatedAt
@@ -147,10 +153,10 @@ model Order {
 }
 
 model Payment {
-  id                  Int               @id @default(autoincrement())
-  paymentGatewayData  Json?             
-  createdAt           DateTime          @default(now())
-  updatedAt           DateTime          @updatedAt
+  id                 Int      @id @default(autoincrement())
+  paymentGatewayData Json?
+  createdAt          DateTime @default(now())
+  updatedAt          DateTime @updatedAt
 }
 
 model OrderItem {
@@ -233,34 +239,34 @@ model Shipment {
   shippedAt      DateTime?
   expectedDate   DateTime?
   deliveredAt    DateTime?
-  order Order @relation(fields: [orderId], references: [id])
-  createdAt DateTime @default(now())
-  updatedAt DateTime @updatedAt
+  order          Order          @relation(fields: [orderId], references: [id])
+  createdAt      DateTime       @default(now())
+  updatedAt      DateTime       @updatedAt
 }
 
 model NewsletterSubscriber {
-  id              String   @id @default(uuid())
-  email           String   @unique
-  status          String   @default("subscribed")
-  unsubscribedAt  DateTime?
-  createdAt       DateTime @default(now())
+  id             String    @id @default(uuid())
+  email          String    @unique
+  status         String    @default("subscribed")
+  unsubscribedAt DateTime?
+  createdAt      DateTime  @default(now())
 }
 
 model Newsletter {
-  id          String   @id @default(uuid())
-  title       String
-  subject     String
-  content     String   @db.Text
-  status      String   @default("draft")
-  sentAt      DateTime?
-  createdAt   DateTime @default(now())
-  updatedAt   DateTime @updatedAt
+  id        String    @id @default(uuid())
+  title     String
+  subject   String
+  content   String    @db.Text
+  status    String    @default("draft")
+  sentAt    DateTime?
+  createdAt DateTime  @default(now())
+  updatedAt DateTime  @updatedAt
 }
 
 model Coupon {
   id            String    @id @default(uuid())
   code          String    @unique
-  discountType  String    // "percentage" or "fixed"
+  discountType  String // "percentage" or "fixed"
   discountValue Decimal   @db.Decimal(10, 2)
   minOrderValue Decimal?  @db.Decimal(10, 2)
   maxDiscount   Decimal?  @db.Decimal(10, 2)
@@ -278,7 +284,37 @@ model PasswordResetToken {
   token     String   @unique @db.VarChar(255)
   expiresAt DateTime
   createdAt DateTime @default(now())
-  
+
   @@index([email])
   @@index([token])
+}
+
+model SiteSetting {
+  id            String @id @default("main")
+  siteName      String @default("হিলফুল-ফুযুল প্রকাশনী")
+  siteTitle     String @default("কিতাবঘর")
+  tagline       String @default("বইয়ের জন্য বিশ্বস্ত সঙ্গী")
+  footerTagline String @default("জ্ঞানের আলো ছড়িয়ে দেয়া")
+  description   String @db.Text
+
+  logo       String?
+  topBarText String  @default("বিনামূল্যে ডেলিভারি - ৫০০৳")
+
+  phone   String?
+  email   String?
+  address String? @db.Text
+
+  facebookUrl  String?
+  instagramUrl String?
+  twitterUrl   String?
+
+  preorderPopupEnabled Boolean @default(false)
+  preorderPopupTitle   String?
+  preorderPopupText    String?
+  preorderPopupImage   String?
+  preorderButtonText   String? @default("প্রি-অর্ডার করুন")
+  preorderLink         String?
+
+  createdAt DateTime @default(now())
+  updatedAt DateTime @updatedAt
 }

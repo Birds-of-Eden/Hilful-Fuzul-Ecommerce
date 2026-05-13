@@ -24,6 +24,7 @@ import {
   Image as ImageIcon,
   Layers,
   FileText,
+  Filter,
 } from "lucide-react";
 import { toast } from "sonner";
 import ProductAddModal from "./ProductAddModal";
@@ -39,6 +40,9 @@ export default function ProductManager({
   categories,
 }: any) {
   const [search, setSearch] = useState("");
+  const [filter, setFilter] = useState<
+    "all" | "preorder" | "normal" | "active" | "outOfStock"
+  >("all");
   const [modalOpen, setModalOpen] = useState(false);
   const [deleteModalOpen, setDeleteModalOpen] = useState(false);
   const [deletingProduct, setDeletingProduct] = useState<any>(null);
@@ -46,7 +50,30 @@ export default function ProductManager({
   const [editing, setEditing] = useState<any>(null);
 
   const filtered = products
-    ?.filter((p: any) => p.name.toLowerCase().includes(search.toLowerCase()))
+    ?.filter((p: any) => {
+      const searchText = search.toLowerCase();
+
+      const matchesSearch =
+        (p.name ?? "").toLowerCase().includes(searchText) ||
+        (p.category?.name ?? "").toLowerCase().includes(searchText) ||
+        (p.writer?.name ?? "").toLowerCase().includes(searchText) ||
+        (p.publisher?.name ?? "").toLowerCase().includes(searchText);
+
+      const matchesFilter =
+        filter === "all"
+          ? true
+          : filter === "preorder"
+          ? Boolean(p.isPreOrder)
+          : filter === "normal"
+          ? !p.isPreOrder
+          : filter === "active"
+          ? Boolean(p.available)
+          : filter === "outOfStock"
+          ? Number(p.stock) <= 0
+          : true;
+
+      return matchesSearch && matchesFilter;
+    })
     .filter(
       (p: any) =>
         p.category !== null && p.writer !== null && p.publisher !== null
@@ -134,6 +161,13 @@ export default function ProductManager({
       // If it's not a full URL, return as is (might be a relative path already)
       return url.startsWith("/") ? url : `/${url}`;
     }
+  };
+
+  const formatPreOrderEndDate = (value: any) => {
+    if (!value) return null;
+    const date = new Date(value);
+    if (Number.isNaN(date.getTime())) return null;
+    return date.toLocaleDateString();
   };
 
   return (
@@ -251,22 +285,42 @@ export default function ProductManager({
 
         {/* SEARCH + BUTTON */}
         <Card className="col-span-2 bg-white/80 shadow-lg rounded-2xl mb-8">
-          <CardContent className="p-6 flex items-center gap-4">
-            <div className="flex-1 relative">
-              <Search className="absolute left-3 top-1/2 -translate-y-1/2 text-gray-400 h-4 w-4" />
-              <Input
-                placeholder="Search product..."
-                value={search}
-                onChange={(e) => setSearch(e.target.value)}
-                className="pl-10 rounded-full"
-              />
+          <CardContent className="p-6">
+            <div className="grid gap-4 md:grid-cols-[1fr_260px_auto] md:items-center">
+              <div className="relative">
+                <Search className="absolute left-4 top-1/2 h-5 w-5 -translate-y-1/2 text-gray-400" />
+                <Input
+                  value={search}
+                  onChange={(e) => setSearch(e.target.value)}
+                  placeholder="Search by product, category, writer, publisher..."
+                  className="h-12 rounded-full pl-12"
+                />
+              </div>
+
+              <div className="relative">
+                <Filter className="absolute left-4 top-1/2 h-5 w-5 -translate-y-1/2 text-gray-400" />
+                <select
+                  value={filter}
+                  onChange={(e) => setFilter(e.target.value as any)}
+                  className="h-12 w-full rounded-full border bg-white pl-12 pr-4 text-sm outline-none focus:ring-2 focus:ring-[#0E4B4B]"
+                >
+                  <option value="all">All Products</option>
+                  <option value="preorder">Preorder Only</option>
+                  <option value="normal">Normal Products</option>
+                  <option value="active">Active Products</option>
+                  <option value="outOfStock">Out of Stock</option>
+                </select>
+              </div>
+
+              <div className="flex md:justify-end">
+                <Button
+                  onClick={openAdd}
+                  className="h-12 rounded-full bg-gradient-to-r from-[#2C4A3B] to-[#819A91] text-white px-6"
+                >
+                  <Plus className="h-4 w-4 mr-1" /> New Product
+                </Button>
+              </div>
             </div>
-            <Button
-              onClick={openAdd}
-              className="rounded-full bg-gradient-to-r from-[#2C4A3B] to-[#819A91] text-white px-6"
-            >
-              <Plus className="h-4 w-4 mr-1" /> New Product
-            </Button>
           </CardContent>
         </Card>
 
@@ -369,6 +423,15 @@ export default function ProductManager({
                     </div>
                   )}
 
+                  {/* Pre-order Badge */}
+                  {p.isPreOrder && (
+                    <div className="absolute top-3 left-3 z-10">
+                      <div className="bg-gradient-to-r from-[#C0704D] to-[#A85D3F] text-white text-xs font-bold px-3 py-1 rounded-full shadow-lg">
+                        📖 Pre-Order Now
+                      </div>
+                    </div>
+                  )}
+
                   <div className="absolute top-3 right-3 opacity-0 group-hover:opacity-100 flex gap-2 transition">
                     <Button
                       size="sm"
@@ -401,6 +464,23 @@ export default function ProductManager({
                     <p>Publisher: {p.publisher?.name || "No publisher"}</p>
                     <p>Stock: {p.stock || "Stock Out"}</p>
                   </div>
+
+                  {/* Pre-order Info */}
+                  {p.isPreOrder && (
+                    <div className="mt-2 p-2 bg-[#C0704D]/10 rounded-lg">
+                      {formatPreOrderEndDate(p.preOrderEndDate) && (
+                        <p className="text-xs text-[#C0704D] font-semibold">
+                          Pre-order ends:{" "}
+                          {formatPreOrderEndDate(p.preOrderEndDate)}
+                        </p>
+                      )}
+                      {Number(p.preOrderDiscount) > 0 && (
+                        <p className="text-xs text-green-600 font-semibold">
+                          Special discount: {Number(p.preOrderDiscount)}% off
+                        </p>
+                      )}
+                    </div>
+                  )}
 
                   <p className="text-gray-600 text-sm">Price: ৳{p.price}</p>
 

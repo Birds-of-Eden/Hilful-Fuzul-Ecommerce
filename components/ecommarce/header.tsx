@@ -46,6 +46,29 @@ interface ProductSummary {
   image?: string | null;
 }
 
+export type SiteSetting = {
+  id?: string;
+  siteName: string;
+  siteTitle: string;
+  tagline: string;
+  footerTagline: string;
+  description: string;
+  topBarText: string;
+  logo: string;
+  favicon?: string | null;
+  phone: string;
+  email: string;
+  address: string;
+  facebookUrl?: string | null;
+  twitterUrl?: string | null;
+  instagramUrl?: string | null;
+  linkedinUrl?: string | null;
+  youtubeUrl?: string | null;
+  copyrightText?: string;
+  createdAt?: string;
+  updatedAt?: string;
+};
+
 export default function Header() {
   const pathname = usePathname();
   const [isMenuOpen, setIsMenuOpen] = useState(false);
@@ -57,6 +80,7 @@ export default function Header() {
   const [isPending, setIsPending] = useState(false);
   const { data: session, status } = useSession();
   const router = useRouter();
+  const [settings, setSettings] = useState<SiteSetting | null>(null);
 
   // 🔢 কার্ট কাউন্ট স্টেট
   const [cartCount, setCartCount] = useState(0);
@@ -68,6 +92,22 @@ export default function Header() {
   const [searchLoading, setSearchLoading] = useState(false);
   const [showSearchDropdown, setShowSearchDropdown] = useState(false);
   const [hasLoadedProducts, setHasLoadedProducts] = useState(false);
+
+  useEffect(() => {
+    const loadSettings = async () => {
+      try {
+        const res = await fetch("/api/site-settings", { cache: "no-store" });
+        if (!res.ok) return;
+
+        const data = await res.json();
+        setSettings(data);
+      } catch (error) {
+        console.error("Failed to load site settings:", error);
+      }
+    };
+
+    loadSettings();
+  }, []);
 
   const handleAuthClick = async () => {
     if (status === "authenticated") {
@@ -237,6 +277,7 @@ export default function Header() {
       ],
     },
     { name: "বইমেলা ২০২৫", href: "/kitabghor/book-fair", icon: CalendarCheck },
+    { name: "প্রি-অর্ডার", href: "/kitabghor/preorder", icon: CalendarCheck },
     { name: "ব্লগ", href: "/kitabghor/blogs", icon: Tag },
   ];
 
@@ -254,7 +295,7 @@ export default function Header() {
       {/* Top Bar */}
       <div className="bg-[#086666] text-[#F4F8F7] py-1 px-4 text-sm">
         <div className="container mx-auto text-center">
-          বিনামূল্যে ডেলিভারি - ৫০০৳
+          {settings?.topBarText || "বিনামূল্যে ডেলিভারি - ৫০০৳"}
         </div>
       </div>
 
@@ -266,10 +307,10 @@ export default function Header() {
         <div className="flex items-center justify-between">
           {/* Logo */}
           <Link href="/" className="flex items-center space-x-3 group">
-            <div className="w-8 h-8 bg-gradient-to-br from-[#0E4B4B] to-[#5FA3A3] rounded-md flex items-center justify-center">
+            <div className="w-8 h-8 bg-gradient-to-br from-[#0E4B4B] to-[#5FA3A3] rounded-md flex items-center justify-center overflow-hidden">
               <Image
-                src="/logo.png"
-                alt="Hilful Fuzul Logo"
+                src={settings?.logo || "/logo.png"}
+                alt={settings?.siteName || "Hilful Fuzul Logo"}
                 width={32}
                 height={32}
                 className="rounded-md"
@@ -283,10 +324,10 @@ export default function Header() {
                     : "text-lg text-[#F4F8F7]"
                 }`}
               >
-                হিলফুল-ফুযুল প্রকাশনী
+                {settings?.siteName || "হিলফুল-ফুযুল প্রকাশনী"}
               </span>
               <span className="text-xs text-[#5FA3A3]">
-                বইয়ের জন্য বিশ্বস্ত সঙ্গী
+                {settings?.tagline || "বইয়ের জন্য বিশ্বস্ত সঙ্গী"}
               </span>
             </div>
           </Link>

@@ -1,13 +1,13 @@
-//components/management/ProductAddModal.tsx
-
 "use client";
 
 import { useState, useEffect } from "react";
 import { Input } from "@/components/ui/input";
 import { Button } from "@/components/ui/button";
 import { Label } from "@/components/ui/label";
+import { Textarea } from "@/components/ui/textarea";
+import { Checkbox } from "@/components/ui/checkbox";
 import { toast } from "sonner";
-import { Zap, Upload, X, FileText, Image as ImageIcon } from "lucide-react";
+import { Zap, Upload, X, FileText, Image as ImageIcon, Calendar } from "lucide-react";
 import Image from "next/image";
 
 interface ProductForm {
@@ -26,6 +26,11 @@ interface ProductForm {
   image: string;
   gallery: string[];
   pdf: string;
+  // Pre-order fields
+  isPreOrder: boolean;
+  preOrderEndDate: string;
+  expectedShippingDate: string;
+  preOrderDiscount: string;
 }
 
 interface Entity {
@@ -53,6 +58,9 @@ export default function ProductAddModal({
   categories,
 }: ProductAddModalProps) {
   const [loading, setLoading] = useState(false);
+  const [lastPriceFieldChanged, setLastPriceFieldChanged] = useState<
+    "price" | "original_price" | "discount" | "preOrderDiscount" | null
+  >(null);
   const [uploading, setUploading] = useState({
     mainImage: false,
     gallery: false,
@@ -74,13 +82,150 @@ export default function ProductAddModal({
     image: "",
     gallery: [],
     pdf: "",
+    isPreOrder: false,
+    preOrderEndDate: "",
+    expectedShippingDate: "",
+    preOrderDiscount: "0",
   });
 
   useEffect(() => {
-    if (editing) setForm(editing);
+    if (editing) {
+      setForm({
+        ...editing,
+        isPreOrder: editing.isPreOrder || false,
+        preOrderEndDate: editing.preOrderEndDate || "",
+        expectedShippingDate: editing.expectedShippingDate || "",
+        preOrderDiscount: editing.preOrderDiscount || "0",
+      });
+    } else {
+      // Reset form when adding new product
+      setForm({
+        name: "",
+        slug: "",
+        description: "",
+        price: "",
+        original_price: "",
+        discount: "0",
+        stock: "0",
+        available: true,
+        writerId: "",
+        publisherId: "",
+        categoryId: "",
+        image: "",
+        gallery: [],
+        pdf: "",
+        isPreOrder: false,
+        preOrderEndDate: "",
+        expectedShippingDate: "",
+        preOrderDiscount: "0",
+      });
+    }
+    setLastPriceFieldChanged(null);
   }, [editing]);
 
   if (!open) return null;
+
+  const toNum = (value: string) => {
+    const num = Number(value);
+    return Number.isFinite(num) ? num : NaN;
+  };
+
+  const formatMoney = (value: number) => {
+    if (!Number.isFinite(value)) return "";
+    const rounded = Math.round(value * 100) / 100;
+    return String(rounded);
+  };
+
+  const formatPercent = (value: number) => {
+    if (!Number.isFinite(value)) return "0";
+    const clamped = Math.min(100, Math.max(0, value));
+    const rounded = Math.round(clamped * 100) / 100;
+    return String(rounded);
+  };
+
+  useEffect(() => {
+    const price = toNum(form.price);
+    const original = toNum(form.original_price);
+
+    const activeDiscountRaw = form.isPreOrder
+      ? toNum(form.preOrderDiscount)
+      : toNum(form.discount);
+
+    if (
+      lastPriceFieldChanged === "price" ||
+      lastPriceFieldChanged === "original_price"
+    ) {
+      if (Number.isFinite(price) && Number.isFinite(original) && original > 0) {
+        const nextDiscount = ((original - price) / original) * 100;
+        const nextDiscountStr = formatPercent(nextDiscount);
+
+        setForm((prev) => {
+          if (prev.isPreOrder) {
+            if (prev.preOrderDiscount === nextDiscountStr) return prev;
+            return { ...prev, preOrderDiscount: nextDiscountStr, discount: nextDiscountStr };
+          }
+
+          if (prev.discount === nextDiscountStr) return prev;
+          return { ...prev, discount: nextDiscountStr, preOrderDiscount: nextDiscountStr };
+        });
+      }
+
+      return;
+    }
+
+    if (
+      lastPriceFieldChanged === "discount" ||
+      lastPriceFieldChanged === "preOrderDiscount"
+    ) {
+      if (
+        Number.isFinite(original) &&
+        original > 0 &&
+        Number.isFinite(activeDiscountRaw)
+      ) {
+        const nextPrice = original * (1 - activeDiscountRaw / 100);
+        const nextPriceStr = formatMoney(nextPrice);
+        setForm((prev) => {
+          if (prev.price === nextPriceStr) return prev;
+          const discountStr = formatPercent(activeDiscountRaw);
+          return {
+            ...prev,
+            price: nextPriceStr,
+            discount: discountStr,
+            preOrderDiscount: discountStr,
+          };
+        });
+        return;
+      }
+
+      if (
+        Number.isFinite(price) &&
+        price > 0 &&
+        Number.isFinite(activeDiscountRaw) &&
+        activeDiscountRaw >= 0 &&
+        activeDiscountRaw < 100
+      ) {
+        const nextOriginal = price / (1 - activeDiscountRaw / 100);
+        const nextOriginalStr = formatMoney(nextOriginal);
+        setForm((prev) => {
+          if (prev.original_price === nextOriginalStr) return prev;
+          const discountStr = formatPercent(activeDiscountRaw);
+          return {
+            ...prev,
+            original_price: nextOriginalStr,
+            discount: discountStr,
+            preOrderDiscount: discountStr,
+          };
+        });
+      }
+    }
+  }, [
+    form.price,
+    form.original_price,
+    form.discount,
+    form.preOrderDiscount,
+    form.isPreOrder,
+    lastPriceFieldChanged,
+  ]);
 
   const handleUpload = async (file: File, folder: string) => {
     // Validate file type
@@ -176,6 +321,32 @@ export default function ProductAddModal({
 
   const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
+    
+    // Validate pre-order dates
+    if (form.isPreOrder) {
+      if (!form.preOrderEndDate) {
+        toast.error("Please set a pre-order end date");
+        return;
+      }
+      
+      const preOrderEnd = new Date(form.preOrderEndDate);
+      const today = new Date();
+      today.setHours(0, 0, 0, 0);
+      
+      if (preOrderEnd < today) {
+        toast.error("Pre-order end date cannot be in the past");
+        return;
+      }
+      
+      if (form.expectedShippingDate) {
+        const shippingDate = new Date(form.expectedShippingDate);
+        if (shippingDate < preOrderEnd) {
+          toast.error("Expected shipping date should be after pre-order end date");
+          return;
+        }
+      }
+    }
+    
     setLoading(true);
     try {
       await onSubmit(editing?.id ?? form, form);
@@ -233,12 +404,28 @@ export default function ProductAddModal({
     }
   };
 
+  // Get minimum date for pre-order end (tomorrow)
+  const getMinPreOrderDate = () => {
+    const tomorrow = new Date();
+    tomorrow.setDate(tomorrow.getDate() + 1);
+    return tomorrow.toISOString().split('T')[0];
+  };
+
+  // Get minimum date for expected shipping (day after pre-order end)
+  const getMinShippingDate = () => {
+    if (!form.preOrderEndDate) return getMinPreOrderDate();
+    const minDate = new Date(form.preOrderEndDate);
+    minDate.setDate(minDate.getDate() + 1);
+    return minDate.toISOString().split('T')[0];
+  };
+
   return (
     <div className="fixed inset-0 bg-black/40 flex justify-center items-center p-6 z-50">
       <div className="bg-white rounded-xl shadow-xl w-full max-w-2xl max-h-[90vh] overflow-y-auto p-6 space-y-5">
         <h2 className="text-2xl font-bold">
           {editing ? "Update Product" : "Add New Product"}
         </h2>
+        
         {/* NAME */}
         <div>
           <Label>Name *</Label>
@@ -253,6 +440,7 @@ export default function ProductAddModal({
             }
           />
         </div>
+        
         {/* SLUG */}
         <div>
           <Label>Slug *</Label>
@@ -261,6 +449,18 @@ export default function ProductAddModal({
             onChange={(e) => setForm({ ...form, slug: e.target.value })}
           />
         </div>
+
+        {/* DESCRIPTION */}
+        <div>
+          <Label>Description *</Label>
+          <Textarea
+            value={form.description}
+            onChange={(e) => setForm({ ...form, description: e.target.value })}
+            placeholder="Write product description..."
+            className="mt-1 min-h-[110px]"
+          />
+        </div>
+         
         {/* DROPDOWNS */}
         <div className="grid grid-cols-1 md:grid-cols-3 gap-4">
           <div>
@@ -313,23 +513,105 @@ export default function ProductAddModal({
             </select>
           </div>
         </div>
+        
+        {/* PRE-ORDER SECTION */}
+        <div className="border-t pt-4 mt-2">
+          <div className="flex items-center gap-3 mb-4">
+            <Checkbox
+              id="isPreOrder"
+              checked={form.isPreOrder}
+              onCheckedChange={(checked) => 
+                setForm({ ...form, isPreOrder: checked as boolean })
+              }
+            />
+            <Label htmlFor="isPreOrder" className="text-base font-semibold cursor-pointer">
+              This is a Pre-Order Product
+            </Label>
+            <Calendar className="h-4 w-4 text-[#C0704D]" />
+          </div>
+
+          {form.isPreOrder && (
+            <div className="space-y-4 pl-6 border-l-2 border-[#C0704D]">
+              <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
+                <div>
+                  <Label>Pre-Order End Date *</Label>
+                  <Input
+                    type="date"
+                    value={form.preOrderEndDate}
+                    onChange={(e) => setForm({ ...form, preOrderEndDate: e.target.value })}
+                    min={getMinPreOrderDate()}
+                    className="mt-1"
+                  />
+                  <p className="text-xs text-gray-500 mt-1">
+                    Customers can pre-order until this date
+                  </p>
+                </div>
+
+                <div>
+                  <Label>Expected Shipping Date</Label>
+                  <Input
+                    type="date"
+                    value={form.expectedShippingDate}
+                    onChange={(e) => setForm({ ...form, expectedShippingDate: e.target.value })}
+                    min={getMinShippingDate()}
+                    className="mt-1"
+                  />
+                  <p className="text-xs text-gray-500 mt-1">
+                    When will the product be shipped?
+                  </p>
+                </div>
+              </div>
+
+              <div>
+                <Label>Pre-Order Discount (%)</Label>
+                <Input
+                  type="number"
+                  step="0.01"
+                  min="0"
+                  max="100"
+                  value={form.preOrderDiscount}
+                  onChange={(e) => {
+                    setLastPriceFieldChanged("preOrderDiscount");
+                    setForm({
+                      ...form,
+                      preOrderDiscount: e.target.value,
+                      discount: e.target.value,
+                    });
+                  }}
+                  placeholder="Special discount for pre-orders"
+                  className="mt-1"
+                />
+                <p className="text-xs text-gray-500 mt-1">
+                  Special discount for customers who pre-order (optional)
+                </p>
+              </div>
+            </div>
+          )}
+        </div>
+
         {/* PRICE */}
         <div className="grid grid-cols-1 md:grid-cols-3 gap-4">
           <div>
             <Label>Price *</Label>
             <Input
               type="number"
+              step="0.01"
               value={form.price}
-              onChange={(e) => setForm({ ...form, price: e.target.value })}
+              onChange={(e) => {
+                setLastPriceFieldChanged("price");
+                setForm({ ...form, price: e.target.value });
+              }}
             />
           </div>
           <div>
             <Label>Original Price</Label>
             <Input
               type="number"
+              step="0.01"
               value={form.original_price}
               onChange={(e) =>
-                setForm({ ...form, original_price: e.target.value })
+                (setLastPriceFieldChanged("original_price"),
+                setForm({ ...form, original_price: e.target.value }))
               }
             />
           </div>
@@ -337,11 +619,18 @@ export default function ProductAddModal({
             <Label>Discount (%)</Label>
             <Input
               type="number"
+              step="0.01"
+              min="0"
+              max="100"
               value={form.discount}
-              onChange={(e) => setForm({ ...form, discount: e.target.value })}
+              onChange={(e) => {
+                setLastPriceFieldChanged("discount");
+                setForm({ ...form, discount: e.target.value, preOrderDiscount: e.target.value });
+              }}
             />
           </div>
         </div>
+        
         {/* STOCK */}
         <div>
           <Label>Stock</Label>
@@ -350,7 +639,27 @@ export default function ProductAddModal({
             value={form.stock}
             onChange={(e) => setForm({ ...form, stock: e.target.value })}
           />
+          {form.isPreOrder && (
+            <p className="text-xs text-[#C0704D] mt-1">
+              Note: Stock will be reserved for pre-orders
+            </p>
+          )}
         </div>
+        
+        {/* AVAILABLE */}
+        <div className="flex items-center gap-3">
+          <Checkbox
+            id="available"
+            checked={form.available}
+            onCheckedChange={(checked) => 
+              setForm({ ...form, available: checked as boolean })
+            }
+          />
+          <Label htmlFor="available" className="cursor-pointer">
+            Product is available for purchase
+          </Label>
+        </div>
+
         {/* Main Image Upload */}
         <div className="space-y-2">
           <Label>Main Product Image *</Label>
@@ -471,6 +780,7 @@ export default function ProductAddModal({
             </label>
           )}
         </div>
+        
         <div className="flex justify-end gap-3 pb-4">
           <Button variant="outline" onClick={onClose}>
             Cancel

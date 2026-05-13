@@ -31,6 +31,7 @@ const menuItems = [
       { name: "লেখক", href: "/admin/management/writers" },
       { name: "ক্যাটেগরি", href: "/admin/management/categories" },
       { name: "প্রকাশক", href: "/admin/management/publishers" },
+      { name: "সাইট ব্যবস্থাপনা", href: "/admin/sitemanagement" },
     ],
   },
   { name: "ব্লগ", href: "/admin/blogs", icon: BookOpen },
