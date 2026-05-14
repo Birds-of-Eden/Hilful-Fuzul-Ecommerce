@@ -3,6 +3,7 @@
 import Link from "next/link";
 import { Button } from "@/components/ui/button";
 import { Book, Home, Search, ArrowLeft, Library, BookOpen } from "lucide-react";
+import { getBookFairLabel } from "@/lib/bnDate";
 
 export default function NotFound() {
   const popularBooks = [
@@ -10,7 +11,7 @@ export default function NotFound() {
     { name: "ইসলামী বই", href: "/kitabghor/books?category=islamic" },
     { name: "কওমী পাঠ্যবই", href: "/kowmi/daura" },
     { name: "শিশুতোষ বই", href: "/kitabghor/books?category=children" },
-    { name: "বইমেলা ২০২৫", href: "/kitabghor/book-fair" },
+    { name: getBookFairLabel(), href: "/kitabghor/book-fair" },
   ];
 
   return (

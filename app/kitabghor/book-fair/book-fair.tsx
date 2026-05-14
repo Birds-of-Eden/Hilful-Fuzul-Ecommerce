@@ -14,6 +14,7 @@ import Link from "next/link";
 import { Button } from "@/components/ui/button";
 import { Card, CardContent, CardFooter } from "@/components/ui/card";
 import { Skeleton } from "@/components/ui/skeleton";
+import { getBookFairLabel } from "@/lib/bnDate";
 import {
   Filter,
   Calendar,
@@ -232,7 +233,7 @@ const BookFairPage = memo(function BookFairPage() {
               <div className="w-3 h-16 bg-gradient-to-b from-emerald-600 to-teal-600 rounded-full shadow-lg"></div>
               <div className="relative">
                 <h1 className="text-4xl md:text-5xl lg:text-6xl font-bold bg-gradient-to-r from-emerald-600 via-teal-600 to-emerald-700 bg-clip-text text-transparent">
-                  বইমেলা ২০২৫
+                  {getBookFairLabel()}
                 </h1>
                 <div className="absolute -bottom-2 left-0 right-0 h-1 bg-gradient-to-r from-emerald-600 via-teal-600 to-emerald-600 rounded-full opacity-50"></div>
               </div>

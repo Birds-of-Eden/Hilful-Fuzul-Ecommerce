@@ -35,6 +35,7 @@ import {
 import { Button } from "@/components/ui/button";
 import { useCart } from "@/components/ecommarce/CartContext";
 import { useWishlist } from "@/components/ecommarce/WishlistContext";
+import { getBookFairLabel } from "@/lib/bnDate";
 
 // শুধু সার্চের জন্য মিনিমাল প্রোডাক্ট টাইপ
 interface ProductSummary {
@@ -276,7 +277,7 @@ export default function Header() {
         { name: "জামাতে মেশকাত", href: "/kowmi/meshkat", icon: BookOpen },
       ],
     },
-    { name: "বইমেলা ২০২৫", href: "/kitabghor/book-fair", icon: CalendarCheck },
+    { name: getBookFairLabel(), href: "/kitabghor/book-fair", icon: CalendarCheck },
     { name: "প্রি-অর্ডার", href: "/kitabghor/preorder", icon: CalendarCheck },
     { name: "ব্লগ", href: "/kitabghor/blogs", icon: Tag },
   ];
