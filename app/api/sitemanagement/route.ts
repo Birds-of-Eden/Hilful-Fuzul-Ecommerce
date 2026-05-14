@@ -1,3 +1,5 @@
+//app/api/sitemanagement/route.ts
+
 import { NextRequest, NextResponse } from "next/server";
 import { prisma } from "@/lib/prisma";
 import { getServerSession } from "next-auth";
@@ -10,10 +12,28 @@ export async function GET() {
     });
 
     if (!settings) {
-      return NextResponse.json(
-        { error: "Site settings not found" },
-        { status: 404 }
-      );
+      return NextResponse.json({
+        id: "main",
+        siteName: "",
+        siteTitle: "",
+        tagline: "",
+        footerTagline: "",
+        description: "",
+        logo: null,
+        topBarText: "",
+        phone: "",
+        email: "",
+        address: "",
+        facebookUrl: "",
+        instagramUrl: "",
+        twitterUrl: "",
+        preorderPopupEnabled: false,
+        preorderPopupTitle: "",
+        preorderPopupText: "",
+        preorderPopupImage: null,
+        preorderButtonText: "প্রি-অর্ডার করুন",
+        preorderLink: "",
+      });
     }
 
     return NextResponse.json(settings);
@@ -22,7 +42,7 @@ export async function GET() {
 
     return NextResponse.json(
       { error: "Failed to fetch site settings" },
-      { status: 500 }
+      { status: 500 },
     );
   }
 }
@@ -73,7 +93,7 @@ export async function PUT(request: NextRequest) {
 
     return NextResponse.json(
       { error: "Failed to update site settings" },
-      { status: 500 }
+      { status: 500 },
     );
   }
 }
