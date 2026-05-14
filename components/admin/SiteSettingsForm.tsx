@@ -6,7 +6,13 @@ import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
 import { Textarea } from "@/components/ui/textarea";
 import { Switch } from "@/components/ui/switch";
-import { Card, CardContent, CardDescription, CardHeader, CardTitle } from "@/components/ui/card";
+import {
+  Card,
+  CardContent,
+  CardDescription,
+  CardHeader,
+  CardTitle,
+} from "@/components/ui/card";
 import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs";
 import { toast } from "sonner";
 import { Upload, X, Image as ImageIcon } from "lucide-react";
@@ -81,8 +87,8 @@ export default function SiteSettingsForm() {
     setUploadingImage(true);
     try {
       const url = await handleImageUpload(e.target.files[0]);
-      setSettings(prev => prev ? { ...prev, logo: url } : null);
-      toast.success("লোগো আপলোড成功 হয়েছে");
+      setSettings((prev) => (prev ? { ...prev, logo: url } : null));
+      toast.success("লোগো আপলোড হয়েছে");
     } catch (error) {
       toast.error("লোগো আপলোড করতে ব্যর্থ হয়েছে");
     } finally {
@@ -90,12 +96,16 @@ export default function SiteSettingsForm() {
     }
   };
 
-  const handlePreorderImageUpload = async (e: React.ChangeEvent<HTMLInputElement>) => {
+  const handlePreorderImageUpload = async (
+    e: React.ChangeEvent<HTMLInputElement>,
+  ) => {
     if (!e.target.files?.[0]) return;
     setUploadingImage(true);
     try {
       const url = await handleImageUpload(e.target.files[0]);
-      setSettings(prev => prev ? { ...prev, preorderPopupImage: url } : null);
+      setSettings((prev) =>
+        prev ? { ...prev, preorderPopupImage: url } : null,
+      );
       toast.success("প্রি-অর্ডার ইমেজ আপলোড হয়েছে");
     } catch (error) {
       toast.error("ইমেজ আপলোড করতে ব্যর্থ হয়েছে");
@@ -117,7 +127,7 @@ export default function SiteSettingsForm() {
       });
 
       if (!res.ok) throw new Error("Failed to save settings");
-      
+
       toast.success("সেটিংস সফলভাবে সংরক্ষণ করা হয়েছে");
     } catch (error) {
       console.error("Error saving settings:", error);
@@ -132,8 +142,11 @@ export default function SiteSettingsForm() {
       <div className="space-y-6">
         <div className="h-10 w-48 bg-gray-200 rounded animate-pulse"></div>
         <div className="space-y-4">
-          {[1, 2, 3, 4].map(i => (
-            <div key={i} className="h-32 bg-gray-100 rounded-xl animate-pulse"></div>
+          {[1, 2, 3, 4].map((i) => (
+            <div
+              key={i}
+              className="h-32 bg-gray-100 rounded-xl animate-pulse"
+            ></div>
           ))}
         </div>
       </div>
@@ -150,7 +163,9 @@ export default function SiteSettingsForm() {
           <TabsTrigger value="contact">যোগাযোগ</TabsTrigger>
           <TabsTrigger value="social">সোশ্যাল মিডিয়া</TabsTrigger>
           <TabsTrigger value="preorder">প্রি-অর্ডার</TabsTrigger>
-          <TabsTrigger value="seo" className="hidden lg:block">SEO</TabsTrigger>
+          <TabsTrigger value="seo" className="hidden lg:block">
+            SEO
+          </TabsTrigger>
         </TabsList>
 
         {/* General Settings */}
@@ -158,14 +173,18 @@ export default function SiteSettingsForm() {
           <Card>
             <CardHeader>
               <CardTitle>সাইটের সাধারণ তথ্য</CardTitle>
-              <CardDescription>আপনার সাইটের মৌলিক তথ্য সেট করুন</CardDescription>
+              <CardDescription>
+                আপনার সাইটের মৌলিক তথ্য সেট করুন
+              </CardDescription>
             </CardHeader>
             <CardContent className="space-y-4">
               <div>
                 <Label>সাইটের নাম (Site Name)</Label>
                 <Input
                   value={settings.siteName}
-                  onChange={(e) => setSettings({ ...settings, siteName: e.target.value })}
+                  onChange={(e) =>
+                    setSettings({ ...settings, siteName: e.target.value })
+                  }
                   className="mt-1"
                 />
               </div>
@@ -174,7 +193,9 @@ export default function SiteSettingsForm() {
                 <Label>সাইট টাইটেল (Site Title)</Label>
                 <Input
                   value={settings.siteTitle}
-                  onChange={(e) => setSettings({ ...settings, siteTitle: e.target.value })}
+                  onChange={(e) =>
+                    setSettings({ ...settings, siteTitle: e.target.value })
+                  }
                   className="mt-1"
                 />
               </div>
@@ -183,7 +204,9 @@ export default function SiteSettingsForm() {
                 <Label>ট্যাগলাইন (Tagline)</Label>
                 <Input
                   value={settings.tagline}
-                  onChange={(e) => setSettings({ ...settings, tagline: e.target.value })}
+                  onChange={(e) =>
+                    setSettings({ ...settings, tagline: e.target.value })
+                  }
                   className="mt-1"
                 />
               </div>
@@ -192,7 +215,9 @@ export default function SiteSettingsForm() {
                 <Label>ফুটার ট্যাগলাইন (Footer Tagline)</Label>
                 <Input
                   value={settings.footerTagline}
-                  onChange={(e) => setSettings({ ...settings, footerTagline: e.target.value })}
+                  onChange={(e) =>
+                    setSettings({ ...settings, footerTagline: e.target.value })
+                  }
                   className="mt-1"
                 />
               </div>
@@ -201,7 +226,9 @@ export default function SiteSettingsForm() {
                 <Label>সাইটের বিবরণ (Description)</Label>
                 <Textarea
                   value={settings.description}
-                  onChange={(e) => setSettings({ ...settings, description: e.target.value })}
+                  onChange={(e) =>
+                    setSettings({ ...settings, description: e.target.value })
+                  }
                   rows={4}
                   className="mt-1"
                 />
@@ -211,10 +238,14 @@ export default function SiteSettingsForm() {
                 <Label>টপ বার টেক্সট (Top Bar Text)</Label>
                 <Input
                   value={settings.topBarText}
-                  onChange={(e) => setSettings({ ...settings, topBarText: e.target.value })}
+                  onChange={(e) =>
+                    setSettings({ ...settings, topBarText: e.target.value })
+                  }
                   className="mt-1"
                 />
-                <p className="text-xs text-gray-500 mt-1">হেডারের উপরের বারটিতে দেখানো হবে</p>
+                <p className="text-xs text-gray-500 mt-1">
+                  হেডারের উপরের বারটিতে দেখানো হবে
+                </p>
               </div>
 
               <div>
@@ -240,7 +271,9 @@ export default function SiteSettingsForm() {
                   ) : (
                     <label className="flex flex-col items-center justify-center w-32 h-32 border-2 border-dashed rounded-lg cursor-pointer hover:border-[#0E4B4B]">
                       <Upload className="h-8 w-8 text-gray-400" />
-                      <span className="text-xs text-gray-500 mt-1">আপলোড করুন</span>
+                      <span className="text-xs text-gray-500 mt-1">
+                        আপলোড করুন
+                      </span>
                       <input
                         type="file"
                         className="hidden"
@@ -250,7 +283,9 @@ export default function SiteSettingsForm() {
                       />
                     </label>
                   )}
-                  {uploadingImage && <p className="text-sm text-gray-500 mt-1">আপলোড হচ্ছে...</p>}
+                  {uploadingImage && (
+                    <p className="text-sm text-gray-500 mt-1">আপলোড হচ্ছে...</p>
+                  )}
                 </div>
               </div>
             </CardContent>
@@ -269,7 +304,9 @@ export default function SiteSettingsForm() {
                 <Label>ফোন নম্বর</Label>
                 <Input
                   value={settings.phone || ""}
-                  onChange={(e) => setSettings({ ...settings, phone: e.target.value })}
+                  onChange={(e) =>
+                    setSettings({ ...settings, phone: e.target.value })
+                  }
                   placeholder="+880-XXXXXXXXX"
                   className="mt-1"
                 />
@@ -279,7 +316,9 @@ export default function SiteSettingsForm() {
                 <Label>ইমেইল ঠিকানা</Label>
                 <Input
                   value={settings.email || ""}
-                  onChange={(e) => setSettings({ ...settings, email: e.target.value })}
+                  onChange={(e) =>
+                    setSettings({ ...settings, email: e.target.value })
+                  }
                   placeholder="info@example.com"
                   className="mt-1"
                 />
@@ -289,7 +328,9 @@ export default function SiteSettingsForm() {
                 <Label>ঠিকানা</Label>
                 <Textarea
                   value={settings.address || ""}
-                  onChange={(e) => setSettings({ ...settings, address: e.target.value })}
+                  onChange={(e) =>
+                    setSettings({ ...settings, address: e.target.value })
+                  }
                   rows={3}
                   placeholder="গ্রীন রোড, ঢাকা-১২১৫&#10;বাংলাদেশ"
                   className="mt-1"
@@ -304,14 +345,18 @@ export default function SiteSettingsForm() {
           <Card>
             <CardHeader>
               <CardTitle>সোশ্যাল মিডিয়া লিংক</CardTitle>
-              <CardDescription>আপনার সোশ্যাল মিডিয়া প্রোফাইল লিংক দিন</CardDescription>
+              <CardDescription>
+                আপনার সোশ্যাল মিডিয়া প্রোফাইল লিংক দিন
+              </CardDescription>
             </CardHeader>
             <CardContent className="space-y-4">
               <div>
                 <Label>Facebook URL</Label>
                 <Input
                   value={settings.facebookUrl || ""}
-                  onChange={(e) => setSettings({ ...settings, facebookUrl: e.target.value })}
+                  onChange={(e) =>
+                    setSettings({ ...settings, facebookUrl: e.target.value })
+                  }
                   placeholder="https://facebook.com/yourpage"
                   className="mt-1"
                 />
@@ -321,7 +366,9 @@ export default function SiteSettingsForm() {
                 <Label>Instagram URL</Label>
                 <Input
                   value={settings.instagramUrl || ""}
-                  onChange={(e) => setSettings({ ...settings, instagramUrl: e.target.value })}
+                  onChange={(e) =>
+                    setSettings({ ...settings, instagramUrl: e.target.value })
+                  }
                   placeholder="https://instagram.com/yourprofile"
                   className="mt-1"
                 />
@@ -331,7 +378,9 @@ export default function SiteSettingsForm() {
                 <Label>Twitter/X URL</Label>
                 <Input
                   value={settings.twitterUrl || ""}
-                  onChange={(e) => setSettings({ ...settings, twitterUrl: e.target.value })}
+                  onChange={(e) =>
+                    setSettings({ ...settings, twitterUrl: e.target.value })
+                  }
                   placeholder="https://twitter.com/yourprofile"
                   className="mt-1"
                 />
@@ -351,11 +400,15 @@ export default function SiteSettingsForm() {
               <div className="flex items-center justify-between">
                 <div>
                   <Label>প্রি-অর্ডার পপআপ সক্রিয় করুন</Label>
-                  <p className="text-sm text-gray-500">হোমপেজে প্রি-অর্ডার পপআপ দেখাবে</p>
+                  <p className="text-sm text-gray-500">
+                    হোমপেজে প্রি-অর্ডার পপআপ দেখাবে
+                  </p>
                 </div>
                 <Switch
                   checked={settings.preorderPopupEnabled}
-                  onCheckedChange={(checked) => setSettings({ ...settings, preorderPopupEnabled: checked })}
+                  onCheckedChange={(checked) =>
+                    setSettings({ ...settings, preorderPopupEnabled: checked })
+                  }
                 />
               </div>
 
@@ -363,7 +416,12 @@ export default function SiteSettingsForm() {
                 <Label>পপআপ টাইটেল</Label>
                 <Input
                   value={settings.preorderPopupTitle || ""}
-                  onChange={(e) => setSettings({ ...settings, preorderPopupTitle: e.target.value })}
+                  onChange={(e) =>
+                    setSettings({
+                      ...settings,
+                      preorderPopupTitle: e.target.value,
+                    })
+                  }
                   placeholder="প্রি-অর্ডার করুন"
                   className="mt-1"
                 />
@@ -373,7 +431,12 @@ export default function SiteSettingsForm() {
                 <Label>পপআপ টেক্সট</Label>
                 <Textarea
                   value={settings.preorderPopupText || ""}
-                  onChange={(e) => setSettings({ ...settings, preorderPopupText: e.target.value })}
+                  onChange={(e) =>
+                    setSettings({
+                      ...settings,
+                      preorderPopupText: e.target.value,
+                    })
+                  }
                   rows={3}
                   placeholder="নতুন বই প্রি-অর্ডার করুন এবং স্পেশাল ডিসকাউন্ট পান!"
                   className="mt-1"
@@ -394,7 +457,9 @@ export default function SiteSettingsForm() {
                       />
                       <button
                         type="button"
-                        onClick={() => setSettings({ ...settings, preorderPopupImage: null })}
+                        onClick={() =>
+                          setSettings({ ...settings, preorderPopupImage: null })
+                        }
                         className="absolute -top-2 -right-2 bg-red-500 text-white rounded-full p-1"
                       >
                         <X className="h-4 w-4" />
@@ -403,7 +468,9 @@ export default function SiteSettingsForm() {
                   ) : (
                     <label className="flex flex-col items-center justify-center w-40 h-40 border-2 border-dashed rounded-lg cursor-pointer hover:border-[#0E4B4B]">
                       <ImageIcon className="h-8 w-8 text-gray-400" />
-                      <span className="text-xs text-gray-500 mt-1">ইমেজ আপলোড</span>
+                      <span className="text-xs text-gray-500 mt-1">
+                        ইমেজ আপলোড
+                      </span>
                       <input
                         type="file"
                         className="hidden"
@@ -420,7 +487,12 @@ export default function SiteSettingsForm() {
                 <Label>বাটনের টেক্সট</Label>
                 <Input
                   value={settings.preorderButtonText || "প্রি-অর্ডার করুন"}
-                  onChange={(e) => setSettings({ ...settings, preorderButtonText: e.target.value })}
+                  onChange={(e) =>
+                    setSettings({
+                      ...settings,
+                      preorderButtonText: e.target.value,
+                    })
+                  }
                   className="mt-1"
                 />
               </div>
@@ -428,8 +500,13 @@ export default function SiteSettingsForm() {
               <div>
                 <Label>প্রি-অর্ডার লিংক</Label>
                 <Input
-                  value={settings.preorderLink || "https://docs.google.com/forms/d/e/1FAIpQLSd9deli8ciK4SWm5OFE-jdobk3VQ5O2BeOy6Zfh9HUUyExBiA/viewform"}
-                  onChange={(e) => setSettings({ ...settings, preorderLink: e.target.value })}
+                  value={
+                    settings.preorderLink ||
+                    "https://docs.google.com/forms/d/e/1FAIpQLSd9deli8ciK4SWm5OFE-jdobk3VQ5O2BeOy6Zfh9HUUyExBiA/viewform"
+                  }
+                  onChange={(e) =>
+                    setSettings({ ...settings, preorderLink: e.target.value })
+                  }
                   placeholder="https://docs.google.com/forms/d/e/1FAIpQLSd9deli8ciK4SWm5OFE-jdobk3VQ5O2BeOy6Zfh9HUUyExBiA/viewform"
                   className="mt-1"
                 />
@@ -443,7 +520,11 @@ export default function SiteSettingsForm() {
         <Button type="button" variant="outline" onClick={fetchSettings}>
           রিফ্রেশ
         </Button>
-        <Button type="submit" disabled={saving} className="bg-[#0E4B4B] hover:bg-[#086666]">
+        <Button
+          type="submit"
+          disabled={saving}
+          className="bg-[#0E4B4B] hover:bg-[#086666]"
+        >
           {saving ? "সংরক্ষণ হচ্ছে..." : "সেটিংস সংরক্ষণ করুন"}
         </Button>
       </div>

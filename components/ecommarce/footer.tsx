@@ -23,7 +23,7 @@ import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
 import { toast } from "sonner";
 
- type SiteSetting = {
+type SiteSetting = {
   id?: string;
   siteTitle: string;
   footerTagline: string;
@@ -54,7 +54,7 @@ export default function Footer() {
   useEffect(() => {
     const loadSettings = async () => {
       try {
-        const res = await fetch("/api/site-settings", { cache: "no-store" });
+        const res = await fetch("/api/sitemanagement", { cache: "no-store" });
         if (!res.ok) return;
 
         const data = await res.json();
@@ -336,7 +336,8 @@ export default function Footer() {
             <div className="flex items-center gap-2 text-white">
               <Copyright className="h-4 w-4" />
               <span>
-                {currentYear} {settings?.siteTitle || "কিতাবঘর"}। সর্বস্বত্ব সংরক্ষিত।
+                {currentYear} {settings?.siteTitle || "কিতাবঘর"}। সর্বস্বত্ব
+                সংরক্ষিত।
               </span>
             </div>
 

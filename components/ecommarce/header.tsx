@@ -97,7 +97,7 @@ export default function Header() {
   useEffect(() => {
     const loadSettings = async () => {
       try {
-        const res = await fetch("/api/site-settings", { cache: "no-store" });
+        const res = await fetch("/api/sitemanagement", { cache: "no-store" });
         if (!res.ok) return;
 
         const data = await res.json();
@@ -161,7 +161,7 @@ export default function Header() {
         const serverCount =
           items.reduce(
             (sum: number, item: any) => sum + Number(item.quantity || 0),
-            0
+            0,
           ) || 0;
 
         setCartCount(serverCount);
@@ -277,7 +277,11 @@ export default function Header() {
         { name: "জামাতে মেশকাত", href: "/kowmi/meshkat", icon: BookOpen },
       ],
     },
-    { name: getBookFairLabel(), href: "/kitabghor/book-fair", icon: CalendarCheck },
+    {
+      name: getBookFairLabel(),
+      href: "/kitabghor/book-fair",
+      icon: CalendarCheck,
+    },
     { name: "প্রি-অর্ডার", href: "/kitabghor/preorder", icon: CalendarCheck },
     { name: "ব্লগ", href: "/kitabghor/blogs", icon: Tag },
   ];
@@ -457,7 +461,9 @@ export default function Header() {
                 <span className="text-sm font-semibold text-[#F4F8F7]">
                   {userName}
                 </span>
-                <span className="text-[11px] text-[#F4F8F7] opacity-80">{userRole}</span>
+                <span className="text-[11px] text-[#F4F8F7] opacity-80">
+                  {userRole}
+                </span>
               </div>
             )}
 
@@ -555,7 +561,7 @@ export default function Header() {
                 <item.icon className="h-4 w-4 mr-2" />
                 {item.name}
               </Link>
-            )
+            ),
           )}
         </nav>
       </div>
@@ -672,7 +678,7 @@ export default function Header() {
                   <item.icon className="h-4 w-4 mr-3 text-[#0E4B4B]" />
                   {item.name}
                 </Link>
-              )
+              ),
             )}
 
             {/* User info (mobile) */}

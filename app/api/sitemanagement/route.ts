@@ -1,4 +1,4 @@
-//app/api/sitemanagement/route.ts
+// app/api/sitemanagement/route.ts
 
 import { NextRequest, NextResponse } from "next/server";
 import { prisma } from "@/lib/prisma";
@@ -19,14 +19,18 @@ export async function GET() {
         tagline: "",
         footerTagline: "",
         description: "",
+
         logo: null,
         topBarText: "",
+
         phone: "",
         email: "",
         address: "",
+
         facebookUrl: "",
         instagramUrl: "",
         twitterUrl: "",
+
         preorderPopupEnabled: false,
         preorderPopupTitle: "",
         preorderPopupText: "",
@@ -57,17 +61,20 @@ export async function PUT(request: NextRequest) {
 
     const body = await request.json();
 
-    const updatedSettings = await prisma.siteSetting.update({
-      where: { id: "main" },
-      data: {
-        siteName: body.siteName,
-        siteTitle: body.siteTitle,
-        tagline: body.tagline,
-        footerTagline: body.footerTagline,
-        description: body.description,
+    const updatedSettings = await prisma.siteSetting.upsert({
+      where: {
+        id: "main",
+      },
+
+      update: {
+        siteName: body.siteName || "",
+        siteTitle: body.siteTitle || "",
+        tagline: body.tagline || "",
+        footerTagline: body.footerTagline || "",
+        description: body.description || "",
 
         logo: body.logo || null,
-        topBarText: body.topBarText,
+        topBarText: body.topBarText || "",
 
         phone: body.phone || null,
         email: body.email || null,
@@ -78,12 +85,51 @@ export async function PUT(request: NextRequest) {
         twitterUrl: body.twitterUrl || null,
 
         preorderPopupEnabled: Boolean(body.preorderPopupEnabled),
+
         preorderPopupTitle: body.preorderPopupTitle || null,
+
         preorderPopupText: body.preorderPopupText || null,
+
         preorderPopupImage: body.preorderPopupImage || null,
+
         preorderButtonText:
           body.preorderButtonText?.trim() || "প্রি-অর্ডার করুন",
-        preorderLink: body.preorderLink?.trim(),
+
+        preorderLink: body.preorderLink?.trim() || null,
+      },
+
+      create: {
+        id: "main",
+
+        siteName: body.siteName || "",
+        siteTitle: body.siteTitle || "",
+        tagline: body.tagline || "",
+        footerTagline: body.footerTagline || "",
+        description: body.description || "",
+
+        logo: body.logo || null,
+        topBarText: body.topBarText || "",
+
+        phone: body.phone || null,
+        email: body.email || null,
+        address: body.address || null,
+
+        facebookUrl: body.facebookUrl || null,
+        instagramUrl: body.instagramUrl || null,
+        twitterUrl: body.twitterUrl || null,
+
+        preorderPopupEnabled: Boolean(body.preorderPopupEnabled),
+
+        preorderPopupTitle: body.preorderPopupTitle || null,
+
+        preorderPopupText: body.preorderPopupText || null,
+
+        preorderPopupImage: body.preorderPopupImage || null,
+
+        preorderButtonText:
+          body.preorderButtonText?.trim() || "প্রি-অর্ডার করুন",
+
+        preorderLink: body.preorderLink?.trim() || null,
       },
     });
 
