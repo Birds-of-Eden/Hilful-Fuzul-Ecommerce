@@ -49,9 +49,9 @@ export default function CartPage() {
   const [hasMounted, setHasMounted] = useState(false);
 
   // সার্ভার কার্ট আইটেম
-  const [serverCartItems, setServerCartItems] = useState<LocalCartItem[] | null>(
-    null
-  );
+  const [serverCartItems, setServerCartItems] = useState<
+    LocalCartItem[] | null
+  >(null);
   const [loadingServerCart, setLoadingServerCart] = useState(false);
 
   useEffect(() => {
@@ -90,7 +90,7 @@ export default function CartPage() {
         }));
 
         // Only update if there are actual changes to prevent unnecessary re-renders
-        setServerCartItems(prev => {
+        setServerCartItems((prev) => {
           const prevStr = JSON.stringify(prev || []);
           const newStr = JSON.stringify(mapped);
           return prevStr === newStr ? prev : mapped;
@@ -112,19 +112,23 @@ export default function CartPage() {
 
       try {
         setLoadingServerCart(true);
-        
+
         // Get current server cart first
         const serverRes = await fetch("/api/cart", { cache: "no-store" });
         if (!serverRes.ok) throw new Error("Failed to fetch server cart");
-        
+
         const serverData = await serverRes.json();
-        const existingItems = Array.isArray(serverData.items) ? serverData.items : [];
-        
+        const existingItems = Array.isArray(serverData.items)
+          ? serverData.items
+          : [];
+
         // Find items that need to be added/updated (avoid duplicates)
-        const itemsToSync = cartItems.filter(localItem => 
-          !existingItems.some((serverItem: any) => 
-            String(serverItem.productId) === String(localItem.productId)
-          )
+        const itemsToSync = cartItems.filter(
+          (localItem) =>
+            !existingItems.some(
+              (serverItem: any) =>
+                String(serverItem.productId) === String(localItem.productId),
+            ),
         );
 
         // Only add items that don't exist on server
@@ -141,7 +145,7 @@ export default function CartPage() {
 
         // Clear local cart after successful sync
         clearCart();
-        
+
         // Fetch updated server cart
         await fetchServerCart();
       } catch (err) {
@@ -164,9 +168,8 @@ export default function CartPage() {
   if (!hasMounted) return null;
 
   // ✅ UI তে যে লিস্ট দেখাবো: লগইন + serverCart থাকলে সেটা, নইলে context
-  const itemsToRender: LocalCartItem[] = isAuthenticated && serverCartItems
-    ? serverCartItems
-    : (cartItems as any);
+  const itemsToRender: LocalCartItem[] =
+    isAuthenticated && serverCartItems ? serverCartItems : (cartItems as any);
 
   // ✅ Checkout -> login if needed
   const handleCheckout = async () => {
@@ -228,7 +231,7 @@ export default function CartPage() {
         }
 
         setServerCartItems((prev) =>
-          prev ? prev.filter((i) => i.id !== itemId) : prev
+          prev ? prev.filter((i) => i.id !== itemId) : prev,
         );
       }
 
@@ -243,7 +246,7 @@ export default function CartPage() {
   // ✅ Quantity update -> API + context + local server state
   const handleUpdateQuantity = async (
     itemId: string | number,
-    newQuantity: number
+    newQuantity: number,
   ) => {
     if (newQuantity < 1) return;
 
@@ -267,9 +270,9 @@ export default function CartPage() {
         setServerCartItems((prev) =>
           prev
             ? prev.map((i) =>
-                i.id === itemId ? { ...i, quantity: newQuantity } : i
+                i.id === itemId ? { ...i, quantity: newQuantity } : i,
               )
-            : prev
+            : prev,
         );
       }
 
@@ -287,14 +290,19 @@ export default function CartPage() {
     }
 
     try {
-      console.log("Applying coupon:", couponCode.trim(), "with subtotal:", subtotal);
-      
+      console.log(
+        "Applying coupon:",
+        couponCode.trim(),
+        "with subtotal:",
+        subtotal,
+      );
+
       const response = await fetch("/api/coupons/validate", {
         method: "POST",
         headers: { "Content-Type": "application/json" },
-        body: JSON.stringify({ 
+        body: JSON.stringify({
           code: couponCode.trim(),
-          subtotal: subtotal 
+          subtotal: subtotal,
         }),
       });
 
@@ -307,7 +315,11 @@ export default function CartPage() {
 
       if (data.success) {
         setDiscountAmount(data.coupon.discountAmount);
-        setDiscount(data.coupon.discountType === "percentage" ? data.coupon.discountValue : (data.coupon.discountAmount / subtotal) * 100);
+        setDiscount(
+          data.coupon.discountType === "percentage"
+            ? data.coupon.discountValue
+            : (data.coupon.discountAmount / subtotal) * 100,
+        );
         setAppliedCoupon(data.coupon);
         toast.success("কুপন প্রয়োগ করা হয়েছে!");
         setCouponCode("");
@@ -331,7 +343,7 @@ export default function CartPage() {
 
   const subtotal = itemsToRender.reduce(
     (total, item) => total + item.price * item.quantity,
-    0
+    0,
   );
 
   const shippingCost = subtotal > 500 ? 0 : 60;
@@ -437,9 +449,7 @@ export default function CartPage() {
                         <div className="flex-1">
                           <div className="flex flex-col sm:flex-row sm:justify-between gap-3">
                             <div className="flex-1">
-                              <Link
-                                href={`/kitabghor/books/${item.productId}`}
-                              >
+                              <Link href={`/kitabghor/books/${item.productId}`}>
                                 <h3 className="font-bold text-lg text-[#0D1414] hover:text-[#0E4B4B] transition-colors duration-300 line-clamp-2">
                                   {item.name}
                                 </h3>
@@ -466,7 +476,7 @@ export default function CartPage() {
                                 onClick={() =>
                                   handleUpdateQuantity(
                                     item.id,
-                                    item.quantity - 1
+                                    item.quantity - 1,
                                   )
                                 }
                                 disabled={item.quantity <= 1}
@@ -481,7 +491,7 @@ export default function CartPage() {
                                 onClick={() =>
                                   handleUpdateQuantity(
                                     item.id,
-                                    item.quantity + 1
+                                    item.quantity + 1,
                                   )
                                 }
                               >
@@ -525,29 +535,14 @@ export default function CartPage() {
                       <span className="flex items-center gap-2">
                         <Tag className="h-4 w-4 text-[#C0704D]" />
                         ডিসকাউন্ট
-                        {appliedCoupon?.discountType === "percentage" && ` (${appliedCoupon.discountValue}%)`}
+                        {appliedCoupon?.discountType === "percentage" &&
+                          ` (${appliedCoupon.discountValue}%)`}
                       </span>
                       <span className="font-semibold">
                         -৳{discountAmount.toFixed(2)}
                       </span>
                     </div>
                   )}
-
-                  <div className="flex justify-between items-center py-2">
-                    <span className="text-[#5FA3A3] flex items-center gap-2">
-                      <Truck className="h-4 w-4 text-[#0E4B4B]" />
-                      শিপিং
-                    </span>
-                    <span
-                      className={`${
-                        shippingCost === 0 ? "text-green-600" : ""
-                      } font-semibold`}
-                    >
-                      {shippingCost === 0
-                        ? "ফ্রি"
-                        : `৳${shippingCost.toFixed(2)}`}
-                    </span>
-                  </div>
 
                   {shippingCost === 0 && subtotal > 0 && (
                     <div className="text-xs text-green-600 bg-green-50 rounded-lg px-3 py-2 text-center">

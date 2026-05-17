@@ -22,13 +22,16 @@ export default function CheckoutPage() {
   const { cartItems, clearCart } = useCart();
   const [isMounted, setIsMounted] = useState(false);
   const [step, setStep] = useState<"details" | "payment" | "confirm">(
-    "details"
+    "details",
   );
   const [name, setName] = useState("");
   const [mobile, setMobile] = useState("");
   const [email, setEmail] = useState("");
   const [location, setLocation] = useState("");
   const [deliveryAddress, setDeliveryAddress] = useState("");
+  const [deliveryZone, setDeliveryZone] = useState<
+    "inside_dhaka" | "outside_dhaka" | ""
+  >("");
   const [paymentMethod, setPaymentMethod] = useState("");
   const [transactionId, setTransactionId] = useState("");
   const [invoiceId, setInvoiceId] = useState("");
@@ -98,7 +101,7 @@ export default function CheckoutPage() {
 
       try {
         setLoadingServerCart(true);
-        
+
         // Add each guest cart item to server
         for (const item of cartItems) {
           const res = await fetch("/api/cart", {
@@ -119,7 +122,7 @@ export default function CheckoutPage() {
 
         // Clear guest cart after successful sync
         clearCart();
-        
+
         // Fetch updated server cart
         fetchServerCart();
       } catch (err) {
@@ -133,9 +136,8 @@ export default function CheckoutPage() {
   }, [isAuthenticated, isMounted, cartItems, clearCart]);
 
   // ✅ UI তে যে লিস্ট দেখাবো: লগইন + serverCart থাকলে সেটা, নইলে context
-  const itemsToRender = isAuthenticated && serverCartItems
-    ? serverCartItems
-    : cartItems;
+  const itemsToRender =
+    isAuthenticated && serverCartItems ? serverCartItems : cartItems;
 
   // 🔹 payment screenshot
   const [paymentScreenshot, setPaymentScreenshot] = useState<File | null>(null);
@@ -143,8 +145,9 @@ export default function CheckoutPage() {
     string | null
   >(null);
   // 🔹 uploaded URL (from /api/upload)
-  const [paymentScreenshotUrl, setPaymentScreenshotUrl] =
-    useState<string | null>(null);
+  const [paymentScreenshotUrl, setPaymentScreenshotUrl] = useState<
+    string | null
+  >(null);
   // 🔹 upload progress
   const [isUploadingScreenshot, setIsUploadingScreenshot] = useState(false);
 
@@ -216,83 +219,79 @@ export default function CheckoutPage() {
   }, [session, prefilled]);
 
   // 🔹 screenshot handler (now uploads to /api/upload)
-const folder = "paymentScreenshot";
+  const folder = "paymentScreenshot";
 
- const handleScreenshotChange = async (
-  e: React.ChangeEvent<HTMLInputElement>
-) => {
-  const file = e.target.files?.[0];
-  if (!file) return;
+  const handleScreenshotChange = async (
+    e: React.ChangeEvent<HTMLInputElement>,
+  ) => {
+    const file = e.target.files?.[0];
+    if (!file) return;
 
-  // 👀 Local preview (instant UI feedback)
-  const previewUrl = URL.createObjectURL(file);
-  setPaymentScreenshot(file);
-  setPaymentScreenshotPreview(previewUrl);
+    // 👀 Local preview (instant UI feedback)
+    const previewUrl = URL.createObjectURL(file);
+    setPaymentScreenshot(file);
+    setPaymentScreenshotPreview(previewUrl);
 
-  try {
-    setIsUploadingScreenshot(true);
+    try {
+      setIsUploadingScreenshot(true);
 
+      // 1) File type check (image / pdf logic)
+      if (folder.includes("image") && !file.type.startsWith("image/")) {
+        throw new Error("Please upload a valid image file");
+      }
+      if (folder.includes("pdf") && file.type !== "application/pdf") {
+        throw new Error("Please upload a valid PDF file");
+      }
 
-    // 1) File type check (image / pdf logic)
-    if (folder.includes("image") && !file.type.startsWith("image/")) {
-      throw new Error("Please upload a valid image file");
+      // 2) File size check (5MB max)
+      const maxSize = 5 * 1024 * 1024; // 5MB
+      if (file.size > maxSize) {
+        throw new Error("File size should be less than 5MB");
+      }
+      const formData = new FormData();
+      formData.append("file", file);
+
+      const res = await fetch(`/api/upload/${folder}`, {
+        method: "POST",
+        body: formData,
+      });
+
+      if (!res.ok) {
+        const data = await res.json().catch(() => null);
+        console.error("Screenshot upload failed:", data || res.statusText);
+        throw new Error(data?.message || "স্ক্রিনশট আপলোড করতে সমস্যা হয়েছে");
+      }
+
+      const data = await res.json();
+
+      const uploadedUrl =
+        (typeof data === "string" && data) ||
+        data?.url ||
+        data?.fileUrl ||
+        data?.path ||
+        data?.location ||
+        null;
+
+      if (!uploadedUrl) {
+        console.error("Upload response does not contain URL:", data);
+        throw new Error("স্ক্রিনশটের URL পাওয়া যায়নি");
+      }
+
+      console.log("Uploaded screenshot URL:", uploadedUrl);
+      setPaymentScreenshotUrl(uploadedUrl);
+      // toast.success("স্ক্রিনশট আপলোড সম্পন্ন হয়েছে");
+    } catch (err) {
+      console.error("Screenshot upload error:", err);
+      const message =
+        err instanceof Error
+          ? err.message
+          : "স্ক্রিনশট আপলোড করতে সমস্যা হয়েছে";
+      toast.error(message);
+      setPaymentScreenshotUrl(null);
+    } finally {
+      setIsUploadingScreenshot(false);
     }
-    if (folder.includes("pdf") && file.type !== "application/pdf") {
-      throw new Error("Please upload a valid PDF file");
-    }
-
-    // 2) File size check (5MB max)
-    const maxSize = 5 * 1024 * 1024; // 5MB
-    if (file.size > maxSize) {
-      throw new Error("File size should be less than 5MB");
-    }
-    const formData = new FormData();
-    formData.append("file", file);
-
-    const res = await fetch(`/api/upload/${folder}`, {
-      method: "POST",
-      body: formData,
-    });
-
-    if (!res.ok) {
-      const data = await res.json().catch(() => null);
-      console.error("Screenshot upload failed:", data || res.statusText);
-      throw new Error(
-        data?.message || "স্ক্রিনশট আপলোড করতে সমস্যা হয়েছে"
-      );
-    }
-
-    const data = await res.json();
-
-    const uploadedUrl =
-      (typeof data === "string" && data) ||
-      data?.url ||
-      data?.fileUrl ||
-      data?.path ||
-      data?.location ||
-      null;
-
-    if (!uploadedUrl) {
-      console.error("Upload response does not contain URL:", data);
-      throw new Error("স্ক্রিনশটের URL পাওয়া যায়নি");
-    }
-
-    console.log("Uploaded screenshot URL:", uploadedUrl);
-    setPaymentScreenshotUrl(uploadedUrl);
-    // toast.success("স্ক্রিনশট আপলোড সম্পন্ন হয়েছে");
-  } catch (err) {
-    console.error("Screenshot upload error:", err);
-    const message =
-      err instanceof Error
-        ? err.message
-        : "স্ক্রিনশট আপলোড করতে সমস্যা হয়েছে";
-    toast.error(message);
-    setPaymentScreenshotUrl(null);
-  } finally {
-    setIsUploadingScreenshot(false);
-  }
-};
-
+  };
 
   const getPaymentStatusFromMethod = (method: string) => {
     if (!method) return "Unknown";
@@ -301,9 +300,15 @@ const folder = "paymentScreenshot";
 
   const subtotal = itemsToRender.reduce(
     (total, item) => total + item.price * item.quantity,
-    0
+    0,
   );
-  const shipping = 60;
+  const shipping =
+    deliveryZone === "inside_dhaka"
+      ? 80
+      : deliveryZone === "outside_dhaka"
+        ? 120
+        : 0;
+
   const total = subtotal + shipping;
 
   // Helper function to generate initials from channel name
@@ -312,13 +317,15 @@ const folder = "paymentScreenshot";
     if (words.length === 1) {
       return words[0].charAt(0).toUpperCase();
     }
-    return words.map(word => word.charAt(0).toUpperCase()).join('');
+    return words.map((word) => word.charAt(0).toUpperCase()).join("");
   };
 
   // Currently selected non-COD gateway based on paymentMethod
   const selectedGateway = paymentGateways.find((p) => {
     if (!paymentMethod || paymentMethod === "CashOnDelivery") return false;
-    const channel = (p as any)?.paymentGatewayData?.channel as string | undefined;
+    const channel = (p as any)?.paymentGatewayData?.channel as
+      | string
+      | undefined;
     if (!channel) return false;
     const slug = channel.toLowerCase().replace(/\s+/g, "");
     return slug === paymentMethod;
@@ -338,9 +345,9 @@ const folder = "paymentScreenshot";
               step === s
                 ? "bg-[#819A91] border-[#819A91] text-white shadow-lg shadow-[#819A91]/30"
                 : i < ["details", "payment", "confirm"].indexOf(step) ||
-                  (s === "confirm" && orderConfirmed)
-                ? "bg-[#A7C1A8] border-[#A7C1A8] text-white"
-                : "border-[#D1D8BE] text-[#2D4A3C]"
+                    (s === "confirm" && orderConfirmed)
+                  ? "bg-[#A7C1A8] border-[#A7C1A8] text-white"
+                  : "border-[#D1D8BE] text-[#2D4A3C]"
             }`}
           >
             {step === s ? (
@@ -357,16 +364,16 @@ const folder = "paymentScreenshot";
               step === s
                 ? "text-[#2D4A3C]"
                 : i < ["details", "payment", "confirm"].indexOf(step) ||
-                  (s === "confirm" && orderConfirmed)
-                ? "text-[#3D5A4C]"
-                : "text-[#2D4A3C]"
+                    (s === "confirm" && orderConfirmed)
+                  ? "text-[#3D5A4C]"
+                  : "text-[#2D4A3C]"
             }`}
           >
             {s === "details"
               ? "ব্যক্তিগত তথ্য"
               : s === "payment"
-              ? "পেমেন্ট"
-              : "নিশ্চিতকরণ"}
+                ? "পেমেন্ট"
+                : "নিশ্চিতকরণ"}
           </span>
           {i < 2 && (
             <div
@@ -402,11 +409,8 @@ const folder = "paymentScreenshot";
     // যদি অনলাইন পেমেন্ট হয় এবং স্ক্রিনশট দেওয়া হয় কিন্তু upload এখনও শেষ না হয়
     if (
       paymentMethod !== "CashOnDelivery" &&
-      (
-        // require screenshot URL for non-COD payments
-        !paymentScreenshotUrl ||
-        isUploadingScreenshot
-      )
+      // require screenshot URL for non-COD payments
+      (!paymentScreenshotUrl || isUploadingScreenshot)
     ) {
       // If upload is still in progress
       if (isUploadingScreenshot) {
@@ -435,8 +439,7 @@ const folder = "paymentScreenshot";
       },
       itemsToRender,
       paymentMethod,
-      transactionId:
-        paymentMethod !== "CashOnDelivery" ? transactionId : null,
+      transactionId: paymentMethod !== "CashOnDelivery" ? transactionId : null,
       total,
       createdAt: new Date().toISOString(),
       paymentStatus: computedPaymentStatus,
@@ -456,12 +459,13 @@ const folder = "paymentScreenshot";
       district: location || "N/A",
       area: deliveryAddress || location || "N/A",
       address_details: deliveryAddress || location || "N/A",
+      delivery_charge: shipping,
+      delivery_zone: deliveryZone,
       payment_method: paymentMethod,
       items,
-      transactionId:
-        paymentMethod !== "CashOnDelivery" ? transactionId : null,
-      paymentStatus: computedPaymentStatus, 
-      image: paymentScreenshotUrl || null, 
+      transactionId: paymentMethod !== "CashOnDelivery" ? transactionId : null,
+      paymentStatus: computedPaymentStatus,
+      image: paymentScreenshotUrl || null,
     };
 
     console.log("Order payload:", payload);
@@ -477,7 +481,7 @@ const folder = "paymentScreenshot";
         const data = await res.json().catch(() => null);
         console.error("Order create failed:", data || res.statusText);
         toast.error(
-          data?.error || "অর্ডার করতে সমস্যা হয়েছে, পরে আবার চেষ্টা করুন"
+          data?.error || "অর্ডার করতে সমস্যা হয়েছে, পরে আবার চেষ্টা করুন",
         );
         return;
       }
@@ -524,12 +528,13 @@ const folder = "paymentScreenshot";
           },
           body: JSON.stringify({ email }),
         });
-        
+
         if (response.ok) {
           console.log("Email added to newsletter subscribers successfully");
         } else {
           const result = await response.json();
-          if (response.status !== 409) { // Don't show error for already subscribed
+          if (response.status !== 409) {
+            // Don't show error for already subscribed
             console.warn("Failed to add to newsletter:", result.error);
           }
         }
@@ -537,7 +542,7 @@ const folder = "paymentScreenshot";
         console.warn("Error adding to newsletter:", error);
       }
     }
-    
+
     clearCart();
     setOrderConfirmed(true);
     setShowModal(true);
@@ -545,10 +550,16 @@ const folder = "paymentScreenshot";
   };
 
   const handleGoToPaymentStep = () => {
-    if (!location.trim() || !deliveryAddress.trim()) {
-      toast.error("প্রাথমিক ঠিকানা এবং ডেলিভারি ঠিকানা পূরণ করুন");
+    if (!location.trim()) {
+      toast.error("প্রাথমিক ঠিকানা পূরণ করুন");
       return;
     }
+
+    if (!deliveryZone) {
+      toast.error("ডেলিভারি এলাকা নির্বাচন করুন");
+      return;
+    }
+
     setStep("payment");
   };
 
@@ -563,7 +574,9 @@ const folder = "paymentScreenshot";
             <div className="w-8 h-8 sm:w-10 sm:h-10 bg-[#819A91] rounded-full flex items-center justify-center">
               <BookOpen className="w-4 h-4 sm:w-5 sm:h-5 text-white" />
             </div>
-            <h1 className="text-2xl sm:text-3xl lg:text-4xl font-bold text-[#2D4A3C]">চেকআউট</h1>
+            <h1 className="text-2xl sm:text-3xl lg:text-4xl font-bold text-[#2D4A3C]">
+              চেকআউট
+            </h1>
           </div>
           <p className="text-sm sm:text-base lg:text-lg text-[#2D4A3C] max-w-2xl mx-auto px-4">
             আপনার বইয়ের অর্ডার সম্পূর্ণ করতে নিচের ধাপগুলো অনুসরণ করুন
@@ -639,10 +652,51 @@ const folder = "paymentScreenshot";
                         className="w-full h-24 sm:h-32 p-3 sm:p-4 border border-[#D1D8BE] rounded-lg sm:rounded-xl bg-[#EEEFE0] focus:border-[#819A91] focus:ring-2 focus:ring-[#819A91]/20 text-[#2D4A3C] placeholder-[#2D4A3C]/50 transition-all duration-300 resize-none text-sm"
                         placeholder="যদি প্রাথমিক ঠিকানা থেকে ভিন্ন হয়"
                         value={deliveryAddress}
-                        onChange={(
-                          e: React.ChangeEvent<HTMLTextAreaElement>
-                        ) => setDeliveryAddress(e.target.value)}
+                        onChange={(e: React.ChangeEvent<HTMLTextAreaElement>) =>
+                          setDeliveryAddress(e.target.value)
+                        }
                       />
+                    </div>
+                    <div className="space-y-2 sm:col-span-2">
+                      <label className="text-sm font-medium text-[#2D4A3C]">
+                        ডেলিভারি এলাকা *
+                      </label>
+
+                      <div className="grid grid-cols-1 sm:grid-cols-2 gap-3">
+                        <button
+                          type="button"
+                          onClick={() => setDeliveryZone("inside_dhaka")}
+                          className={`p-4 rounded-xl border-2 text-left transition-all ${
+                            deliveryZone === "inside_dhaka"
+                              ? "border-[#819A91] bg-[#819A91]/10"
+                              : "border-[#D1D8BE] bg-[#EEEFE0] hover:border-[#A7C1A8]"
+                          }`}
+                        >
+                          <p className="font-semibold text-[#2D4A3C]">
+                            ঢাকার মধ্যে
+                          </p>
+                          <p className="text-sm text-[#2D4A3C]/70">
+                            ডেলিভারি চার্জ ৳80
+                          </p>
+                        </button>
+
+                        <button
+                          type="button"
+                          onClick={() => setDeliveryZone("outside_dhaka")}
+                          className={`p-4 rounded-xl border-2 text-left transition-all ${
+                            deliveryZone === "outside_dhaka"
+                              ? "border-[#819A91] bg-[#819A91]/10"
+                              : "border-[#D1D8BE] bg-[#EEEFE0] hover:border-[#A7C1A8]"
+                          }`}
+                        >
+                          <p className="font-semibold text-[#2D4A3C]">
+                            ঢাকার বাইরে
+                          </p>
+                          <p className="text-sm text-[#2D4A3C]/70">
+                            ডেলিভারি চার্জ ৳120
+                          </p>
+                        </button>
+                      </div>
                     </div>
                   </div>
 
@@ -699,8 +753,7 @@ const folder = "paymentScreenshot";
                       {
                         id: "CashOnDelivery",
                         name: "ক্যাশ অন ডেলিভারি",
-                        color:
-                          "bg-gradient-to-r from-[#A7C1A8] to-[#819A91]",
+                        color: "bg-gradient-to-r from-[#A7C1A8] to-[#819A91]",
                       },
                     ].map((method: any) => (
                       <div
@@ -718,7 +771,9 @@ const folder = "paymentScreenshot";
                               className={`w-10 h-10 sm:w-12 sm:h-12 rounded-lg ${method.color} flex items-center justify-center shadow-md`}
                             >
                               <span className="text-white font-bold text-sm sm:text-lg">
-                                {method.id === "CashOnDelivery" ? "COD" : getChannelInitials(method.name)}
+                                {method.id === "CashOnDelivery"
+                                  ? "COD"
+                                  : getChannelInitials(method.name)}
                               </span>
                             </div>
                             <div className="flex-1 min-w-0">
@@ -778,9 +833,9 @@ const folder = "paymentScreenshot";
                         label="ট্রান্স্যাকশন আইডি *"
                         placeholder="আপনার ট্রান্স্যাকশন আইডি লিখুন"
                         value={transactionId}
-                        onChange={(
-                          e: React.ChangeEvent<HTMLInputElement>
-                        ) => setTransactionId(e.target.value)}
+                        onChange={(e: React.ChangeEvent<HTMLInputElement>) =>
+                          setTransactionId(e.target.value)
+                        }
                         className="bg-white border-[#D1D8BE] focus:border-[#819A91] text-[#2D4A3C] placeholder-[#2D4A3C]/50 mt-4 text-sm"
                       />
 
@@ -794,8 +849,7 @@ const folder = "paymentScreenshot";
                           onChange={handleScreenshotChange}
                           className="w-full text-sm text-[#2D4A3C] file:mr-2 file:py-1 file:px-2 sm:file:mr-4 sm:file:py-2 sm:file:px-4 file:rounded-lg file:border-0 file:text-xs sm:file:text-sm file:font-semibold file:bg-[#819A91] file:text-white hover:file:bg-[#819A91]/90 cursor-pointer"
                         />
-                        {(paymentScreenshotUrl ||
-                          paymentScreenshotPreview) && (
+                        {(paymentScreenshotUrl || paymentScreenshotPreview) && (
                           <div className="mt-3">
                             <p className="text-xs text-[#2D4A3C]/70 mb-2">
                               প্রিভিউ:
@@ -868,14 +922,11 @@ const folder = "paymentScreenshot";
                     </div>
                     <p className="text-[#2D4A3C]">
                       Invoice ID:{" "}
-                      <strong className="text-[#2D4A3C]">
-                        {invoiceId}
-                      </strong>
+                      <strong className="text-[#2D4A3C]">{invoiceId}</strong>
                     </p>
                     {placedOrder?.orderId && (
                       <p className="text-[#2D4A3C] mt-1 text-sm">
-                        Order ID (DB):{" "}
-                        <strong>{placedOrder.orderId}</strong>
+                        Order ID (DB): <strong>{placedOrder.orderId}</strong>
                       </p>
                     )}
                   </div>
@@ -920,17 +971,17 @@ const folder = "paymentScreenshot";
                         <p>
                           <span className="text-[#2D4A3C]/80">তারিখ:</span>{" "}
                           <span className="text-[#2D4A3C]">
-                            {new Date(
-                              placedOrder.createdAt
-                            ).toLocaleDateString("bn-BD")}
+                            {new Date(placedOrder.createdAt).toLocaleDateString(
+                              "bn-BD",
+                            )}
                           </span>
                         </p>
                         <p>
                           <span className="text-[#2D4A3C]/80">সময়:</span>{" "}
                           <span className="text-[#2D4A3C]">
-                            {new Date(
-                              placedOrder.createdAt
-                            ).toLocaleTimeString("bn-BD")}
+                            {new Date(placedOrder.createdAt).toLocaleTimeString(
+                              "bn-BD",
+                            )}
                           </span>
                         </p>
                         <p>
@@ -947,7 +998,7 @@ const folder = "paymentScreenshot";
                           </span>{" "}
                           <span className="text-[#2D4A3C] font-semibold">
                             {getPaymentStatusFromMethod(
-                              placedOrder.paymentMethod
+                              placedOrder.paymentMethod,
                             )}
                           </span>
                         </p>
@@ -973,8 +1024,7 @@ const folder = "paymentScreenshot";
                       <div className="relative w-40 h-40 border border-[#D1D8BE] rounded-xl overflow-hidden bg-white">
                         <Image
                           src={
-                            paymentScreenshotUrl ||
-                            paymentScreenshotPreview!
+                            paymentScreenshotUrl || paymentScreenshotPreview!
                           }
                           alt="Payment screenshot preview"
                           fill
@@ -1080,8 +1130,8 @@ const folder = "paymentScreenshot";
               🎉 অর্ডার সফল!
             </h2>
             <p className="text-sm sm:text-base text-[#2D4A3C] leading-relaxed px-2">
-              আপনার অর্ডার সফলভাবে গৃহীত হয়েছে। অর্ডার ট্র্যাক করতে নিচের
-              বাটনে ক্লিক করুন।
+              আপনার অর্ডার সফলভাবে গৃহীত হয়েছে। অর্ডার ট্র্যাক করতে নিচের বাটনে
+              ক্লিক করুন।
             </p>
             <div className="space-y-2 sm:space-y-3">
               <Link href="/kitabghor/user/orders" className="block">

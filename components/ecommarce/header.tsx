@@ -322,13 +322,7 @@ export default function Header() {
               />
             </div>
             <div className="flex flex-col">
-              <span
-                className={`font-bold transition-all duration-300 ${
-                  isScrolled
-                    ? "text-md text-[#F4F8F7]"
-                    : "text-lg text-[#F4F8F7]"
-                }`}
-              >
+              <span className="font-bold text-md text-[#F4F8F7]">
                 {settings?.siteName || "হিলফুল-ফুযুল প্রকাশনী"}
               </span>
               <span className="text-xs text-[#5FA3A3]">
