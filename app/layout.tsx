@@ -170,14 +170,23 @@ export default function RootLayout({
         <meta name="google-site-verification" content="NRDv5IIanbFYiXrx_T0quveONB-zMLkP7U8E_H8X1p4" />
         
         {/* Google Analytics gtag.js */}
-        <script async src="https://www.googletagmanager.com/gtag/js?id=G-YOUR_MEASUREMENT_ID"></script>
+        {process.env.NEXT_PUBLIC_GA_MEASUREMENT_ID && (
+          <script
+            async
+            src={`https://www.googletagmanager.com/gtag/js?id=${process.env.NEXT_PUBLIC_GA_MEASUREMENT_ID}`}
+          />
+        )}
         <script
           dangerouslySetInnerHTML={{
             __html: `
               window.dataLayer = window.dataLayer || [];
               function gtag(){dataLayer.push(arguments);}
               gtag('js', new Date());
-              gtag('config', 'G-YOUR_MEASUREMENT_ID');
+              ${
+                process.env.NEXT_PUBLIC_GA_MEASUREMENT_ID
+                  ? `gtag('config', '${process.env.NEXT_PUBLIC_GA_MEASUREMENT_ID}');`
+                  : ""
+              }
             `,
           }}
         />
