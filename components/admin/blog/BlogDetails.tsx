@@ -17,7 +17,7 @@ interface Blog {
   slug: string;
   title: string;
   content: string;
-  summary: string;
+  summary?: string;
   author: string;
   date: string | Date;
   image?: string;
@@ -48,6 +48,23 @@ const RelatedBlogsCard = () => (
 );
 
 // ============= UPDATED UTILITY FUNCTIONS =============
+
+/**
+ * Build a safe meta description from HTML content / fallback text.
+ */
+const buildMetaDescription = (text: string, maxLength: number = 160) => {
+  const clean = (text || "")
+    .replace(/<[^>]*>/g, " ")
+    .replace(/\s+/g, " ")
+    .trim();
+
+  if (!clean) return "";
+  if (clean.length <= maxLength) return clean;
+
+  const truncated = clean.substring(0, maxLength);
+  const lastSpace = truncated.lastIndexOf(" ");
+  return (lastSpace > 30 ? truncated.substring(0, lastSpace) : truncated) + "...";
+};
 
 /**
  * Process and clean blog summary for professional display
@@ -281,11 +298,8 @@ export default function BlogDetails() {
       ? `${baseUrl}${blog.image}`
       : `${baseUrl}/images/books-collection.jpg`;
 
-    // Extract first 150 characters for description
-    const description =
-      blog.summary.length > 150
-        ? blog.summary.substring(0, 150) + "..."
-        : blog.summary;
+    // Meta description from summary if present, otherwise fallback to content.
+    const description = buildMetaDescription(blog.summary || blog.content || "");
 
     return {
       title: `${blog.title} - কিতাবঘর | হিলফুল ফুজুল`,
@@ -619,11 +633,6 @@ export default function BlogDetails() {
 
                 <div className="grid gap-8">
                   <div className="space-y-8">
-                    <ProfessionalSummary
-                      summary={blog.summary}
-                      content={blog.content || ""}
-                    />
-
                     {blog.content && (
                       <div
                         className="prose prose-slate max-w-none dark:prose-invert
@@ -714,11 +723,6 @@ export default function BlogDetails() {
 
             <div className="grid gap-8">
               <div className="space-y-8">
-                <ProfessionalSummary
-                  summary={blog.summary}
-                  content={blog.content || ""}
-                />
-
                 {blog.content && (
                   <div
                     className="prose prose-slate max-w-none dark:prose-invert
