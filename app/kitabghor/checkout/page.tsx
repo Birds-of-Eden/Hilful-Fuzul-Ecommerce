@@ -17,6 +17,7 @@ import {
 import { v4 as uuidv4 } from "uuid";
 import Link from "next/link";
 import { useSession } from "@/lib/auth-client";
+import { trackAddPaymentInfo, trackPurchase } from "@/lib/ga4";
 
 export default function CheckoutPage() {
   const { cartItems, clearCart } = useCart();
@@ -428,6 +429,19 @@ export default function CheckoutPage() {
 
     const localInvoiceId = uuidv4();
 
+    // GA4: user has provided payment info when placing the order (selected payment method + transaction details).
+    trackAddPaymentInfo(
+      itemsToRender.map((item: any) => ({
+        item_id: String(item.productId ?? item.id),
+        item_name: item.name,
+        price: Number(item.price),
+        quantity: Number(item.quantity),
+        item_category: "Books",
+      })),
+      total,
+      paymentMethod,
+    );
+
     const uiOrderData = {
       invoiceId: localInvoiceId,
       customer: {
@@ -542,6 +556,25 @@ export default function CheckoutPage() {
         console.warn("Error adding to newsletter:", error);
       }
     }
+
+    // GA4: purchase should fire only after final confirmation.
+    const purchaseItems =
+      placedOrder?.itemsToRender?.length > 0
+        ? placedOrder.itemsToRender
+        : itemsToRender;
+    trackPurchase({
+      transaction_id: invoiceId || placedOrder?.invoiceId || uuidv4(),
+      value: total,
+      shipping,
+      tax: 0,
+      items: purchaseItems.map((item: any) => ({
+        item_id: String(item.productId ?? item.id),
+        item_name: item.name,
+        price: Number(item.price),
+        quantity: Number(item.quantity),
+        item_category: "Books",
+      })),
+    });
 
     clearCart();
     setOrderConfirmed(true);

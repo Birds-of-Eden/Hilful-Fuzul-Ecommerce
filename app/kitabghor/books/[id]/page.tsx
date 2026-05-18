@@ -23,10 +23,9 @@ import {
   Share2,
 } from "lucide-react";
 import dynamic from "next/dynamic";
-const BookModel = dynamic(
-  () => import("@/components/ecommarce/book-model"),
-  { ssr: false }
-);
+const BookModel = dynamic(() => import("@/components/ecommarce/book-model"), {
+  ssr: false,
+});
 import PdfViewer from "@/components/ecommarce/pdf-viewer";
 import RelatedBooks from "@/components/ecommarce/related-books";
 import BookReviews from "@/components/ecommarce/book-reviews";
@@ -36,6 +35,7 @@ import { toast } from "sonner";
 import { BookDetailSkeleton } from "@/components/ui/skeleton-loader";
 // 🔹 auth-client theke useSession
 import { useSession } from "@/lib/auth-client";
+import { trackAddToCart, trackViewItem } from "@/lib/ga4";
 
 interface Product {
   id: string | number;
@@ -89,7 +89,7 @@ export default function BookDetail() {
 
   // 🔹 review summary state
   const [reviewSummary, setReviewSummary] = useState<ReviewSummary | null>(
-    null
+    null,
   );
   const [reviewLoading, setReviewLoading] = useState(false);
 
@@ -114,6 +114,13 @@ export default function BookDetail() {
         const data = await res.json();
         setBook(data);
         setActiveImage(data?.image ?? null);
+        trackViewItem({
+          item_id: String(data.id),
+          item_name: data.name,
+          price: Number(data.price),
+          quantity: 1,
+          item_category: data.category?.name || "Books",
+        });
 
         // 2) fetch related books separately if needed
         if (data.category) {
@@ -124,7 +131,7 @@ export default function BookDetail() {
               .filter(
                 (p) =>
                   p.id.toString() !== data.id.toString() &&
-                  p.category.id.toString() === data.category.id.toString()
+                  p.category.id.toString() === data.category.id.toString(),
               )
               .slice(0, 4);
             setRelatedBooks(related);
@@ -147,7 +154,7 @@ export default function BookDetail() {
       try {
         setReviewLoading(true);
         const res = await fetch(
-          `/api/reviews?productId=${bookId}&page=1&limit=1`
+          `/api/reviews?productId=${bookId}&page=1&limit=1`,
         );
         if (!res.ok) {
           return;
@@ -183,7 +190,7 @@ export default function BookDetail() {
         setQuantity(value);
       }
     },
-    [book]
+    [book],
   );
 
   const toggleWishlist = useCallback(() => {
@@ -224,12 +231,19 @@ export default function BookDetail() {
 
       // ✅ সব حالتেই local cart context update (localStorage)
       addToCart(book.id, quantity);
+      trackAddToCart({
+        item_id: String(book.id),
+        item_name: book.name,
+        price: Number(book.price),
+        quantity,
+        item_category: book.category?.name || "Books",
+      });
 
       toast.success(`${quantity} টি "${book.name}" কার্টে যোগ করা হয়েছে`);
     } catch (err) {
       console.error("Error adding to cart:", err);
       toast.error(
-        err instanceof Error ? err.message : "কার্টে যোগ করতে সমস্যা হয়েছে"
+        err instanceof Error ? err.message : "কার্টে যোগ করতে সমস্যা হয়েছে",
       );
     }
   }, [book, quantity, isAuthenticated, addToCart]);
@@ -502,12 +516,7 @@ export default function BookDetail() {
               </p>
             </div>
 
-            <form
-              onSubmit={(e) => {
-                e.preventDefault();
-                handleAddToCart();
-              }}
-            >
+<div>
               {/* Quantity & Actions */}
               <div className="space-y-4">
                 {/* Quantity Selector */}
@@ -555,7 +564,8 @@ export default function BookDetail() {
                 {/* Action Buttons */}
                 <div className="grid grid-cols-1 sm:grid-cols-2 gap-3">
                   <Button
-                    type="submit"
+                    type="button"
+                    onClick={handleAddToCart}
                     className="rounded-xl py-3 bg-gradient-to-r from-[#187a7a] to-[#5b9b9b] hover:from-[#0E4B4B] hover:to-[#42a8a8] text-white font-semibold border-0 shadow-lg hover:shadow-xl transition-all duration-300 hover:scale-105 group/cart"
                     disabled={book.stock === 0}
                   >
@@ -604,7 +614,7 @@ export default function BookDetail() {
                   </div>
                 </div>
               </div>
-            </form>
+            </div>
 
             {/* Trust Features */}
             <div className="mt-6 pt-6 border-t border-[#5FA3A3]/30">
@@ -744,7 +754,10 @@ export default function BookDetail() {
                 </h3>
               </div>
               <div className="h-[calc(80vh-80px)]">
-                <PdfViewer pdfUrl={book.pdf} onClose={() => setShowPdf(false)} />
+                <PdfViewer
+                  pdfUrl={book.pdf}
+                  onClose={() => setShowPdf(false)}
+                />
               </div>
               <div className="absolute top-4 right-4">
                 <Button

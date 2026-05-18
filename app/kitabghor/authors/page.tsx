@@ -31,7 +31,7 @@ export default function AuthorCategoriesPage() {
     // Add a timeout to prevent infinite loading
     const timeoutId = setTimeout(() => {
       if (isMounted.current && loading) {
-        console.error('Request timeout - taking too long to fetch writers');
+        console.error("Request timeout - taking too long to fetch writers");
         setError("লোড হতে অনেক সময় লাগছে। দয়া করে পুনরায় চেষ্টা করুন।");
         setLoading(false);
       }
@@ -40,25 +40,27 @@ export default function AuthorCategoriesPage() {
     // Memoized fetch function
     const fetchWriters = async () => {
       try {
-        console.log('Fetching writers...');
+        console.log("Fetching writers...");
         const res = await fetch("/api/writers", { signal });
-        
+
         if (!res.ok) {
           const errorText = await res.text();
-          throw new Error(`HTTP error! status: ${res.status}, message: ${errorText}`);
+          throw new Error(
+            `HTTP error! status: ${res.status}, message: ${errorText}`,
+          );
         }
 
         const data = await res.json();
-        console.log('API Response:', data);
-        
+        console.log("API Response:", data);
+
         if (!isMounted.current) return;
-        
+
         if (!Array.isArray(data)) {
           throw new Error(`Expected array but got ${typeof data}`);
         }
 
         if (data.length === 0) {
-          console.log('No writers found');
+          console.log("No writers found");
           setAuthors([]);
           setError("কোন লেখক পাওয়া যায়নি");
           return;
@@ -69,13 +71,15 @@ export default function AuthorCategoriesPage() {
           bookCount: w.bookCount ?? w.productCount ?? w._count?.products ?? 0,
         }));
 
-        console.log('Normalized writers:', normalized);
+        console.log("Normalized writers:", normalized);
         setAuthors(normalized);
         setError(null);
       } catch (error: any) {
-        if (!isMounted.current || error.name === 'AbortError') return;
-        console.error('Error in fetchWriters:', error);
-        setError("লেখকদের তালিকা লোড করতে সমস্যা হয়েছে। দয়া করে পুনরায় চেষ্টা করুন।");
+        if (!isMounted.current || error.name === "AbortError") return;
+        console.error("Error in fetchWriters:", error);
+        setError(
+          "লেখকদের তালিকা লোড করতে সমস্যা হয়েছে। দয়া করে পুনরায় চেষ্টা করুন।",
+        );
         setAuthors([]);
       } finally {
         clearTimeout(timeoutId);
@@ -98,10 +102,7 @@ export default function AuthorCategoriesPage() {
   const memoizedAuthors = useMemo(() => {
     return authors.map((author, index) => {
       const authoredBooksCount =
-        author.bookCount ??
-        author.productCount ??
-        author._count?.products ??
-        0;
+        author.bookCount ?? author.productCount ?? author._count?.products ?? 0;
 
       // Generate different background colors for variety
       const colorVariants = [
@@ -138,7 +139,10 @@ export default function AuthorCategoriesPage() {
           {/* Skeleton Grid */}
           <div className="grid grid-cols-1 xs:grid-cols-2 sm:grid-cols-2 lg:grid-cols-3 xl:grid-cols-4 gap-6 md:gap-8">
             {[...Array(8)].map((_, index) => (
-              <div key={index} className="h-full border-0 bg-gradient-to-br from-white to-[#F4F8F7] shadow-lg rounded-2xl overflow-hidden">
+              <div
+                key={index}
+                className="h-full border-0 bg-gradient-to-br from-white to-[#F4F8F7] shadow-lg rounded-2xl overflow-hidden"
+              >
                 <div className="p-6 md:p-8 text-center flex flex-col items-center justify-center h-full">
                   {/* Skeleton Avatar */}
                   <div className="relative mb-4 md:mb-6">
@@ -198,7 +202,6 @@ export default function AuthorCategoriesPage() {
         {/* Authors Grid */}
         <div className="grid grid-cols-1 xs:grid-cols-2 sm:grid-cols-2 lg:grid-cols-3 xl:grid-cols-4 gap-6 md:gap-8">
           {memoizedAuthors.map((author) => {
-
             return (
               <Link
                 href={`/kitabghor/authors/${author.id}`}

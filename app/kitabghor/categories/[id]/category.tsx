@@ -13,6 +13,7 @@ import {
   Filter,
   BookText,
 } from "lucide-react";
+import { BookCard } from "@/components/ecommarce/BookCard";
 
 interface CategoryPageProps {
   category: {
@@ -41,16 +42,16 @@ interface CategoryPageProps {
   isInWishlist: (bookId: number) => boolean;
 }
 
-export default function CategoryPage({ 
-  category, 
-  categoryBooks, 
-  categoryCount, 
-  loading, 
-  error, 
+export default function CategoryPage({
+  category,
+  categoryBooks,
+  categoryCount,
+  loading,
+  error,
   ratings,
   toggleWishlist,
   handleAddToCart,
-  isInWishlist
+  isInWishlist,
 }: CategoryPageProps) {
   // ✅ Loading state
   if (loading) {
@@ -178,159 +179,27 @@ export default function CategoryPage({
               const reviewCount = ratingInfo?.totalReviews ?? 0;
 
               return (
-                <Card
+                <BookCard
                   key={book.id}
-                  className="group overflow-hidden border-0 bg-gradient-to-br from-white to-[#F4F8F7] shadow-lg hover:shadow-2xl transition-all duration-500 rounded-2xl relative"
-                >
-                  {/* Badges */}
-                  <div className="absolute top-3 left-3 z-10 flex flex-col gap-2">
-                    {enhancedBook.discount > 0 && (
-                      <div className="bg-gradient-to-r from-[#0E4B4B] to-[#5FA3A3] text-white text-xs font-bold px-3 py-1 rounded-full shadow-lg">
-                        {enhancedBook.discount}% ছাড়
-                      </div>
-                    )}
-                    {enhancedBook.isBestseller && (
-                      <div className="bg-gradient-to-r from-[#C0704D] to-[#A85D3F] text-white text-xs font-bold px-3 py-1 rounded-full shadow-lg">
-                        বেস্টসেলার
-                      </div>
-                    )}
-                    {enhancedBook.isNew && (
-                      <div className="bg-gradient-to-r from-[#5FA3A3] to-[#0E4B4B] text-white text-xs font-bold px-3 py-1 rounded-full shadow-lg">
-                        নতুন
-                      </div>
-                    )}
-                  </div>
-
-                  {/* Wishlist Button */}
-                  <button
-                    onClick={() => toggleWishlist(book.id)}
-                    className={`absolute top-3 right-3 z-10 p-2 rounded-full backdrop-blur-sm transition-all duration-300 ${
-                      isWishlisted
-                        ? "bg-red-500/20 text-red-500"
-                        : "bg-white/80 text-gray-500 hover:bg-red-500/20 hover:text-red-500"
-                    }`}
-                    aria-label={
-                      isWishlisted ? "Remove from wishlist" : "Add to wishlist"
-                    }
-                  >
-                    <Heart
-                      className={`h-5 w-5 transition-all ${
-                        isWishlisted
-                          ? "scale-110 fill-current"
-                          : "group-hover:scale-110"
-                      }`}
-                    />
-                  </button>
-
-                  {/* Book Image */}
-                  <Link href={`/kitabghor/books/${book.id}`}>
-                    <div className="relative w-full overflow-hidden bg-white p-4">
-                      <div className="relative aspect-[3/4] w-full">
-                        <Image
-                          src={book.image || "/placeholder.svg"}
-                          alt={book.name}
-                          fill
-                          className="object-contain transition-transform duration-700 group-hover:scale-105"
-                          sizes="(max-width: 768px) 100vw, (max-width: 1200px) 50vw, 25vw"
-                        />
-                      </div>
-                      {/* Overlay */}
-                      <div className="absolute inset-0 bg-gradient-to-t from-black/10 via-transparent to-transparent opacity-0 group-hover:opacity-100 transition-opacity duration-300" />
-
-                      {/* Quick View */}
-                      <div className="absolute inset-0 flex items-center justify-center opacity-0 group-hover:opacity-100 transition-all duration-300">
-                        <div className="bg-white/90 backdrop-blur-sm rounded-full p-3 transform translate-y-4 group-hover:translate-y-0 transition-transform duration-300">
-                          <BookOpen className="h-6 w-6 text-[#0E4B4B]" />
-                        </div>
-                      </div>
-                    </div>
-                  </Link>
-
-                  <CardContent className="p-4 sm:p-5">
-                    {/* Rating */}
-                    <div className="flex items-center gap-1 mb-3 min-h-[18px]">
-                      {reviewCount > 0 ? (
-                        <>
-                          <div className="flex">
-                            {[1, 2, 3, 4, 5].map((star) => (
-                              <Star
-                                key={star}
-                                className={`h-3 w-3 ${
-                                  star <= Math.round(avgRating)
-                                    ? "fill-amber-400 text-amber-400"
-                                    : "text-gray-300"
-                                }`}
-                              />
-                            ))}
-                          </div>
-                          <span className="text-xs text-[#5FA3A3] ml-1">
-                            ({avgRating.toFixed(1)} · {reviewCount} রিভিউ)
-                          </span>
-                        </>
-                      ) : (
-                        <span className="text-xs text-[#5FA3A3]/50">
-                          এখনও কোন রিভিউ নেই
-                        </span>
-                      )}
-                    </div>
-
-                    {/* Book Title */}
-                    <Link href={`/kitabghor/books/${book.id}`}>
-                      <h4 className="font-bold text-lg mb-2 text-[#0D1414] hover:text-[#0E4B4B] duration-300 line-clamp-2 leading-tight group-hover:translate-x-1 transition-transform">
-                        {book.name}
-                      </h4>
-                    </Link>
-
-                    {/* Author */}
-                    <p className="text-sm text-[#5FA3A3] mb-3 flex items-center">
-                      <span className="w-1 h-1 bg-[#0E4B4B] rounded-full mr-2" />
-                      {book.writer?.name}
-                    </p>
-
-                    {/* Price */}
-                    <div className="flex items-center justify-between mb-3">
-                      <div className="flex items-baseline gap-2">
-                        <span className="font-bold text-xl text-[#0E4B4B]">
-                          ৳{book.price}
-                        </span>
-                        {book.discount > 0 && enhancedBook.original_price && (
-                          <span className="text-sm text-[#5FA3A3]/60 line-through">
-                            ৳{enhancedBook.original_price}
-                          </span>
-                        )}
-                      </div>
-                      {book.stock === 0 ? (
-                        <div className="text-xs font-semibold bg-rose-600 text-white px-2 py-1 rounded-full">
-                          Stock Out
-                        </div>
-                      ) : (
-                        book.discount > 0 && (
-                          <div className="text-xs font-semibold bg-[#F4F8F7] text-[#0E4B4B] px-2 py-1 rounded-full border border-[#5FA3A3]/30">
-                            সাশ্রয় করুন
-                          </div>
-                        )
-                      )}
-                    </div>
-                  </CardContent>
-
-                  <CardFooter className="p-4 sm:p-5 pt-0">
-                    <Button
-                      disabled={book.stock === 0}
-                      className={`w-full rounded-xl py-3 sm:py-4 font-semibold border-0 shadow-md hover:shadow-lg transition-all duration-300 hover:scale-105 group/btn ${
-                        book.stock === 0
-                          ? "bg-gray-400 cursor-not-allowed opacity-60"
-                          : "bg-gradient-to-r from-[#187a7a] to-[#5b9b9b] hover:from-[#0E4B4B] hover:to-[#42a8a8] text-white"
-                      }`}
-                      onClick={() => handleAddToCart(book)}
-                    >
-                      <ShoppingCart className="mr-2 h-4 w-4 group-hover/btn:scale-110 transition-transform" />
-                      {book.stock === 0 ? "স্টক শেষ" : "কার্টে যোগ করুন"}
-                    </Button>
-                  </CardFooter>
-
-                  {/* Hover Effect Border */}
-                  <div className="absolute inset-0 rounded-2xl border-2 border-transparent group-hover:border-[#5FA3A3]/20 transition-all duration-500 pointer-events-none" />
-                </Card>
+                  book={{
+                    id: book.id,
+                    name: book.name,
+                    price: book.price,
+                    original_price: book.original_price ?? 0,
+                    discount: book.discount,
+                    writer: book.writer,
+                    publisher: null,
+                    image: book.image || "/placeholder.svg",
+                    stock: book.stock,
+                  }}
+                  ratingInfo={{
+                    averageRating: avgRating,
+                    totalReviews: reviewCount,
+                  }}
+                  isWishlisted={isWishlisted}
+                  onWishlistToggle={() => toggleWishlist(book.id)}
+                  onAddToCart={() => handleAddToCart(book)}
+                />
               );
             })}
           </div>

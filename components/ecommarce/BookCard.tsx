@@ -1,15 +1,14 @@
+//components/ecommarce/BookCard.tsx
 "use client";
 
+import type React from "react";
 import Link from "next/link";
 import Image from "next/image";
 import { Button } from "@/components/ui/button";
-import {
-  Card,
-  CardContent,
-  CardFooter,
-} from "@/components/ui/card";
+import { Card, CardContent, CardFooter } from "@/components/ui/card";
 import { Heart, ShoppingCart, Star, BookOpen } from "lucide-react";
 import { cn } from "@/lib/utils";
+import { trackAddToCart, trackViewItem } from "@/lib/ga4";
 
 interface BookCardProps {
   book: {
@@ -60,6 +59,17 @@ export function BookCard({
   const reviewCount = ratingInfo?.totalReviews ?? 0;
   const isBestseller = false; // You can calculate this based on sales data
   const isNew = false; // You can calculate this based on created date
+  const isOutOfStock = book.stock !== undefined && book.stock <= 0;
+
+  const handleViewItem = () => {
+    trackViewItem({
+      item_id: String(book.id),
+      item_name: book.name,
+      price: book.price,
+      quantity: 1,
+      item_category: book.publisher?.name || "Books",
+    });
+  };
 
   const handleWishlistClick = (e: React.MouseEvent) => {
     e.preventDefault();
@@ -70,6 +80,15 @@ export function BookCard({
   const handleAddToCartClick = (e: React.MouseEvent) => {
     e.preventDefault();
     e.stopPropagation();
+
+    trackAddToCart({
+      item_id: String(book.id),
+      item_name: book.name,
+      price: book.price,
+      quantity: 1,
+      item_category: book.publisher?.name || "Books",
+    });
+
     onAddToCart?.(book);
   };
 
@@ -79,13 +98,14 @@ export function BookCard({
       <Card
         className={cn(
           "group overflow-hidden border-0 shadow-sm hover:shadow-xl transition-all duration-300 bg-gradient-to-br from-white to-[#F4F8F7] rounded-xl",
-          className
+          className,
         )}
       >
         <div className="flex flex-col sm:flex-row">
           {/* Image Section */}
           <Link
             href={`/kitabghor/books/${book.id}`}
+            onClick={handleViewItem}
             className="relative sm:w-40 md:w-48 flex-shrink-0"
           >
             <div className="relative aspect-square w-full overflow-hidden bg-white p-4">
@@ -104,7 +124,10 @@ export function BookCard({
             <div className="flex justify-between items-start gap-3">
               <div className="flex-1">
                 {/* Title */}
-                <Link href={`/kitabghor/books/${book.id}`}>
+                <Link
+                  href={`/kitabghor/books/${book.id}`}
+                  onClick={handleViewItem}
+                >
                   <h3 className="font-bold text-lg md:text-xl text-[#0D1414] hover:text-[#0E4B4B] transition-colors line-clamp-2">
                     {book.name}
                   </h3>
@@ -135,14 +158,16 @@ export function BookCard({
                     "p-2 rounded-full backdrop-blur-sm transition-all duration-300 flex-shrink-0",
                     isWishlisted
                       ? "bg-red-500/20 text-red-500"
-                      : "bg-white/80 text-[#5FA3A3] hover:bg-red-500/20 hover:text-red-500"
+                      : "bg-white/80 text-[#5FA3A3] hover:bg-red-500/20 hover:text-red-500",
                   )}
-                  aria-label={isWishlisted ? "Remove from wishlist" : "Add to wishlist"}
+                  aria-label={
+                    isWishlisted ? "Remove from wishlist" : "Add to wishlist"
+                  }
                 >
                   <Heart
                     className={cn(
                       "h-5 w-5 transition-all",
-                      isWishlisted && "scale-110 fill-current"
+                      isWishlisted && "scale-110 fill-current",
                     )}
                   />
                 </button>
@@ -162,7 +187,7 @@ export function BookCard({
                             "h-3 w-3",
                             star <= Math.round(avgRating)
                               ? "fill-[#C0704D] text-[#C0704D]"
-                              : "text-gray-300"
+                              : "text-gray-300",
                           )}
                         />
                       ))}
@@ -183,7 +208,7 @@ export function BookCard({
                 <span className="font-bold text-xl text-[#0E4B4B]">
                   ৳{book.price}
                 </span>
-                {book.discount > 0 && (
+                {book.discount > 0 && book.original_price && (
                   <span className="text-sm text-[#5FA3A3] line-through">
                     ৳{book.original_price}
                   </span>
@@ -197,18 +222,18 @@ export function BookCard({
 
               {onAddToCart && (
                 <Button
-                  disabled={book.stock === 0}
+                  disabled={isOutOfStock}
                   onClick={handleAddToCartClick}
                   size="sm"
                   className={cn(
                     "rounded-lg text-white font-semibold transition-all duration-300",
-                    book.stock === 0
+                    isOutOfStock
                       ? "bg-gray-400 cursor-not-allowed opacity-60"
-                      : "bg-gradient-to-r from-[#C0704D] to-[#A85D3F] hover:from-[#0E4B4B] hover:to-[#5FA3A3]"
+                      : "bg-gradient-to-r from-[#C0704D] to-[#A85D3F] hover:from-[#0E4B4B] hover:to-[#5FA3A3]",
                   )}
                 >
                   <ShoppingCart className="mr-2 h-4 w-4" />
-                  {book.stock === 0 ? "স্টক শেষ" : "কার্টে যোগ করুন"}
+                  {isOutOfStock ? "স্টক শেষ" : "কার্টে যোগ করুন"}
                 </Button>
               )}
             </div>
@@ -224,10 +249,10 @@ export function BookCard({
       <Card
         className={cn(
           "group overflow-hidden border-0 shadow-sm hover:shadow-lg transition-all duration-300 bg-gradient-to-br from-white to-[#F4F8F7] rounded-xl",
-          className
+          className,
         )}
       >
-        <Link href={`/kitabghor/books/${book.id}`}>
+        <Link href={`/kitabghor/books/${book.id}`} onClick={handleViewItem}>
           <div className="relative aspect-square w-full overflow-hidden bg-white p-3">
             <Image
               src={book.image || "/placeholder.svg"}
@@ -240,7 +265,7 @@ export function BookCard({
         </Link>
 
         <CardContent className="p-3">
-          <Link href={`/kitabghor/books/${book.id}`}>
+          <Link href={`/kitabghor/books/${book.id}`} onClick={handleViewItem}>
             <h4 className="font-semibold text-sm text-[#0D1414] hover:text-[#0E4B4B] transition-colors line-clamp-2">
               {book.name}
             </h4>
@@ -267,13 +292,13 @@ export function BookCard({
         <CardFooter className="p-3 pt-0">
           {onAddToCart && (
             <Button
-              disabled={book.stock === 0}
+              disabled={isOutOfStock}
               onClick={handleAddToCartClick}
               size="sm"
               className="w-full rounded-lg text-white font-semibold text-xs py-5 bg-gradient-to-r from-[#C0704D] to-[#A85D3F] hover:from-[#0E4B4B] hover:to-[#5FA3A3]"
             >
               <ShoppingCart className="mr-1 h-3 w-3" />
-              {book.stock === 0 ? "স্টক শেষ" : "কার্টে যোগ করুন"}
+              {isOutOfStock ? "স্টক শেষ" : "কার্টে যোগ করুন"}
             </Button>
           )}
         </CardFooter>
@@ -286,7 +311,7 @@ export function BookCard({
     <Card
       className={cn(
         "group overflow-hidden border-0 shadow-sm hover:shadow-2xl transition-all duration-500 bg-gradient-to-br from-white to-[#F4F8F7] rounded-2xl relative",
-        className
+        className,
       )}
     >
       {/* Badges */}
@@ -323,21 +348,21 @@ export function BookCard({
             "absolute top-3 right-3 z-10 p-2 rounded-full backdrop-blur-sm transition-all duration-300",
             isWishlisted
               ? "bg-red-500/20 text-red-500"
-              : "bg-white/80 text-[#5FA3A3] hover:bg-red-500/20 hover:text-red-500"
+              : "bg-white/80 text-[#5FA3A3] hover:bg-red-500/20 hover:text-red-500",
           )}
           aria-label={isWishlisted ? "Remove from wishlist" : "Add to wishlist"}
         >
           <Heart
             className={cn(
               "h-5 w-5 transition-all",
-              isWishlisted && "scale-110 fill-current"
+              isWishlisted && "scale-110 fill-current",
             )}
           />
         </button>
       )}
 
       {/* Book Image */}
-      <Link href={`/kitabghor/books/${book.id}`}>
+      <Link href={`/kitabghor/books/${book.id}`} onClick={handleViewItem}>
         <div className="relative w-full overflow-hidden bg-white p-4">
           <div className="relative aspect-[3/4] w-full">
             <Image
@@ -375,7 +400,7 @@ export function BookCard({
                         "h-3 w-3",
                         star <= Math.round(avgRating)
                           ? "fill-[#C0704D] text-[#C0704D]"
-                          : "text-gray-300"
+                          : "text-gray-300",
                       )}
                     />
                   ))}
@@ -391,7 +416,7 @@ export function BookCard({
         )}
 
         {/* Book Title */}
-        <Link href={`/kitabghor/books/${book.id}`}>
+        <Link href={`/kitabghor/books/${book.id}`} onClick={handleViewItem}>
           <h4 className="font-bold text-lg mb-2 text-[#0D1414] hover:text-[#0E4B4B] line-clamp-2 leading-tight group-hover:translate-x-1 transition-transform">
             {book.name}
           </h4>
@@ -409,7 +434,8 @@ export function BookCard({
         {book.isPreOrder && book.preOrderEndDate && (
           <div className="mb-3 p-2 bg-[#C0704D]/10 rounded-lg">
             <p className="text-xs text-[#C0704D] font-semibold">
-              প্রি-অর্ডার শেষ: {new Date(book.preOrderEndDate).toLocaleDateString()}
+              প্রি-অর্ডার শেষ:{" "}
+              {new Date(book.preOrderEndDate).toLocaleDateString()}
             </p>
             {book.preOrderDiscount && book.preOrderDiscount > 0 && (
               <p className="text-xs text-green-600 font-semibold">
@@ -425,13 +451,13 @@ export function BookCard({
             <span className="font-bold text-xl text-[#0E4B4B]">
               ৳{book.price}
             </span>
-            {book.discount > 0 && (
+            {book.discount > 0 && book.original_price && (
               <span className="text-sm text-[#5FA3A3] line-through">
                 ৳{book.original_price}
               </span>
             )}
           </div>
-          {book.stock === 0 ? (
+          {isOutOfStock ? (
             <div className="text-xs font-semibold bg-rose-600 text-white px-2 py-1 rounded-full">
               স্টক শেষ
             </div>
@@ -448,17 +474,17 @@ export function BookCard({
       <CardFooter className="p-5 pt-0">
         {onAddToCart && (
           <Button
-            disabled={book.stock === 0}
+            disabled={isOutOfStock}
             onClick={handleAddToCartClick}
             className={cn(
               "w-full rounded-xl py-6 text-white font-semibold border-0 shadow-md transition-all duration-300",
-              book.stock === 0
+              isOutOfStock
                 ? "bg-gray-400 cursor-not-allowed opacity-60"
-                : "bg-gradient-to-r from-[#C0704D] to-[#A85D3F] hover:from-[#0E4B4B] hover:to-[#5FA3A3] hover:shadow-lg hover:scale-105 group/btn"
+                : "bg-gradient-to-r from-[#C0704D] to-[#A85D3F] hover:from-[#0E4B4B] hover:to-[#5FA3A3] hover:shadow-lg hover:scale-105 group/btn",
             )}
           >
             <ShoppingCart className="mr-2 h-4 w-4 group-hover/btn:scale-110 transition-transform" />
-            {book.stock === 0 ? "স্টক শেষ" : "কার্টে যোগ করুন"}
+            {isOutOfStock ? "স্টক শেষ" : "কার্টে যোগ করুন"}
           </Button>
         )}
       </CardFooter>

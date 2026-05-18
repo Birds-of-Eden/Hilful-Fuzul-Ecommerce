@@ -10,6 +10,7 @@ import { BookOpen, Heart, ShoppingCart } from "lucide-react";
 import { useCart } from "@/components/ecommarce/CartContext";
 import { useWishlist } from "@/components/ecommarce/WishlistContext";
 import { toast } from "sonner";
+import { BookCard } from "@/components/ecommarce/BookCard";
 
 interface PublisherFromApi {
   id: number;
@@ -63,8 +64,10 @@ export default function PublisherBooksPage() {
 
     // Add timeout to prevent infinite loading
     const timeoutId = setTimeout(() => {
-      if (isMounted.current && loading) {
-        console.error('Request timeout - taking too long to fetch publisher data');
+      if (isMounted.current) {
+        console.error(
+          "Request timeout - taking too long to fetch publisher data",
+        );
         setError("লোড হতে অনেক সময় লাগছে। দয়া করে পুনরায় চেষ্টা করুন।");
         setLoading(false);
       }
@@ -91,7 +94,7 @@ export default function PublisherBooksPage() {
         if (!resPublisher.ok) {
           console.error(
             "Failed to fetch publisher:",
-            publisherData || resPublisher.statusText
+            publisherData || resPublisher.statusText,
           );
 
           if (resPublisher.status === 404) {
@@ -108,7 +111,10 @@ export default function PublisherBooksPage() {
         setPublisher(publisherData as PublisherFromApi);
 
         // 2) সব প্রোডাক্ট নিয়ে আসি, তারপর publisherId দিয়ে filter করি
-        const resProducts = await fetch("/api/products", { cache: "no-store", signal });
+        const resProducts = await fetch("/api/products", {
+          cache: "no-store",
+          signal,
+        });
 
         if (!resProducts.ok) {
           console.error("Failed to fetch products:", resProducts.statusText);
@@ -128,12 +134,12 @@ export default function PublisherBooksPage() {
         }
 
         const filtered = allProducts.filter(
-          (book) => Number(book.publisher?.id) === Number(publisherId)
+          (book) => Number(book.publisher?.id) === Number(publisherId),
         );
 
         setBooksByPublisher(filtered);
       } catch (err: any) {
-        if (!isMounted.current || err.name === 'AbortError') return;
+        if (!isMounted.current || err.name === "AbortError") return;
         console.error("Error fetching publisher/books:", err);
         setError("ডাটা লোড করতে সমস্যা হয়েছে।");
         setPublisher(null);
@@ -153,25 +159,31 @@ export default function PublisherBooksPage() {
       abortController.abort();
       clearTimeout(timeoutId);
     };
-  }, [publisherId, loading]);
+  }, [publisherId]);
 
   // Memoized toggle wishlist function
-  const toggleWishlist = useCallback((bookId: number) => {
-    if (isInWishlist(bookId)) {
-      removeFromWishlist(bookId);
-      toast.success("উইশলিস্ট থেকে সরানো হয়েছে");
-    } else {
-      addToWishlist(bookId);
-      toast.success("উইশলিস্টে যোগ করা হয়েছে");
-    }
-  }, [isInWishlist, removeFromWishlist, addToWishlist]);
+  const toggleWishlist = useCallback(
+    (bookId: number) => {
+      if (isInWishlist(bookId)) {
+        removeFromWishlist(bookId);
+        toast.success("উইশলিস্ট থেকে সরানো হয়েছে");
+      } else {
+        addToWishlist(bookId);
+        toast.success("উইশলিস্টে যোগ করা হয়েছে");
+      }
+    },
+    [isInWishlist, removeFromWishlist, addToWishlist],
+  );
 
   // Memoized add to cart function
-  const handleAddToCart = useCallback((book: BookFromApi) => {
-    // শুধু context এ যোগ হচ্ছে (guest + logged-in দুই কেসেই কাজ করবে)
-    addToCart(book.id);
-    toast.success(`"${book.name}" কার্টে যোগ করা হয়েছে`);
-  }, [addToCart]);
+  const handleAddToCart = useCallback(
+    (book: BookFromApi) => {
+      // শুধু context এ যোগ হচ্ছে (guest + logged-in দুই কেসেই কাজ করবে)
+      addToCart(book.id);
+      toast.success(`"${book.name}" কার্টে যোগ করা হয়েছে`);
+    },
+    [addToCart],
+  );
 
   // Memoized books data with computed properties
   const memoizedBooks = useMemo(() => {
@@ -181,7 +193,9 @@ export default function PublisherBooksPage() {
       hasDiscount: book.discount > 0,
       isOutOfStock: book.stock === 0,
       displayPrice: `৳${book.price}`,
-      displayOriginalPrice: book.original_price ? `৳${book.original_price}` : null,
+      displayOriginalPrice: book.original_price
+        ? `৳${book.original_price}`
+        : null,
     }));
   }, [booksByPublisher, isInWishlist]);
 
@@ -205,7 +219,10 @@ export default function PublisherBooksPage() {
           {/* Skeleton Grid */}
           <div className="grid grid-cols-1 xs:grid-cols-2 sm:grid-cols-2 lg:grid-cols-3 xl:grid-cols-4 gap-6">
             {[...Array(8)].map((_, index) => (
-              <div key={index} className="group overflow-hidden border-0 bg-gradient-to-br from-white to-[#F4F8F7] shadow-lg rounded-2xl">
+              <div
+                key={index}
+                className="group overflow-hidden border-0 bg-gradient-to-br from-white to-[#F4F8F7] shadow-lg rounded-2xl"
+              >
                 {/* Skeleton Badges */}
                 <div className="absolute top-3 left-3 z-10">
                   <div className="w-16 h-6 bg-gray-200 rounded-full animate-pulse"></div>
@@ -356,113 +373,23 @@ export default function PublisherBooksPage() {
 
         <div className="grid grid-cols-1 xs:grid-cols-2 sm:grid-cols-2 lg:grid-cols-3 xl:grid-cols-4 gap-6">
           {memoizedBooks.map((book) => (
-            <Card
+            <BookCard
               key={book.id}
-              className="group overflow-hidden border-0 bg-gradient-to-br from-white to-[#F4F8F7] shadow-lg hover:shadow-2xl transition-all duration-500 rounded-2xl relative"
-            >
-              {/* Badges */}
-              <div className="absolute top-3 left-3 z-10 flex flex-col gap-2">
-                {book.hasDiscount && (
-                  <div className="bg-gradient-to-r from-[#0E4B4B] to-[#5FA3A3] text-white text-xs font-bold px-3 py-1 rounded-full shadow-lg">
-                    {book.discount}% ছাড়
-                  </div>
-                )}
-              </div>
-
-              {/* Wishlist Button */}
-              <button
-                onClick={() => toggleWishlist(book.id)}
-                className={`absolute top-3 right-3 z-10 p-2 rounded-full backdrop-blur-sm transition-all duration-300 ${
-                  book.isInWishlist
-                    ? "bg-red-500/20 text-red-500"
-                    : "bg-white/80 text-gray-500 hover:bg-red-500/20 hover:text-red-500"
-                }`}
-                aria-label="Toggle wishlist"
-              >
-                <Heart
-                  className={`h-5 w-5 transition-all ${
-                    book.isInWishlist
-                      ? "scale-110 fill-current"
-                      : "group-hover:scale-110"
-                  }`}
-                />
-              </button>
-
-                  {/* Book Image */}
-              <Link href={`/kitabghor/books/${book.id}`}>
-                <div className="relative w-full overflow-hidden bg-white p-4">
-                  <div className="relative aspect-[3/4] w-full">
-                    <Image
-                      src={book.image || "/placeholder.svg"}
-                      alt={book.name}
-                      fill
-                      className="object-contain transition-transform duration-700 group-hover:scale-105"
-                      sizes="(max-width: 768px) 100vw, (max-width: 1200px) 50vw, 25vw"
-                    />
-                  </div>
-                  {/* Overlay */}
-                  <div className="absolute inset-0 bg-gradient-to-t from-black/10 via-transparent to-transparent opacity-0 group-hover:opacity-100 transition-opacity duration-300" />
-
-                  {/* Quick View */}
-                  <div className="absolute inset-0 flex items-center justify-center opacity-0 group-hover:opacity-100 transition-all duration-300">
-                    <div className="bg-white/90 backdrop-blur-sm rounded-full p-3 transform translate-y-4 group-hover:translate-y-0 transition-transform duration-300">
-                      <BookOpen className="h-6 w-6 text-[#0E4B4B]" />
-                    </div>
-                  </div>
-                </div>
-              </Link>
-              <CardContent className="p-4 sm:p-5">
-                <Link href={`/kitabghor/books/${book.id}`}>
-                  <h4 className="font-bold text-lg mb-2 text-[#0D1414] hover:text-[#0E4B4B] duration-300 line-clamp-2 leading-tight group-hover:translate-x-1 transition-transform">
-                    {book.name}
-                  </h4>
-                </Link>
-                <p className="text-sm text-[#5FA3A3] mb-3 flex items-center">
-                  <span className="w-1 h-1 bg-[#0E4B4B] rounded-full mr-2"></span>
-                  {book.writer?.name}
-                </p>
-                <div className="flex items-center justify-between mb-3">
-                  <div className="flex items-baseline gap-2">
-                    <span className="font-bold text-xl text-[#0E4B4B]">
-                      {book.displayPrice}
-                    </span>
-                    {book.hasDiscount && book.displayOriginalPrice && (
-                      <span className="text-sm text-[#5FA3A3]/60 line-through">
-                        {book.displayOriginalPrice}
-                      </span>
-                    )}
-                  </div>
-                  {book.isOutOfStock ? (
-                    <div className="text-xs font-semibold bg-rose-600 text-white px-2 py-1 rounded-full">
-                      Stock Out
-                    </div>
-                  ) : (
-                    book.hasDiscount && (
-                      <div className="text-xs font-semibold bg-[#F4F8F7] text-[#0E4B4B] px-2 py-1 rounded-full border border-[#5FA3A3]/30">
-                        সাশ্রয় করুন
-                      </div>
-                    )
-                  )}
-                </div>
-              </CardContent>
-              <CardFooter className="p-4 sm:p-5 pt-0">
-                <Button
-                  disabled={book.isOutOfStock}
-                  className={`w-full rounded-xl py-3 sm:py-4 font-semibold border-0 shadow-md hover:shadow-lg transition-all duration-300 hover:scale-105 group/btn ${
-                    book.isOutOfStock
-                      ? "bg-gray-400 cursor-not-allowed opacity-60"
-                      : "bg-gradient-to-r from-[#187a7a] to-[#5b9b9b] hover:from-[#0E4B4B] hover:to-[#42a8a8] text-white"
-                  }`}
-                  onClick={() => handleAddToCart(book)}
-                >
-                  <ShoppingCart className="mr-2 h-4 w-4 group-hover/btn:scale-110 transition-transform" />
-                  {book.isOutOfStock ? "স্টক শেষ" : "কার্টে যোগ করুন"}
-                </Button>
-              </CardFooter>
-
-              {/* Hover Effect Border */}
-              <div className="absolute inset-0 rounded-2xl border-2 border-transparent group-hover:border-[#5FA3A3]/20 transition-all duration-500 pointer-events-none" />
-            </Card>
+              book={{
+                id: book.id,
+                name: book.name,
+                price: book.price,
+                original_price: book.original_price ?? 0,
+                discount: book.discount,
+                writer: book.writer,
+                publisher: publisher,
+                image: book.image || "/placeholder.svg",
+                stock: book.stock,
+              }}
+              isWishlisted={book.isInWishlist}
+              onWishlistToggle={() => toggleWishlist(book.id)}
+              onAddToCart={() => handleAddToCart(book)}
+            />
           ))}
         </div>
 

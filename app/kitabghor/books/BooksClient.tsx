@@ -19,6 +19,7 @@ import { useCart } from "@/components/ecommarce/CartContext";
 import { useWishlist } from "@/components/ecommarce/WishlistContext";
 import { toast } from "sonner";
 import { useSession } from "@/lib/auth-client";
+import { BookCard } from "@/components/ecommarce/BookCard";
 
 interface Product {
   id: number;
@@ -77,7 +78,7 @@ const AllBooksPage = memo(function AllBooksPage() {
             try {
               const ratingRes = await fetch(
                 `/api/reviews?productId=${id}&page=1&limit=1`,
-                { cache: "force-cache" }
+                { cache: "force-cache" },
               );
 
               if (!ratingRes.ok) {
@@ -94,7 +95,7 @@ const AllBooksPage = memo(function AllBooksPage() {
               console.error(`Error fetching rating for product ${id}:`, err);
               return { id, avg: 0, total: 0 };
             }
-          })
+          }),
         );
 
         const ratingsMap: Record<string, RatingInfo> = {};
@@ -145,7 +146,7 @@ const AllBooksPage = memo(function AllBooksPage() {
     (e: React.ChangeEvent<HTMLInputElement>) => {
       setSearchTerm(e.target.value);
     },
-    []
+    [],
   );
 
   const toggleWishlist = useCallback(
@@ -188,7 +189,7 @@ const AllBooksPage = memo(function AllBooksPage() {
         toast.error("উইশলিস্ট হালনাগাদ করতে সমস্যা হয়েছে");
       }
     },
-    [status, isInWishlist, addToWishlist, removeFromWishlist]
+    [status, isInWishlist, addToWishlist, removeFromWishlist],
   );
 
   const handleAddToCart = useCallback(
@@ -201,7 +202,7 @@ const AllBooksPage = memo(function AllBooksPage() {
         toast.error("কার্টে যোগ করতে সমস্যা হয়েছে");
       }
     },
-    [addToCart]
+    [addToCart],
   );
 
   return (
@@ -274,194 +275,46 @@ const AllBooksPage = memo(function AllBooksPage() {
                   </Button>
                 )}
               </div>
+              <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-6">
+                {filteredProducts.map((book, index) => {
+                  const ratingInfo = ratings[String(book.id)];
 
-              {/* Books Grid */}
-              {filteredProducts.length === 0 ? (
-                <div className="text-center py-12 md:py-16 lg:py-20">
-                  <BookOpen className="h-12 w-12 sm:h-16 sm:w-16 text-[#5FA3A3]/30 mx-auto mb-3 sm:mb-4" />
-                  <h3 className="text-lg sm:text-xl font-semibold text-[#0D1414] mb-2">
-                    কোন বই পাওয়া যায়নি
-                  </h3>
-                  <p className="text-[#5FA3A3] text-sm sm:text-base mb-4 sm:mb-6 max-w-md mx-auto">
-                    আপনার অনুসন্ধানের সাথে মিলছে এমন কোন বই নেই
-                  </p>
-                  <Button
-                    onClick={() => setSearchTerm("")}
-                    className="rounded-full bg-gradient-to-r from-[#0E4B4B] to-[#5FA3A3] hover:from-[#5FA3A3] hover:to-[#0E4B4B] text-white px-6 sm:px-8 py-2 sm:py-3 text-sm sm:text-base"
-                  >
-                    সব বই দেখুন
-                  </Button>
-                </div>
-              ) : (
-                <div className="grid grid-cols-1 xs:grid-cols-2 sm:grid-cols-2 lg:grid-cols-3 xl:grid-cols-4 gap-4 sm:gap-6 md:gap-8 px-4 sm:px-0">
-                  {filteredProducts.map((book, index) => {
-                    const ratingInfo = ratings[String(book.id)];
-                    const avgRating = ratingInfo?.averageRating ?? 0;
-                    const reviewCount = ratingInfo?.totalReviews ?? 0;
-
-                    const isBestseller = index % 3 === 0;
-                    const isNew = index % 4 === 0;
-                    const isWishlisted = isInWishlist(book.id);
-
-                    return (
-                      <Card
-                        key={book.id}
-                        className="group overflow-hidden border-0 shadow-sm hover:shadow-2xl transition-all duration-500 bg-gradient-to-br from-white to-[#F4F8F7] rounded-xl sm:rounded-2xl relative"
-                      >
-                        {/* Badges */}
-                        <div className="absolute top-2 sm:top-3 left-2 sm:left-3 z-10 flex flex-col gap-1 sm:gap-2">
-                          {book.discount > 0 && (
-                            <div className="bg-gradient-to-r from-[#0E4B4B] to-[#5FA3A3] text-white text-xs font-bold px-2 sm:px-3 py-1 rounded-full shadow-lg">
-                              {book.discount}% ছাড়
-                            </div>
-                          )}
-                          {isBestseller && (
-                            <div className="bg-gradient-to-r from-[#C0704D] to-[#A85D3F] text-white text-xs font-bold px-2 sm:px-3 py-1 rounded-full shadow-lg">
-                              বেস্টসেলার
-                            </div>
-                          )}
-                          {isNew && (
-                            <div className="bg-gradient-to-r from-[#5FA3A3] to-[#0E4B4B] text-white text-xs font-bold px-2 sm:px-3 py-1 rounded-full shadow-lg">
-                              নতুন
-                            </div>
-                          )}
-                        </div>
-
-                        {/* Wishlist Button */}
-                        <button
-                          onClick={() => toggleWishlist(book)}
-                          className={`absolute top-2 sm:top-3 right-2 sm:right-3 z-10 p-1.5 sm:p-2 rounded-full backdrop-blur-sm transition-all duration-300 ${
-                            isWishlisted
-                              ? "bg-red-500/20 text-red-500"
-                              : "bg-white/80 text-gray-500 hover:bg-red-500/20 hover:text-red-500"
-                          }`}
-                          aria-label={
-                            isWishlisted
-                              ? "Remove from wishlist"
-                              : "Add to wishlist"
-                          }
-                        >
-                          <Heart
-                            className={`h-4 w-4 sm:h-5 sm:w-5 transition-all ${
-                              isWishlisted
-                                ? "scale-110 fill-current"
-                                : "group-hover:scale-110"
-                            }`}
-                          />
-                        </button>
-
-                        {/* Book Image */}
-                        <Link href={`/kitabghor/books/${book.id}`}>
-                          <div className="relative w-full overflow-hidden bg-white p-4">
-                            <div className="relative aspect-[3/4] w-full">
-                              <Image
-                                src={book.image || "/placeholder.svg"}
-                                alt={book.name}
-                                fill
-                                className="object-contain transition-transform duration-700 group-hover:scale-105"
-                                sizes="(max-width: 768px) 100vw, (max-width: 1200px) 50vw, 25vw"
-                              />
-                            </div>
-                            {/* Overlay */}
-                            <div className="absolute inset-0 bg-gradient-to-t from-black/10 via-transparent to-transparent opacity-0 group-hover:opacity-100 transition-opacity duration-300" />
-
-                            {/* Quick View */}
-                            <div className="absolute inset-0 flex items-center justify-center opacity-0 group-hover:opacity-100 transition-all duration-300">
-                              <div className="bg-white/90 backdrop-blur-sm rounded-full p-3 transform translate-y-4 group-hover:translate-y-0 transition-transform duration-300">
-                                <BookOpen className="h-6 w-6 text-[#0E4B4B]" />
-                              </div>
-                            </div>
-                          </div>
-                        </Link>
-
-                        <CardContent className="p-3 sm:p-4 md:p-5">
-                          {/* Rating */}
-                          <div className="flex items-center gap-1 mb-2 sm:mb-3 min-h-[18px]">
-                            {reviewCount > 0 ? (
-                              <>
-                                <div className="flex">
-                                  {[1, 2, 3, 4, 5].map((star) => (
-                                    <Star
-                                      key={star}
-                                      className={`h-2.5 w-2.5 sm:h-3 sm:w-3 ${
-                                        star <= Math.round(avgRating)
-                                          ? "fill-amber-400 text-amber-400"
-                                          : "text-gray-300"
-                                      }`}
-                                    />
-                                  ))}
-                                </div>
-                                <span className="text-xs text-[#5FA3A3] ml-1">
-                                  ({avgRating.toFixed(1)} · {reviewCount} রিভিউ)
-                                </span>
-                              </>
-                            ) : (
-                              <span className="text-xs text-[#5FA3A3]/50">
-                                এখনও কোন রিভিউ নেই
-                              </span>
-                            )}
-                          </div>
-
-                          {/* Book Title */}
-                          <Link href={`/kitabghor/books/${book.id}`}>
-                            <h4 className="font-bold text-base sm:text-lg mb-1 sm:mb-2 text-[#0D1414] hover:text-[#0E4B4B] duration-300 line-clamp-2 leading-tight group-hover:translate-x-1 transition-transform min-h-[2.5rem] sm:min-h-[3rem]">
-                              {book.name}
-                            </h4>
-                          </Link>
-
-                          {/* Author */}
-                          <p className="text-xs sm:text-sm text-[#5FA3A3] mb-2 sm:mb-3 flex items-center">
-                            <span className="w-1 h-1 bg-[#0E4B4B] rounded-full mr-1 sm:mr-2"></span>
-                            {book.writer?.name ?? "Unknown"}
-                          </p>
-
-                          {/* Price */}
-                          <div className="flex items-center justify-between mb-2 sm:mb-3">
-                            <div className="flex items-baseline gap-1 sm:gap-2">
-                              <span className="font-bold text-lg sm:text-xl text-[#0E4B4B]">
-                                ৳{book.price}
-                              </span>
-                              {book.discount > 0 && (
-                                <span className="text-xs sm:text-sm text-[#5FA3A3]/60 line-through">
-                                  ৳{book.original_price}
-                                </span>
-                              )}
-                            </div>
-                            {book.stock === 0 ? (
-                              <div className="text-xs font-semibold bg-rose-600 text-white px-1.5 sm:px-2 py-0.5 sm:py-1 rounded-full">
-                                Stock Out
-                              </div>
-                            ) : (
-                              book.discount > 0 && (
-                                <div className="text-xs font-semibold bg-[#F4F8F7] text-[#0E4B4B] px-1.5 sm:px-2 py-0.5 sm:py-1 rounded-full border border-[#5FA3A3]/30">
-                                  সাশ্রয়
-                                </div>
-                              )
-                            )}
-                          </div>
-                        </CardContent>
-
-                        <CardFooter className="p-3 sm:p-4 md:p-5 pt-0">
-                          <Button
-                            disabled={book.stock === 0}
-                            className={`w-full rounded-lg sm:rounded-xl py-3 sm:py-4 md:py-6 font-semibold border-0 shadow-md hover:shadow-lg transition-all duration-300 hover:scale-105 group/btn text-sm sm:text-base ${
-                              book.stock === 0
-                                ? "bg-gray-400 cursor-not-allowed opacity-60"
-                                : "bg-gradient-to-r from-[#187a7a] to-[#5b9b9b] hover:from-[#0E4B4B] hover:to-[#42a8a8] text-white"
-                            }`}
-                            onClick={() => handleAddToCart(book)}
-                          >
-                            <ShoppingCart className="mr-1.5 sm:mr-2 h-3.5 w-3.5 sm:h-4 sm:w-4 group-hover/btn:scale-110 transition-transform" />
-                            {book.stock === 0 ? "স্টক শেষ" : "কার্টে যোগ করুন"}
-                          </Button>
-                        </CardFooter>
-
-                        <div className="absolute inset-0 rounded-xl sm:rounded-2xl border-2 border-transparent group-hover:border-[#5FA3A3]/20 transition-all duration-500 pointer-events-none"></div>
-                      </Card>
-                    );
-                  })}
-                </div>
-              )}
+                  return (
+                    <BookCard
+                      key={book.id}
+                      book={{
+                        id: book.id,
+                        name: book.name,
+                        price: book.price,
+                        original_price: book.original_price,
+                        discount: book.discount,
+                        writer: book.writer
+                          ? {
+                              id: index,
+                              name: book.writer.name,
+                            }
+                          : null,
+                        publisher: book.publisher
+                          ? {
+                              id: index,
+                              name: book.publisher.name,
+                            }
+                          : null,
+                        image: book.image,
+                        stock: book.stock,
+                      }}
+                      ratingInfo={{
+                        averageRating: ratingInfo?.averageRating ?? 0,
+                        totalReviews: ratingInfo?.totalReviews ?? 0,
+                      }}
+                      isWishlisted={isInWishlist(book.id)}
+                      onWishlistToggle={() => toggleWishlist(book)}
+                      onAddToCart={() => handleAddToCart(book)}
+                      variant="default"
+                    />
+                  );
+                })}
+              </div>
 
               {/* Load More CTA */}
               {filteredProducts.length > 0 && (

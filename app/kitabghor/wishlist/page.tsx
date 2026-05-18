@@ -10,6 +10,7 @@ import { Trash2, ShoppingCart } from "lucide-react";
 import { useCart } from "@/components/ecommarce/CartContext";
 import { useWishlist } from "@/components/ecommarce/WishlistContext";
 import { toast } from "sonner";
+import { BookCard } from "@/components/ecommarce/BookCard";
 
 interface WishlistApiItem {
   id: number; // wishlist row id
@@ -40,7 +41,7 @@ export default function WishlistPage() {
   const { removeFromWishlist } = useWishlist();
 
   const [wishlistProducts, setWishlistProducts] = useState<WishlistProduct[]>(
-    []
+    [],
   );
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState<string | null>(null);
@@ -129,7 +130,7 @@ export default function WishlistPage() {
               name: w.product.name,
               price: Number(w.product.price ?? 0),
               original_price: Number(
-                w.product.original_price ?? w.product.price ?? 0
+                w.product.original_price ?? w.product.price ?? 0,
               ),
               discount: Number(w.product.discount ?? 0),
               image: w.product.image ?? "/placeholder.svg",
@@ -170,7 +171,7 @@ export default function WishlistPage() {
       if (!res.ok) {
         console.error(
           "Failed to remove wishlist item:",
-          data || res.statusText
+          data || res.statusText,
         );
         toast.error("উইশলিস্ট থেকে সরাতে সমস্যা হয়েছে");
         return;
@@ -178,12 +179,12 @@ export default function WishlistPage() {
 
       // 👉 local state থেকে productId দিয়ে সরিয়ে দিচ্ছি
       setWishlistProducts((prev) =>
-        prev.filter((p) => p.productId !== productId)
+        prev.filter((p) => p.productId !== productId),
       );
-      
+
       // 👉 WishlistContext থেকেও সরাচ্ছি (header count update হবে)
       removeFromWishlist(productId);
-      
+
       toast.success("উইশলিস্ট থেকে সরানো হয়েছে");
     } catch (err) {
       console.error("Error removing wishlist item:", err);
@@ -225,8 +226,18 @@ export default function WishlistPage() {
               href="/"
               className="flex items-center gap-2 text-[#0E4B4B] hover:text-[#5FA3A3] transition-colors duration-300 group"
             >
-              <svg className="h-5 w-5 group-hover:-translate-x-1 transition-transform" fill="none" viewBox="0 0 24 24" stroke="currentColor">
-                <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M15 19l-7-7 7-7" />
+              <svg
+                className="h-5 w-5 group-hover:-translate-x-1 transition-transform"
+                fill="none"
+                viewBox="0 0 24 24"
+                stroke="currentColor"
+              >
+                <path
+                  strokeLinecap="round"
+                  strokeLinejoin="round"
+                  strokeWidth={2}
+                  d="M15 19l-7-7 7-7"
+                />
               </svg>
               <span>শপিং চালিয়ে যান</span>
             </Link>
@@ -261,14 +272,23 @@ export default function WishlistPage() {
           </div>
         ) : error ? (
           <div className="text-center py-12">
-            <h2 className="text-xl font-semibold mb-3 text-[#0D1414]">কিছু একটা সমস্যা হয়েছে</h2>
+            <h2 className="text-xl font-semibold mb-3 text-[#0D1414]">
+              কিছু একটা সমস্যা হয়েছে
+            </h2>
             <p className="text-[#5FA3A3] mb-6">{error}</p>
             <div className="flex justify-center gap-3">
               <Link href="/auth/login">
-                <Button className="rounded-full bg-gradient-to-r from-[#C0704D] to-[#A85D3F] text-white px-6 py-2 hover:shadow-lg transition-all duration-300 hover:scale-105">লগইন করুন</Button>
+                <Button className="rounded-full bg-gradient-to-r from-[#C0704D] to-[#A85D3F] text-white px-6 py-2 hover:shadow-lg transition-all duration-300 hover:scale-105">
+                  লগইন করুন
+                </Button>
               </Link>
               <Link href="/">
-                <Button variant="outline" className="rounded-full border-[#5FA3A3] text-[#5FA3A3] hover:bg-[#5FA3A3] hover:text-white transition-all duration-300 px-6 py-2">হোম পেইজে ফিরে যান</Button>
+                <Button
+                  variant="outline"
+                  className="rounded-full border-[#5FA3A3] text-[#5FA3A3] hover:bg-[#5FA3A3] hover:text-white transition-all duration-300 px-6 py-2"
+                >
+                  হোম পেইজে ফিরে যান
+                </Button>
               </Link>
             </div>
           </div>
@@ -285,7 +305,8 @@ export default function WishlistPage() {
               আপনার উইশলিস্ট খালি
             </h2>
             <p className="text-[#5FA3A3] mb-6">
-              আপনার উইশলিস্টে কোন পণ্য নেই। পছন্দের বই যোগ করতে শপিং চালিয়ে যান।
+              আপনার উইশলিস্টে কোন পণ্য নেই। পছন্দের বই যোগ করতে শপিং চালিয়ে
+              যান।
             </p>
             <Link href="/">
               <Button className="rounded-full bg-gradient-to-r from-[#C0704D] to-[#A85D3F] text-white px-8 py-3 hover:shadow-lg transition-all duration-300 hover:scale-105">
@@ -296,57 +317,26 @@ export default function WishlistPage() {
         ) : (
           <div className="grid grid-cols-1 sm:grid-cols-2 md:grid-cols-3 lg:grid-cols-4 gap-6">
             {wishlistProducts.map((item) => (
-              <Card key={item.wishlistId} className="overflow-hidden border-0 shadow-sm hover:shadow-2xl transition-all duration-500 bg-gradient-to-br from-white to-[#F4F8F7] rounded-2xl relative group">
-                <div className="relative">
-                  <Link href={`/kitabghor/books/${item.productId}`}>
-                    <div className="relative h-64 w-full">
-                      <Image
-                        src={item.image || "/placeholder.svg"}
-                        alt={item.name}
-                        fill
-                        className="object-cover transition-transform hover:scale-105"
-                      />
-                    </div>
-                  </Link>
-                  <button
-                    className="absolute top-2 right-2 bg-white/90 backdrop-blur-sm rounded-full p-1.5 shadow-md hover:bg-red-50 group/delete transition-all duration-300"
-                    onClick={() => handleRemoveItem(item.productId)}
-                  >
-                    <Trash2 className="h-4 w-4 text-red-500 group-hover/delete:scale-110 transition-transform" />
-                  </button>
-                </div>
-                <CardContent className="p-4">
-                  <Link href={`/kitabghor/books/${item.productId}`}>
-                    <h4 className="font-semibold text-lg mb-1 text-[#0D1414] hover:text-[#0E4B4B] transition-all duration-300 line-clamp-2 group-hover:translate-x-1">
-                      {item.name}
-                    </h4>
-                  </Link>
-                  <div className="flex items-center justify-between mt-2 mb-4">
-                    <div>
-                      <span className="font-bold text-lg text-[#0E4B4B]">
-                        ৳{item.price.toFixed(2)}
-                      </span>
-                      {item.original_price > item.price && (
-                        <span className="text-sm text-[#5FA3A3] line-through ml-2">
-                          ৳{item.original_price.toFixed(2)}
-                        </span>
-                      )}
-                    </div>
-                    {item.discount > 0 && (
-                      <span className="bg-[#C0704D] text-white px-2 py-0.5 rounded text-xs font-semibold">
-                        {item.discount}% ছাড়
-                      </span>
-                    )}
-                  </div>
-                  <Button
-                    className="w-full rounded-xl py-6 bg-gradient-to-r from-[#095858] to-[#19cece] hover:from-[#0E4B4B] hover:to-[#5FA3A3] text-white font-semibold border-0 shadow-md hover:shadow-lg transition-all duration-300 hover:scale-105 group/btn"
-                    onClick={() => handleAddToCart(item)}
-                  >
-                    <ShoppingCart className="h-4 w-4 mr-2 group-hover/btn:scale-110 transition-transform" />
-                    কার্টে যোগ করুন
-                  </Button>
-                </CardContent>
-              </Card>
+              <BookCard
+                key={item.wishlistId}
+                book={{
+                  id: item.productId,
+                  name: item.name,
+                  price: item.price,
+                  original_price: item.original_price,
+                  discount: item.discount,
+                  writer: {
+                    id: 0,
+                    name: "Unknown",
+                  },
+                  publisher: null,
+                  image: item.image || "/placeholder.svg",
+                  stock: 1,
+                }}
+                isWishlisted={true}
+                onWishlistToggle={() => handleRemoveItem(item.productId)}
+                onAddToCart={() => handleAddToCart(item)}
+              />
             ))}
           </div>
         )}

@@ -19,7 +19,7 @@ import Image from "next/image";
 import { useState, useEffect } from "react";
 import { toast } from "sonner";
 import { useRouter } from "next/navigation";
-
+import { trackBeginCheckout } from "@/lib/ga4";
 // ✅ NextAuth client hooks/helpers
 import { useSession, signIn } from "@/lib/auth-client";
 
@@ -171,17 +171,30 @@ export default function CartPage() {
   const itemsToRender: LocalCartItem[] =
     isAuthenticated && serverCartItems ? serverCartItems : (cartItems as any);
 
-  // ✅ Checkout -> login if needed
   const handleCheckout = async () => {
     if (!isAuthenticated) {
-      // guest কার্ট pendingCheckout এ রাখছো, চাইলে এখানেও sync করতে পারো
       sessionStorage.setItem("pendingCheckout", JSON.stringify(cartItems));
       sessionStorage.setItem("redirectAfterLogin", "/kitabghor/checkout");
+
       toast.info("চেকআউট করতে লগইন করুন");
 
-      await signIn(undefined, { callbackUrl: "/kitabghor/checkout" });
+      await signIn(undefined, {
+        callbackUrl: "/kitabghor/checkout",
+      });
+
       return;
     }
+
+    trackBeginCheckout(
+      itemsToRender.map((item) => ({
+        item_id: String(item.productId),
+        item_name: item.name,
+        price: Number(item.price),
+        quantity: Number(item.quantity),
+        item_category: "Books",
+      })),
+      total,
+    );
 
     router.push("/kitabghor/checkout");
   };
