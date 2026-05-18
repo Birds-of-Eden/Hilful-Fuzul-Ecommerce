@@ -35,6 +35,7 @@ export default function CheckoutPage() {
   >("");
   const [paymentMethod, setPaymentMethod] = useState("");
   const [transactionId, setTransactionId] = useState("");
+  const [errors, setErrors] = useState<Record<string, string>>({});
   const [invoiceId, setInvoiceId] = useState("");
   const [placedOrder, setPlacedOrder] = useState<any>(null);
   const [orderConfirmed, setOrderConfirmed] = useState(false);
@@ -312,6 +313,57 @@ export default function CheckoutPage() {
 
   const total = subtotal + shipping;
 
+  const clearFieldError = (field: string) => {
+    setErrors((prev) => {
+      if (!prev[field]) return prev;
+      const next = { ...prev };
+      delete next[field];
+      return next;
+    });
+  };
+
+  const validateDetailsStep = () => {
+    const next: Record<string, string> = {};
+
+    if (!name.trim()) next.name = "আপনার নাম লিখুন";
+    if (!mobile.trim()) {
+      next.mobile = "মোবাইল নম্বর লিখুন";
+    } else {
+      // Simple BD number check: allow +88/88 optional, 11 digits starting with 01
+      const cleaned = mobile.replace(/\s|-/g, "");
+      const ok = /^(?:\+?88)?01\d{9}$/.test(cleaned);
+      if (!ok) next.mobile = "সঠিক মোবাইল নম্বর লিখুন (01XXXXXXXXX)";
+    }
+
+    if (email.trim()) {
+      const ok = /^[^\s@]+@[^\s@]+\.[^\s@]+$/.test(email.trim());
+      if (!ok) next.email = "সঠিক ইমেইল লিখুন";
+    }
+
+    if (!location.trim()) next.location = "প্রাথমিক ঠিকানা লিখুন";
+    if (!deliveryZone) next.deliveryZone = "ডেলিভারি এলাকা নির্বাচন করুন";
+
+    setErrors(next);
+    return next;
+  };
+
+  const validatePaymentStep = () => {
+    const next: Record<string, string> = {};
+
+    if (!paymentMethod) next.paymentMethod = "পেমেন্ট পদ্ধতি নির্বাচন করুন";
+
+    if (paymentMethod && paymentMethod !== "CashOnDelivery") {
+      if (!transactionId.trim()) next.transactionId = "ট্রান্স্যাকশন আইডি লিখুন";
+      if (!paymentScreenshotUrl)
+        next.paymentScreenshotUrl = "পেমেন্ট স্ক্রিনশট আপলোড করুন";
+      if (isUploadingScreenshot)
+        next.paymentScreenshotUrl = "স্ক্রিনশট আপলোড শেষ হওয়া পর্যন্ত অপেক্ষা করুন";
+    }
+
+    setErrors((prev) => ({ ...prev, ...next }));
+    return next;
+  };
+
   // Helper function to generate initials from channel name
   const getChannelInitials = (channel: string): string => {
     const words = channel.trim().split(/\s+/);
@@ -397,30 +449,22 @@ export default function CheckoutPage() {
       return;
     }
 
-    if (
-      !name ||
-      !mobile ||
-      !location ||
-      (paymentMethod !== "CashOnDelivery" && !transactionId)
-    ) {
-      toast.error("সব প্রয়োজনীয় তথ্য পূরণ করুন");
-      return;
-    }
+    // Validate required fields from step 1 and step 2
+    const detailsErr = validateDetailsStep();
+    const paymentErr = validatePaymentStep();
 
-    // যদি অনলাইন পেমেন্ট হয় এবং স্ক্রিনশট দেওয়া হয় কিন্তু upload এখনও শেষ না হয়
-    if (
-      paymentMethod !== "CashOnDelivery" &&
-      // require screenshot URL for non-COD payments
-      (!paymentScreenshotUrl || isUploadingScreenshot)
-    ) {
-      // If upload is still in progress
-      if (isUploadingScreenshot) {
-        toast.error("স্ক্রিনশট আপলোড শেষ হওয়া পর্যন্ত অপেক্ষা করুন");
-        return;
-      }
+    const missingLabels: string[] = [];
+    if (detailsErr.name) missingLabels.push("আপনার নাম");
+    if (detailsErr.mobile) missingLabels.push("মোবাইল নম্বর");
+    if (detailsErr.email) missingLabels.push("ইমেইল");
+    if (detailsErr.location) missingLabels.push("প্রাথমিক ঠিকানা");
+    if (detailsErr.deliveryZone) missingLabels.push("ডেলিভারি এলাকা");
+    if (paymentErr.paymentMethod) missingLabels.push("পেমেন্ট পদ্ধতি");
+    if (paymentErr.transactionId) missingLabels.push("ট্রান্স্যাকশন আইডি");
+    if (paymentErr.paymentScreenshotUrl) missingLabels.push("পেমেন্ট স্ক্রিনশট");
 
-      // If not uploaded at all, require screenshot
-      toast.error("পেমেন্ট স্ক্রিনশট আবশ্যক");
+    if (missingLabels.length > 0) {
+      toast.error(`অনুগ্রহ করে পূরণ/সঠিক করুন: ${missingLabels.join(", ")}`);
       return;
     }
 
@@ -583,13 +627,16 @@ export default function CheckoutPage() {
   };
 
   const handleGoToPaymentStep = () => {
-    if (!location.trim()) {
-      toast.error("প্রাথমিক ঠিকানা পূরণ করুন");
-      return;
-    }
+    const nextErrors = validateDetailsStep();
+    const missingLabels: string[] = [];
+    if (nextErrors.name) missingLabels.push("আপনার নাম");
+    if (nextErrors.mobile) missingLabels.push("মোবাইল নম্বর");
+    if (nextErrors.email) missingLabels.push("ইমেইল");
+    if (nextErrors.location) missingLabels.push("প্রাথমিক ঠিকানা");
+    if (nextErrors.deliveryZone) missingLabels.push("ডেলিভারি এলাকা");
 
-    if (!deliveryZone) {
-      toast.error("ডেলিভারি এলাকা নির্বাচন করুন");
+    if (missingLabels.length > 0) {
+      toast.error(`অনুগ্রহ করে পূরণ/সঠিক করুন: ${missingLabels.join(", ")}`);
       return;
     }
 
@@ -633,46 +680,72 @@ export default function CheckoutPage() {
                   </div>
 
                   <div className="grid grid-cols-1 sm:grid-cols-2 gap-4 sm:gap-6">
-                    <LabeledInput
-                      id="name"
-                      label="আপনার নাম *"
-                      placeholder="আপনার সম্পূর্ণ নাম"
-                      value={name}
-                      onChange={(e: React.ChangeEvent<HTMLInputElement>) =>
-                        setName(e.target.value)
-                      }
-                      className="bg-[#EEEFE0] border-[#D1D8BE] focus:border-[#819A91] text-[#2D4A3C] placeholder-[#2D4A3C]/50 transition-colors duration-300"
-                    />
-                    <LabeledInput
-                      id="mobile"
-                      label="মোবাইল নম্বর *"
-                      placeholder="০১XXXXXXXXX"
-                      value={mobile}
-                      onChange={(e: React.ChangeEvent<HTMLInputElement>) =>
-                        setMobile(e.target.value)
-                      }
-                      className="bg-[#EEEFE0] border-[#D1D8BE] focus:border-[#819A91] text-[#2D4A3C] placeholder-[#2D4A3C]/50 transition-colors duration-300"
-                    />
-                    <LabeledInput
-                      id="email"
-                      label="ইমেইল (ঐচ্ছিক)"
-                      placeholder="আপনার ইমেইল ঠিকানা"
-                      value={email}
-                      onChange={(e: React.ChangeEvent<HTMLInputElement>) =>
-                        setEmail(e.target.value)
-                      }
-                      className="bg-[#EEEFE0] border-[#D1D8BE] focus:border-[#819A91] text-[#2D4A3C] placeholder-[#2D4A3C]/50 transition-colors duration-300 sm:col-span-2"
-                    />
-                    <LabeledInput
-                      id="location"
-                      label="প্রাথমিক ঠিকানা *"
-                      placeholder="বাড়ি নং, রোড নং, এলাকা"
-                      value={location}
-                      onChange={(e: React.ChangeEvent<HTMLInputElement>) =>
-                        setLocation(e.target.value)
-                      }
-                      className="bg-[#EEEFE0] border-[#D1D8BE] focus:border-[#819A91] text-[#2D4A3C] placeholder-[#2D4A3C]/50 transition-colors duration-300 sm:col-span-2"
-                    />
+                    <div className="space-y-1.5">
+                      <LabeledInput
+                        id="name"
+                        label="আপনার নাম *"
+                        placeholder="আপনার সম্পূর্ণ নাম"
+                        value={name}
+                        onChange={(e: React.ChangeEvent<HTMLInputElement>) => {
+                          setName(e.target.value);
+                          clearFieldError("name");
+                        }}
+                        className={`bg-[#EEEFE0] border-[#D1D8BE] focus:border-[#819A91] text-[#2D4A3C] placeholder-[#2D4A3C]/50 transition-colors duration-300 ${errors.name ? "border-red-500 focus:border-red-500" : ""}`}
+                      />
+                      {errors.name && (
+                        <p className="text-xs text-red-600">{errors.name}</p>
+                      )}
+                    </div>
+                    <div className="space-y-1.5">
+                      <LabeledInput
+                        id="mobile"
+                        label="মোবাইল নম্বর *"
+                        placeholder="০১XXXXXXXXX"
+                        value={mobile}
+                        onChange={(e: React.ChangeEvent<HTMLInputElement>) => {
+                          setMobile(e.target.value);
+                          clearFieldError("mobile");
+                        }}
+                        className={`bg-[#EEEFE0] border-[#D1D8BE] focus:border-[#819A91] text-[#2D4A3C] placeholder-[#2D4A3C]/50 transition-colors duration-300 ${errors.mobile ? "border-red-500 focus:border-red-500" : ""}`}
+                      />
+                      {errors.mobile && (
+                        <p className="text-xs text-red-600">{errors.mobile}</p>
+                      )}
+                    </div>
+                    <div className="space-y-1.5 sm:col-span-2">
+                      <LabeledInput
+                        id="email"
+                        label="ইমেইল (ঐচ্ছিক)"
+                        placeholder="আপনার ইমেইল ঠিকানা"
+                        value={email}
+                        onChange={(e: React.ChangeEvent<HTMLInputElement>) => {
+                          setEmail(e.target.value);
+                          clearFieldError("email");
+                        }}
+                        className={`bg-[#EEEFE0] border-[#D1D8BE] focus:border-[#819A91] text-[#2D4A3C] placeholder-[#2D4A3C]/50 transition-colors duration-300 ${errors.email ? "border-red-500 focus:border-red-500" : ""}`}
+                      />
+                      {errors.email && (
+                        <p className="text-xs text-red-600">{errors.email}</p>
+                      )}
+                    </div>
+                    <div className="space-y-1.5 sm:col-span-2">
+                      <LabeledInput
+                        id="location"
+                        label="প্রাথমিক ঠিকানা *"
+                        placeholder="বাড়ি নং, রোড নং, এলাকা"
+                        value={location}
+                        onChange={(e: React.ChangeEvent<HTMLInputElement>) => {
+                          setLocation(e.target.value);
+                          clearFieldError("location");
+                        }}
+                        className={`bg-[#EEEFE0] border-[#D1D8BE] focus:border-[#819A91] text-[#2D4A3C] placeholder-[#2D4A3C]/50 transition-colors duration-300 ${errors.location ? "border-red-500 focus:border-red-500" : ""}`}
+                      />
+                      {errors.location && (
+                        <p className="text-xs text-red-600">
+                          {errors.location}
+                        </p>
+                      )}
+                    </div>
                     <div className="space-y-2 sm:col-span-2">
                       <label
                         htmlFor="deliveryAddress"
@@ -698,7 +771,10 @@ export default function CheckoutPage() {
                       <div className="grid grid-cols-1 sm:grid-cols-2 gap-3">
                         <button
                           type="button"
-                          onClick={() => setDeliveryZone("inside_dhaka")}
+                          onClick={() => {
+                            setDeliveryZone("inside_dhaka");
+                            clearFieldError("deliveryZone");
+                          }}
                           className={`p-4 rounded-xl border-2 text-left transition-all ${
                             deliveryZone === "inside_dhaka"
                               ? "border-[#819A91] bg-[#819A91]/10"
@@ -715,7 +791,10 @@ export default function CheckoutPage() {
 
                         <button
                           type="button"
-                          onClick={() => setDeliveryZone("outside_dhaka")}
+                          onClick={() => {
+                            setDeliveryZone("outside_dhaka");
+                            clearFieldError("deliveryZone");
+                          }}
                           className={`p-4 rounded-xl border-2 text-left transition-all ${
                             deliveryZone === "outside_dhaka"
                               ? "border-[#819A91] bg-[#819A91]/10"
@@ -730,6 +809,11 @@ export default function CheckoutPage() {
                           </p>
                         </button>
                       </div>
+                      {errors.deliveryZone && (
+                        <p className="text-xs text-red-600 mt-2">
+                          {errors.deliveryZone}
+                        </p>
+                      )}
                     </div>
                   </div>
 
@@ -763,8 +847,13 @@ export default function CheckoutPage() {
                     </Button>
                   </div>
 
-                  <div className="grid gap-4">
-                    {[
+                   <div className="grid gap-4">
+                    {errors.paymentMethod && (
+                      <p className="text-xs text-red-600">
+                        {errors.paymentMethod}
+                      </p>
+                    )}
+                      {[
                       // Dynamic gateways from API
                       ...paymentGateways
                         .map((p) => {
@@ -789,15 +878,18 @@ export default function CheckoutPage() {
                         color: "bg-gradient-to-r from-[#A7C1A8] to-[#819A91]",
                       },
                     ].map((method: any) => (
-                      <div
-                        key={method.id}
-                        className={`border-2 rounded-lg sm:rounded-xl p-3 sm:p-4 cursor-pointer transition-all duration-300 ${
-                          paymentMethod === method.id
-                            ? "border-[#819A91] bg-[#819A91]/5 shadow-md"
-                            : "border-[#D1D8BE] hover:border-[#A7C1A8] hover:bg-[#EEEFE0]"
-                        }`}
-                        onClick={() => setPaymentMethod(method.id)}
-                      >
+                        <div
+                          key={method.id}
+                          className={`border-2 rounded-lg sm:rounded-xl p-3 sm:p-4 cursor-pointer transition-all duration-300 ${
+                            paymentMethod === method.id
+                              ? "border-[#819A91] bg-[#819A91]/5 shadow-md"
+                              : "border-[#D1D8BE] hover:border-[#A7C1A8] hover:bg-[#EEEFE0]"
+                          }`}
+                          onClick={() => {
+                            setPaymentMethod(method.id);
+                            clearFieldError("paymentMethod");
+                          }}
+                        >
                         <div className="flex justify-between items-center">
                           <div className="flex items-center gap-2 sm:gap-4">
                             <div
@@ -861,16 +953,31 @@ export default function CheckoutPage() {
                         </p>
                       )}
                       {/* Transaction ID input */}
-                      <LabeledInput
-                        id="transactionId"
-                        label="ট্রান্স্যাকশন আইডি *"
-                        placeholder="আপনার ট্রান্স্যাকশন আইডি লিখুন"
-                        value={transactionId}
-                        onChange={(e: React.ChangeEvent<HTMLInputElement>) =>
-                          setTransactionId(e.target.value)
-                        }
-                        className="bg-white border-[#D1D8BE] focus:border-[#819A91] text-[#2D4A3C] placeholder-[#2D4A3C]/50 mt-4 text-sm"
-                      />
+                      <div className="space-y-1.5">
+                        <LabeledInput
+                          id="transactionId"
+                          label="ট্রান্স্যাকশন আইডি *"
+                          placeholder="আপনার ট্রান্স্যাকশন আইডি লিখুন"
+                          value={transactionId}
+                          onChange={(
+                            e: React.ChangeEvent<HTMLInputElement>,
+                          ) => {
+                            setTransactionId(e.target.value);
+                            clearFieldError("transactionId");
+                          }}
+                          className={`bg-white border-[#D1D8BE] focus:border-[#819A91] text-[#2D4A3C] placeholder-[#2D4A3C]/50 mt-4 text-sm ${errors.transactionId ? "border-red-500 focus:border-red-500" : ""}`}
+                        />
+                        {errors.transactionId && (
+                          <p className="text-xs text-red-600">
+                            {errors.transactionId}
+                          </p>
+                        )}
+                      </div>
+                      {errors.paymentScreenshotUrl && (
+                        <p className="text-xs text-red-600 mt-2">
+                          {errors.paymentScreenshotUrl}
+                        </p>
+                      )}
 
                       <div className="mt-4 space-y-2">
                         <label className="text-sm font-medium text-[#2D4A3C]">
