@@ -17,7 +17,11 @@ import {
 import { v4 as uuidv4 } from "uuid";
 import Link from "next/link";
 import { useSession } from "@/lib/auth-client";
-import { trackAddPaymentInfo, trackPurchase } from "@/lib/ga4";
+import {
+  trackAddPaymentInfo,
+  trackPurchase,
+  trackAddShippingInfo,
+} from "@/lib/ga4";
 
 export default function CheckoutPage() {
   const { cartItems, clearCart } = useCart();
@@ -353,11 +357,13 @@ export default function CheckoutPage() {
     if (!paymentMethod) next.paymentMethod = "পেমেন্ট পদ্ধতি নির্বাচন করুন";
 
     if (paymentMethod && paymentMethod !== "CashOnDelivery") {
-      if (!transactionId.trim()) next.transactionId = "ট্রান্স্যাকশন আইডি লিখুন";
+      if (!transactionId.trim())
+        next.transactionId = "ট্রান্স্যাকশন আইডি লিখুন";
       if (!paymentScreenshotUrl)
         next.paymentScreenshotUrl = "পেমেন্ট স্ক্রিনশট আপলোড করুন";
       if (isUploadingScreenshot)
-        next.paymentScreenshotUrl = "স্ক্রিনশট আপলোড শেষ হওয়া পর্যন্ত অপেক্ষা করুন";
+        next.paymentScreenshotUrl =
+          "স্ক্রিনশট আপলোড শেষ হওয়া পর্যন্ত অপেক্ষা করুন";
     }
 
     setErrors((prev) => ({ ...prev, ...next }));
@@ -461,7 +467,8 @@ export default function CheckoutPage() {
     if (detailsErr.deliveryZone) missingLabels.push("ডেলিভারি এলাকা");
     if (paymentErr.paymentMethod) missingLabels.push("পেমেন্ট পদ্ধতি");
     if (paymentErr.transactionId) missingLabels.push("ট্রান্স্যাকশন আইডি");
-    if (paymentErr.paymentScreenshotUrl) missingLabels.push("পেমেন্ট স্ক্রিনশট");
+    if (paymentErr.paymentScreenshotUrl)
+      missingLabels.push("পেমেন্ট স্ক্রিনশট");
 
     if (missingLabels.length > 0) {
       toast.error(`অনুগ্রহ করে পূরণ/সঠিক করুন: ${missingLabels.join(", ")}`);
@@ -639,6 +646,18 @@ export default function CheckoutPage() {
       toast.error(`অনুগ্রহ করে পূরণ/সঠিক করুন: ${missingLabels.join(", ")}`);
       return;
     }
+
+    trackAddShippingInfo(
+      itemsToRender.map((item: any) => ({
+        item_id: String(item.productId ?? item.id),
+        item_name: item.name,
+        price: Number(item.price),
+        quantity: Number(item.quantity),
+        item_category: "Books",
+      })),
+      total,
+      deliveryZone === "inside_dhaka" ? "Inside Dhaka" : "Outside Dhaka",
+    );
 
     setStep("payment");
   };
@@ -847,13 +866,13 @@ export default function CheckoutPage() {
                     </Button>
                   </div>
 
-                   <div className="grid gap-4">
+                  <div className="grid gap-4">
                     {errors.paymentMethod && (
                       <p className="text-xs text-red-600">
                         {errors.paymentMethod}
                       </p>
                     )}
-                      {[
+                    {[
                       // Dynamic gateways from API
                       ...paymentGateways
                         .map((p) => {
@@ -878,18 +897,18 @@ export default function CheckoutPage() {
                         color: "bg-gradient-to-r from-[#A7C1A8] to-[#819A91]",
                       },
                     ].map((method: any) => (
-                        <div
-                          key={method.id}
-                          className={`border-2 rounded-lg sm:rounded-xl p-3 sm:p-4 cursor-pointer transition-all duration-300 ${
-                            paymentMethod === method.id
-                              ? "border-[#819A91] bg-[#819A91]/5 shadow-md"
-                              : "border-[#D1D8BE] hover:border-[#A7C1A8] hover:bg-[#EEEFE0]"
-                          }`}
-                          onClick={() => {
-                            setPaymentMethod(method.id);
-                            clearFieldError("paymentMethod");
-                          }}
-                        >
+                      <div
+                        key={method.id}
+                        className={`border-2 rounded-lg sm:rounded-xl p-3 sm:p-4 cursor-pointer transition-all duration-300 ${
+                          paymentMethod === method.id
+                            ? "border-[#819A91] bg-[#819A91]/5 shadow-md"
+                            : "border-[#D1D8BE] hover:border-[#A7C1A8] hover:bg-[#EEEFE0]"
+                        }`}
+                        onClick={() => {
+                          setPaymentMethod(method.id);
+                          clearFieldError("paymentMethod");
+                        }}
+                      >
                         <div className="flex justify-between items-center">
                           <div className="flex items-center gap-2 sm:gap-4">
                             <div
