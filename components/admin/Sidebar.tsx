@@ -15,6 +15,7 @@ import {
   ClipboardList,
   Mail,
   Tag,
+  BarChart3,
 } from "lucide-react";
 import { useState, useEffect } from "react";
 
@@ -24,6 +25,7 @@ const menuItems = [
   { name: "ব্যবহারকারী", href: "/admin/users", icon: Users },
   { name: "পণ্য", href: "/admin/products", icon: ShoppingBag },
   { name: "অর্ডার", href: "/admin/orders", icon: FileText },
+  { name: "পিডিএফ রিপোর্ট", href: "/admin/pdf-reports", icon: BarChart3 },
   {
     name: "ব্যবস্থাপনা",
     icon: ClipboardList,

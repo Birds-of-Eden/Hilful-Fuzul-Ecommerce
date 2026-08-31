@@ -24,10 +24,11 @@ model User {
   banExpires    Int?
   note          String?
 
-  orders   Order[]
-  wishlist Wishlist[]
-  cart     CartItem[]
-  reviews  Review[]
+  orders          Order[]
+  wishlist        Wishlist[]
+  cart            CartItem[]
+  reviews         Review[]
+  pdfReadSessions PdfReadSession[]
 }
 
 model VerificationToken {
@@ -95,17 +96,50 @@ model Product {
   ratingAvg   Float @default(0)
   ratingCount Int   @default(0)
 
-  writer     Writer?     @relation(fields: [writerId], references: [id])
-  publisher  Publisher?  @relation(fields: [publisherId], references: [id])
-  category   Category    @relation(fields: [categoryId], references: [id])
-  orderItems OrderItem[]
-  wishlist   Wishlist[]
-  reviews    Review[]
-  cartItems  CartItem[]
-  deleted    Boolean     @default(false)
+  writer          Writer?          @relation(fields: [writerId], references: [id])
+  publisher       Publisher?       @relation(fields: [publisherId], references: [id])
+  category        Category         @relation(fields: [categoryId], references: [id])
+  orderItems      OrderItem[]
+  wishlist        Wishlist[]
+  reviews         Review[]
+  cartItems       CartItem[]
+  pdfReadSessions PdfReadSession[]
+  deleted         Boolean          @default(false)
 
   createdAt DateTime @default(now())
   updatedAt DateTime @updatedAt
+}
+
+model PdfReadSession {
+  id           Int       @id @default(autoincrement())
+  productId    Int
+  userId       String?
+  guestId      String?
+
+  startedAt    DateTime  @default(now())
+  endedAt      DateTime?
+  durationSec  Int?
+
+  maxPage      Int       @default(1)
+  totalPages   Int?
+
+  downloaded      Boolean   @default(false)
+  downloadedAt    DateTime?
+  downloaderName  String?
+  downloaderPhone String?
+  downloaderEmail String?
+
+  createdAt    DateTime  @default(now())
+  updatedAt    DateTime  @updatedAt
+
+  product      Product   @relation(fields: [productId], references: [id])
+  user         User?     @relation(fields: [userId], references: [id])
+
+  @@index([productId])
+  @@index([productId, createdAt])
+  @@index([userId])
+  @@index([guestId])
+  @@index([createdAt])
 }
 
 enum OrderStatus {

@@ -1,6 +1,6 @@
 "use client";
 
-import { useState, useEffect, useMemo, useCallback } from "react";
+import { useState, useEffect, useMemo, useCallback, useRef } from "react";
 import Image from "next/image";
 import Link from "next/link";
 import { useParams } from "next/navigation";
@@ -38,6 +38,7 @@ import { BookDetailSkeleton } from "@/components/ui/skeleton-loader";
 // 🔹 auth-client theke useSession
 import { useSession } from "@/lib/auth-client";
 import { trackAddToCart, trackViewItem } from "@/lib/ga4";
+import { getOrCreateGuestId } from "@/lib/guest-id";
 
 interface Product {
   id: string | number;
@@ -84,6 +85,8 @@ export default function BookDetail() {
   const [relatedBooks, setRelatedBooks] = useState<Product[]>([]);
   const [showModel, setShowModel] = useState(false);
   const [showPdf, setShowPdf] = useState(false);
+  const [pdfSessionId, setPdfSessionId] = useState<number | null>(null);
+  const maxPageRef = useRef(1);
   const [activeImage, setActiveImage] = useState<string | null>(null);
   const [quantity, setQuantity] = useState(1);
   const [loading, setLoading] = useState(true);
@@ -249,6 +252,94 @@ export default function BookDetail() {
       );
     }
   }, [book, quantity, isAuthenticated, addToCart]);
+
+  // 🔹 PDF reading session tracking
+  const handlePdfLoadSuccess = useCallback(
+    async (numPages: number) => {
+      if (!book) return;
+      maxPageRef.current = 1;
+      try {
+        const res = await fetch("/api/pdf-sessions", {
+          method: "POST",
+          headers: { "Content-Type": "application/json" },
+          body: JSON.stringify({
+            productId: Number(book.id),
+            totalPages: numPages,
+            guestId: isAuthenticated ? undefined : getOrCreateGuestId(),
+          }),
+        });
+        if (res.ok) {
+          const data = await res.json();
+          setPdfSessionId(data.id);
+        }
+      } catch (err) {
+        console.error("Error starting pdf read session:", err);
+      }
+    },
+    [book, isAuthenticated],
+  );
+
+  const handlePdfPageChange = useCallback((pageNumber: number) => {
+    maxPageRef.current = Math.max(maxPageRef.current, pageNumber);
+  }, []);
+
+  const handlePdfDownload = useCallback(
+    (info: { name: string; phone: string; email: string }) => {
+      if (!pdfSessionId) return;
+      fetch(`/api/pdf-sessions/${pdfSessionId}`, {
+        method: "PATCH",
+        headers: { "Content-Type": "application/json" },
+        body: JSON.stringify({
+          downloaded: true,
+          downloaderName: info.name,
+          downloaderPhone: info.phone,
+          downloaderEmail: info.email,
+        }),
+        keepalive: true,
+      }).catch((err) => console.error("Error recording pdf download:", err));
+    },
+    [pdfSessionId],
+  );
+
+  const handlePdfClose = useCallback(() => {
+    if (pdfSessionId) {
+      fetch(`/api/pdf-sessions/${pdfSessionId}`, {
+        method: "PATCH",
+        headers: { "Content-Type": "application/json" },
+        body: JSON.stringify({ ended: true, maxPage: maxPageRef.current }),
+        keepalive: true,
+      }).catch((err) => console.error("Error ending pdf read session:", err));
+    }
+    setPdfSessionId(null);
+    setShowPdf(false);
+  }, [pdfSessionId]);
+
+  // 🔹 বন্ধ না করে ট্যাব বন্ধ/নেভিগেট করলে সেশন শেষ করার fallback
+  useEffect(() => {
+    if (!showPdf) return;
+
+    const endSessionBeacon = () => {
+      if (!pdfSessionId) return;
+      fetch(`/api/pdf-sessions/${pdfSessionId}`, {
+        method: "PATCH",
+        headers: { "Content-Type": "application/json" },
+        body: JSON.stringify({ ended: true, maxPage: maxPageRef.current }),
+        keepalive: true,
+      }).catch(() => {});
+    };
+
+    const handleVisibilityChange = () => {
+      if (document.visibilityState === "hidden") endSessionBeacon();
+    };
+
+    window.addEventListener("beforeunload", endSessionBeacon);
+    document.addEventListener("visibilitychange", handleVisibilityChange);
+
+    return () => {
+      window.removeEventListener("beforeunload", endSessionBeacon);
+      document.removeEventListener("visibilitychange", handleVisibilityChange);
+    };
+  }, [showPdf, pdfSessionId]);
 
   // ⭐ rating summary values - memoized
   const ratingData = useMemo(() => {
@@ -759,14 +850,17 @@ export default function BookDetail() {
                 <PdfViewer
                   pdfUrl={book.pdf}
                   fileName={`${book.name}.pdf`}
-                  onClose={() => setShowPdf(false)}
+                  onClose={handlePdfClose}
+                  onLoadSuccess={handlePdfLoadSuccess}
+                  onPageChange={handlePdfPageChange}
+                  onDownload={handlePdfDownload}
                 />
               </div>
               <div className="absolute top-4 right-4">
                 <Button
                   variant="ghost"
                   size="icon"
-                  onClick={() => setShowPdf(false)}
+                  onClick={handlePdfClose}
                   className="rounded-xl bg-white/80 hover:bg-red-50 hover:text-red-500 transition-colors shadow-md"
                   aria-label="Close PDF preview"
                 >
