@@ -26,7 +26,9 @@ import dynamic from "next/dynamic";
 const BookModel = dynamic(() => import("@/components/ecommarce/book-model"), {
   ssr: false,
 });
-import PdfViewer from "@/components/ecommarce/pdf-viewer";
+const PdfViewer = dynamic(() => import("@/components/ecommarce/pdf-viewer"), {
+  ssr: false,
+});
 import RelatedBooks from "@/components/ecommarce/related-books";
 import BookReviews from "@/components/ecommarce/book-reviews";
 import { useCart } from "@/components/ecommarce/CartContext";
@@ -516,7 +518,7 @@ export default function BookDetail() {
               </p>
             </div>
 
-<div>
+            <div>
               {/* Quantity & Actions */}
               <div className="space-y-4">
                 {/* Quantity Selector */}
@@ -740,7 +742,7 @@ export default function BookDetail() {
             aria-modal="true"
             aria-labelledby="pdf-title"
           >
-            <div className="bg:white rounded-2xl w-full max-w-4xl h-[80vh] overflow-hidden shadow-2xl">
+            <div className="bg-white rounded-2xl w-full max-w-4xl h-[80vh] overflow-hidden shadow-2xl relative">
               <div className="flex justify-between items-center p-6 border-b border-[#5FA3A3]/30">
                 <h3
                   id="pdf-title"
@@ -756,6 +758,7 @@ export default function BookDetail() {
               <div className="h-[calc(80vh-80px)]">
                 <PdfViewer
                   pdfUrl={book.pdf}
+                  fileName={`${book.name}.pdf`}
                   onClose={() => setShowPdf(false)}
                 />
               </div>
@@ -764,10 +767,10 @@ export default function BookDetail() {
                   variant="ghost"
                   size="icon"
                   onClick={() => setShowPdf(false)}
-                  className="rounded-xl bg:white/80 hover:bg-red-50 hover:text-red-500 transition-colors shadow-md"
+                  className="rounded-xl bg-white/80 hover:bg-red-50 hover:text-red-500 transition-colors shadow-md"
                   aria-label="Close PDF preview"
                 >
-                  <X className="h-5 w-5" />
+                  <X className="h-5 w-5 text-red-600" />
                 </Button>
               </div>
             </div>

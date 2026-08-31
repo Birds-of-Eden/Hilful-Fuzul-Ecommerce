@@ -1,11 +1,26 @@
 "use client";
 
-import { useState, useEffect } from "react";
+import { useState, useEffect, useCallback } from "react";
+import { Document, Page, pdfjs } from "react-pdf";
+import "react-pdf/dist/Page/AnnotationLayer.css";
+import "react-pdf/dist/Page/TextLayer.css";
 import { Button } from "@/components/ui/button";
-import { Loader2, X } from "lucide-react";
+import {
+  Loader2,
+  X,
+  ZoomIn,
+  ZoomOut,
+  ChevronLeft,
+  ChevronRight,
+  Download,
+  RotateCw,
+} from "lucide-react";
+
+pdfjs.GlobalWorkerOptions.workerSrc = "/pdf.worker.min.mjs";
 
 interface PdfViewerProps {
   pdfUrl?: string;
+  fileName?: string;
   onClose?: () => void;
 }
 
@@ -17,41 +32,47 @@ const MessageOverlay = ({ children }: { children: React.ReactNode }) => (
   </div>
 );
 
-export default function PdfViewer({ pdfUrl, onClose }: PdfViewerProps) {
-  const [isLoading, setIsLoading] = useState<boolean>(true);
-  const [error, setError] = useState<string | null>(null);
+const MIN_SCALE = 0.5;
+const MAX_SCALE = 3;
+const SCALE_STEP = 0.25;
+
+export default function PdfViewer({ pdfUrl, fileName, onClose }: PdfViewerProps) {
   const [isClient, setIsClient] = useState(false);
-  const [isPdfLoaded, setIsPdfLoaded] = useState(false);
+  const [isLoading, setIsLoading] = useState(true);
+  const [error, setError] = useState<string | null>(null);
+  const [numPages, setNumPages] = useState<number>(0);
+  const [pageNumber, setPageNumber] = useState(1);
+  const [scale, setScale] = useState(1);
+  const [rotation, setRotation] = useState(0);
 
   useEffect(() => {
     setIsClient(true);
   }, []);
 
   useEffect(() => {
-    if (pdfUrl && isClient) {
-      setIsLoading(true);
-      setError(null);
-      setIsPdfLoaded(false);
+    setIsLoading(true);
+    setError(null);
+    setNumPages(0);
+    setPageNumber(1);
+    setScale(1);
+    setRotation(0);
+  }, [pdfUrl]);
 
-      const timer = setTimeout(() => {
-        setIsLoading(false);
-      }, 500);
-
-      return () => clearTimeout(timer);
-    }
-  }, [pdfUrl, isClient]);
-
-  const handleIframeLoad = () => {
-    setIsPdfLoaded(true);
+  const handleLoadSuccess = useCallback(({ numPages }: { numPages: number }) => {
+    setNumPages(numPages);
     setIsLoading(false);
-  };
+  }, []);
 
-  const handleIframeError = () => {
-    setError(
-      "পিডিএফ ফাইল লোড করা যায়নি। ফাইল লিঙ্ক বা CORS সেটিংস যাচাই করুন।"
-    );
+  const handleLoadError = useCallback(() => {
+    setError("পিডিএফ ফাইল লোড করা যায়নি। ফাইল লিঙ্ক যাচাই করুন।");
     setIsLoading(false);
-  };
+  }, []);
+
+  const zoomIn = () => setScale((s) => Math.min(MAX_SCALE, +(s + SCALE_STEP).toFixed(2)));
+  const zoomOut = () => setScale((s) => Math.max(MIN_SCALE, +(s - SCALE_STEP).toFixed(2)));
+  const rotate = () => setRotation((r) => (r + 90) % 360);
+  const prevPage = () => setPageNumber((p) => Math.max(1, p - 1));
+  const nextPage = () => setPageNumber((p) => Math.min(numPages, p + 1));
 
   if (!isClient) {
     return (
@@ -66,44 +87,100 @@ export default function PdfViewer({ pdfUrl, onClose }: PdfViewerProps) {
       <MessageOverlay>
         <div className="relative">
           <div className="flex flex-col gap-2 mr-2">
-          <p className="text-red-600 font-semibold">পিডিএফ URL পাওয়া যায়নি</p>
-          <p className="text-gray-500 text-sm mt-1">
-            অনুগ্রহ করে একটি সঠিক ফাইল লিঙ্ক দিন।
-          </p>
+            <p className="text-red-600 font-semibold">পিডিএফ URL পাওয়া যায়নি</p>
+            <p className="text-gray-500 text-sm mt-1">
+              অনুগ্রহ করে একটি সঠিক ফাইল লিঙ্ক দিন।
+            </p>
           </div>
           <div
             onClick={onClose}
-            className="absolute -top-2 -right-2 bg-red-500 hover:bg-red-600 p-2 shadow-md rounded-full"
+            className="absolute -top-2 -right-2 bg-red-500 hover:bg-red-600 p-2 shadow-md rounded-full cursor-pointer"
             aria-label="Close PDF viewer"
           >
-            <X className="h-4 w-4" />
+            <X className="h-4 w-4 text-white" />
           </div>
         </div>
       </MessageOverlay>
     );
   }
 
-  // ✅ ONLY change: hide toolbar/download in most browsers
-  const viewerUrl = pdfUrl.includes("#")
-    ? pdfUrl
-    : `${pdfUrl}#toolbar=0&navpanes=0&scrollbar=0`;
-
   return (
-    <div className="h-full w-full flex flex-col p-4 bg-gray-50 rounded-lg shadow-inner">
-      <div className="flex gap-3 mb-4 flex-wrap justify-center p-2 bg-white rounded-lg shadow-md border-b border-gray-200">
-        <p className="text-sm text-gray-500 italic">
-          আপনার ব্রাউজার স্বয়ংক্রিয়ভাবে পৃষ্ঠা এবং জুম নিয়ন্ত্রণ করবে।
-        </p>
+    <div className="h-full w-full flex flex-col bg-gray-50 rounded-lg shadow-inner overflow-hidden">
+      {/* Toolbar */}
+      <div className="flex items-center gap-1 sm:gap-2 flex-wrap justify-center p-2 bg-white rounded-t-lg shadow-md border-b border-gray-200 z-10">
+        <Button
+          variant="ghost"
+          size="icon"
+          onClick={prevPage}
+          disabled={pageNumber <= 1}
+          aria-label="Previous page"
+        >
+          <ChevronLeft className="h-4 w-4" />
+        </Button>
+
+        <span className="text-sm text-gray-700 font-medium min-w-[70px] text-center select-none">
+          {numPages ? `${pageNumber} / ${numPages}` : "..."}
+        </span>
+
+        <Button
+          variant="ghost"
+          size="icon"
+          onClick={nextPage}
+          disabled={pageNumber >= numPages}
+          aria-label="Next page"
+        >
+          <ChevronRight className="h-4 w-4" />
+        </Button>
+
+        <div className="w-px h-6 bg-gray-200 mx-1" />
+
+        <Button
+          variant="ghost"
+          size="icon"
+          onClick={zoomOut}
+          disabled={scale <= MIN_SCALE}
+          aria-label="Zoom out"
+        >
+          <ZoomOut className="h-4 w-4" />
+        </Button>
+
+        <span className="text-sm text-gray-700 font-medium min-w-[48px] text-center select-none">
+          {Math.round(scale * 100)}%
+        </span>
+
+        <Button
+          variant="ghost"
+          size="icon"
+          onClick={zoomIn}
+          disabled={scale >= MAX_SCALE}
+          aria-label="Zoom in"
+        >
+          <ZoomIn className="h-4 w-4" />
+        </Button>
+
+        <div className="w-px h-6 bg-gray-200 mx-1" />
+
+        <Button variant="ghost" size="icon" onClick={rotate} aria-label="Rotate page">
+          <RotateCw className="h-4 w-4" />
+        </Button>
+
+        <a
+          href={pdfUrl}
+          download={fileName || true}
+          className="inline-flex items-center justify-center h-9 w-9 rounded-md hover:bg-gray-100 transition-colors text-[#0E4B4B]"
+          aria-label="Download PDF"
+        >
+          <Download className="h-4 w-4" />
+        </a>
       </div>
 
-      <div className="flex-1 relative overflow-hidden w-full flex justify-center items-start pt-0 custom-scrollbar rounded-xl border-4 border-gray-200 shadow-xl">
+      {/* Viewer */}
+      <div className="flex-1 relative overflow-auto w-full flex justify-center items-start p-4 custom-scrollbar">
         {isLoading && (
           <MessageOverlay>
             <div className="flex flex-col items-center">
               <Loader2 className="h-8 w-8 animate-spin text-blue-600" />
-              <p className="mt-3 text-gray-700 font-medium">
-                পিডিএফ লোড হচ্ছে...
-              </p>
+              <p className="mt-3 text-gray-700 font-medium">পিডিএফ লোড হচ্ছে...</p>
             </div>
           </MessageOverlay>
         )}
@@ -125,19 +202,21 @@ export default function PdfViewer({ pdfUrl, onClose }: PdfViewerProps) {
           </MessageOverlay>
         )}
 
-        <iframe
-          src={viewerUrl}
-          title="PDF Viewer"
-          width="100%"
-          height="100%"
-          style={{
-            border: "none",
-            visibility: isPdfLoaded ? "visible" : "hidden",
-          }}
-          onLoad={handleIframeLoad}
-          onError={handleIframeError}
-          className="w-full h-full"
-        />
+        <Document
+          file={pdfUrl}
+          onLoadSuccess={handleLoadSuccess}
+          onLoadError={handleLoadError}
+          loading={null}
+          error={null}
+        >
+          <Page
+            pageNumber={pageNumber}
+            scale={scale}
+            rotate={rotation}
+            className="shadow-xl"
+            loading={null}
+          />
+        </Document>
       </div>
     </div>
   );
