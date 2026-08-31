@@ -795,7 +795,7 @@ export default function BookDetail() {
         {/* Modal Overlays */}
         {showModel && (
           <div
-            className="fixed inset-0 bg-black/50 z-50 flex items-center justify-center p-4"
+            className="fixed inset-0 z-50 flex items-center justify-center bg-black/65 p-0 backdrop-blur-sm sm:p-3"
             role="dialog"
             aria-modal="true"
             aria-labelledby="model-title"
@@ -833,20 +833,29 @@ export default function BookDetail() {
             aria-modal="true"
             aria-labelledby="pdf-title"
           >
-            <div className="bg-white rounded-2xl w-full max-w-4xl h-[80vh] overflow-hidden shadow-2xl relative">
-              <div className="flex justify-between items-center p-6 border-b border-[#5FA3A3]/30">
+            <div className="relative flex h-[100dvh] w-full flex-col overflow-hidden bg-white shadow-2xl sm:h-[94dvh] sm:max-w-6xl sm:rounded-2xl">
+              <div className="flex h-14 shrink-0 items-center justify-between gap-3 border-b border-[#5FA3A3]/30 bg-white px-3 sm:h-16 sm:px-5">
                 <h3
                   id="pdf-title"
-                  className="font-bold text-xl text-[#0D1414] flex items-center gap-2"
+                  className="flex min-w-0 items-center gap-2 font-bold text-[#0D1414] sm:text-lg"
                 >
                   <BookOpen
-                    className="h-5 w-5 text-[#0E4B4B]"
+                    className="h-5 w-5 shrink-0 text-[#0E4B4B]"
                     aria-hidden="true"
                   />
-                  PDF প্রিভিউ - {book.name}
+                  <span className="truncate">PDF প্রিভিউ — {book.name}</span>
                 </h3>
+                <Button
+                  variant="ghost"
+                  size="icon"
+                  onClick={handlePdfClose}
+                  className="h-9 w-9 shrink-0 rounded-full bg-red-50 text-red-600 shadow-sm hover:bg-red-100 hover:text-red-700"
+                  aria-label="PDF প্রিভিউ বন্ধ করুন"
+                >
+                  <X className="h-5 w-5" />
+                </Button>
               </div>
-              <div className="h-[calc(80vh-80px)]">
+              <div className="min-h-0 flex-1">
                 <PdfViewer
                   pdfUrl={book.pdf}
                   fileName={`${book.name}.pdf`}
@@ -855,17 +864,6 @@ export default function BookDetail() {
                   onPageChange={handlePdfPageChange}
                   onDownload={handlePdfDownload}
                 />
-              </div>
-              <div className="absolute top-4 right-4">
-                <Button
-                  variant="ghost"
-                  size="icon"
-                  onClick={handlePdfClose}
-                  className="rounded-xl bg-white/80 hover:bg-red-50 hover:text-red-500 transition-colors shadow-md"
-                  aria-label="Close PDF preview"
-                >
-                  <X className="h-5 w-5 text-red-600" />
-                </Button>
               </div>
             </div>
           </div>

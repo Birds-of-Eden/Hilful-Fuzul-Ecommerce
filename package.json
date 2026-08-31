@@ -8,6 +8,7 @@
     "start": "next start",
     "lint": "eslint .",
     "email": "email dev",
+    "backfill:pdfs": "ts-node --project scripts/tsconfig.json scripts/backfill-product-pdfs.ts",
     "postinstall": "copyfiles -f node_modules/pdfjs-dist/build/pdf.worker.min.mjs public"
   },
   "prisma": {

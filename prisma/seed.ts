@@ -156,10 +156,35 @@ async function main() {
       ? publisherNameToId.get(p.publisher.name)
       : undefined;
 
+    if (!p.category || typeof p.category === "string") {
+      console.warn(`Category missing for product: ${p.name}`);
+      continue;
+    }
+
     const categoryId = categoryNameToId.get(p.category.name);
 
     if (!categoryId) {
       console.warn(`⚠️ Category missing for product: ${p.name}`);
+      continue;
+    }
+
+    if (
+      p.price === "" ||
+      p.original_price === "" ||
+      p.discount === "" ||
+      p.stock === ""
+    ) {
+      console.warn(`Pricing or stock missing for product: ${p.name}`);
+      continue;
+    }
+
+    const price = Number(p.price);
+    const originalPrice = Number(p.original_price);
+    const discount = Number(p.discount);
+    const stock = Number(p.stock);
+
+    if (![price, originalPrice, discount, stock].every(Number.isFinite)) {
+      console.warn(`Invalid pricing or stock for product: ${p.name}`);
       continue;
     }
 
@@ -173,12 +198,13 @@ async function main() {
         publisherId,
         categoryId,
         description: p.description ?? "",
-        price: p.price,
-        original_price: p.original_price ?? null,
-        discount: p.discount ?? 0,
-        stock: p.stock ?? 0,
+        price,
+        original_price: originalPrice,
+        discount,
+        stock,
         available: true,
         image: p.image ?? null,
+        pdf: p.pdf || null,
       },
       create: {
         name: p.name,
@@ -187,13 +213,14 @@ async function main() {
         publisherId,
         categoryId,
         description: p.description ?? "",
-        price: p.price,
-        original_price: p.original_price ?? null,
-        discount: p.discount ?? 0,
-        stock: p.stock ?? 0,
+        price,
+        original_price: originalPrice,
+        discount,
+        stock,
         available: true,
         image: p.image ?? null,
         gallery: [],
+        pdf: p.pdf || null,
       },
     });
 
